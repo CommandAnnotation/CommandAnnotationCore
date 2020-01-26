@@ -30,12 +30,12 @@
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>src</sourceDirectory>
+        <directory>src</directory>
         <resources>
             <resource>
                 <directory>resource</directory>
                 <includes>
-                    <include>**/*.yml</include>
+                    <include>*.yml</include>
                 </includes>
             </resource>
         </resources>
