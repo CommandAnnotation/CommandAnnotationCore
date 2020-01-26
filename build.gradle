@@ -7,15 +7,10 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 sourceSets {
-    external {
+    main {
         java {
             srcDir "$projectDir/.."
             include "src/main/java/*"
-        }
-    }
-    main {
-        java {
-            compileClasspath += external.classes
         }
     }
 }
