@@ -6,6 +6,7 @@
     <properties>
         <src.dir>src/main/java</src.dir>
     </properties>
+
     <repositories>
         <!-- This adds the Spigot Maven repository to the build -->
         <repository>
@@ -34,7 +35,39 @@
     </dependencies>
     <build>
         <sourceDirectory>${src.dir}</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>
+                    src/main/resources
+                </directory>
+                <targetPath>
+                    src/main/java
+                </targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.java</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <includes>
+                        <include>**/*.class</include>
+                        <include>*.yml</include>
+                    </includes>
+                    <excludes>
+                        <exclude>maven/*</exclude>
+                        <exclude>META-INF/*</exclude>
+                    </excludes>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -53,6 +86,7 @@
                     </descriptorRefs>
                     <finalName>CommandAnnotation v${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
+
                 </configuration>
                 <executions>
                     <execution>
