@@ -8,9 +8,11 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 sourceSets {
     main {
+        resources {
+            srcDirs "src/main/resources", "src/main/java"
+        }
         java {
-            srcDir "$projectDir"
-            include "src/main/java/*"
+            include "src/main/java"
         }
     }
 }
