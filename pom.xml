@@ -30,15 +30,7 @@
         </dependency>
     </dependencies>
     <build>
-        <directory>src</directory>
-        <resources>
-            <resource>
-                <directory>resource</directory>
-                <includes>
-                    <include>*.yml</include>
-                </includes>
-            </resource>
-        </resources>
+
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
