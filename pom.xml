@@ -30,25 +30,16 @@
         </dependency>
     </dependencies>
     <build>
-
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
                 <configuration>
-                    <debug>true</debug>
-                    <optimize>false</optimize>
-                    <showDeprecation>true</showDeprecation>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <classesDirectory>src</classesDirectory>
-                </configuration>
-            </plugin>
         </plugins>
-
     </build>
 </project>
