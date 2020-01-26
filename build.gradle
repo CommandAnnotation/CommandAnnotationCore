@@ -9,7 +9,7 @@ sourceCompatibility = 1.8
 sourceSets {
     main {
         java {
-            srcDir "$projectDir/.."
+            srcDir "$projectDir"
             include "src/main/java/*"
         }
     }
