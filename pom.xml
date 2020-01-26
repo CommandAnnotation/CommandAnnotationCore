@@ -3,6 +3,9 @@
     <artifactId>CommandAnnotation</artifactId>
     <version>1.1</version>
     <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <src.dir>src/main/java</src.dir>
+    </properties>
     <repositories>
         <!-- This adds the Spigot Maven repository to the build -->
         <repository>
@@ -30,7 +33,7 @@
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
+        <sourceDirectory>${src.dir}</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
