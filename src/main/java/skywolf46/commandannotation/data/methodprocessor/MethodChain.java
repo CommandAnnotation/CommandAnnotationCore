@@ -1,0 +1,66 @@
+package skywolf46.commandannotation.data.methodprocessor;
+
+import skywolf46.commandannotation.data.autocomplete.AutoCompleteSupplier;
+import skywolf46.commandannotation.data.methodprocessor.exceptional.ExceptionStack;
+import skywolf46.commandannotation.util.ParameterMatchedInvoker;
+import skywolf46.commandannotation.util.ParameterStorage;
+
+public class MethodChain {
+    private ClassData parentData;
+    private ExceptionalHandler handler = new ExceptionalHandler();
+    private MethodChain redirection = null;
+    private AutoCompleteSupplier defSupplier;
+    private ParameterMatchedInvoker invoker;
+
+    public MethodChain(ClassData parent, ParameterMatchedInvoker invoker) {
+        this.parentData = parent;
+        this.invoker = invoker;
+    }
+
+    public void invoke(ParameterStorage storage) {
+        try {
+            invoker.invoke(storage);
+        } catch (Throwable ex) {
+//            System.out.println("Handle?");
+            handleException(ex, storage);
+        }
+    }
+
+    public void handleException(Throwable ex, ParameterStorage storage) {
+        ExceptionStack stack = new ExceptionStack();
+        ex = handler.handle(ex, storage, stack);
+        if (ex != null) {
+            parentData.handle(ex, storage, stack);
+        }
+    }
+
+    public ExceptionalHandler getHandler() {
+        return handler;
+    }
+
+    public void setHandler(ExceptionalHandler handler) {
+        this.handler = handler;
+    }
+
+    public MethodChain getRedirection() {
+        return redirection;
+    }
+
+    public void setRedirection(MethodChain redirection) {
+        this.redirection = redirection;
+    }
+
+    public AutoCompleteSupplier getDefSupplier() {
+        return defSupplier;
+    }
+
+    public void setDefSupplier(AutoCompleteSupplier defSupplier) {
+        this.defSupplier = defSupplier;
+    }
+
+    public static void main(String[] args) {
+        ClassData cd = new ClassData();
+        MethodChain mc = new MethodChain(cd, null);
+        mc.handleException(new Exception(), new ParameterStorage());
+    }
+}
