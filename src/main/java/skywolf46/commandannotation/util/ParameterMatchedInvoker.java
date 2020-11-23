@@ -17,8 +17,8 @@ public class ParameterMatchedInvoker {
     }
 
 
-    public void invoke(ParameterStorage storage) throws Throwable {
-        matcher.invoke(storage);
+    public <T> T invoke(ParameterStorage storage) throws Throwable {
+        return (T) matcher.invoke(storage);
     }
 
     public Method getMethod() {
@@ -46,7 +46,7 @@ public class ParameterMatchedInvoker {
             System.out.println(matched);
         }
 
-        public void invoke(ParameterStorage storage) throws Throwable {
+        public Object invoke(ParameterStorage storage) throws Throwable {
             Object[] params = new Object[paramLength];
             // 1차 - 네임드 파라미터 적용
             for (int i = 0; i < paramLength; i++) {
@@ -90,12 +90,13 @@ public class ParameterMatchedInvoker {
             System.out.println(Arrays.toString(params));
             // 최종 - 메서드 실행
             try {
-                mtd.invoke(null, params);
+                return mtd.invoke(null, params);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
                 throw e.getCause();
             }
+            return null;
         }
     }
 

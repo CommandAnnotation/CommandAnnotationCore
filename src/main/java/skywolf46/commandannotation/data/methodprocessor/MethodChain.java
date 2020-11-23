@@ -17,13 +17,14 @@ public class MethodChain {
         this.invoker = invoker;
     }
 
-    public void invoke(ParameterStorage storage) {
+    public <T> T invoke(ParameterStorage storage) {
         try {
-            invoker.invoke(storage);
+            return invoker.invoke(storage);
         } catch (Throwable ex) {
 //            System.out.println("Handle?");
             handleException(ex, storage);
         }
+        return null;
     }
 
     public void handleException(Throwable ex, ParameterStorage storage) {
@@ -32,6 +33,10 @@ public class MethodChain {
         if (ex != null) {
             parentData.handle(ex, storage, stack);
         }
+    }
+
+    public ParameterMatchedInvoker getInvoker() {
+        return invoker;
     }
 
     public ExceptionalHandler getHandler() {
@@ -59,7 +64,7 @@ public class MethodChain {
     }
 
     public static void main(String[] args) {
-        ClassData cd = new ClassData();
+        ClassData cd = new ClassData(new GlobalData());
         MethodChain mc = new MethodChain(cd, null);
         mc.handleException(new Exception(), new ParameterStorage());
     }
