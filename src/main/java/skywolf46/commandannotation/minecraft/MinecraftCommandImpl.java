@@ -30,9 +30,7 @@ public class MinecraftCommandImpl extends Command {
         CommandArgument arg = new CommandArgument(storage, s, strings, key);
         storage.set(arg);
         MinecraftCommandImpl implt = this;
-        int index = 0;
         for (int i = 0; i < strings.length; i++) {
-            System.out.println(implt.chainSubCommands.keySet());
             if (implt.chainSubCommands.containsKey(strings[i])) {
                 implt = implt.chainSubCommands.get(strings[i]);
                 arg.nextPointer(key);
@@ -51,7 +49,6 @@ public class MinecraftCommandImpl extends Command {
                 impl = impl.chainSubCommands.get(args[i]);
             else break;
         }
-        System.out.println(impl.chainSubCommands.keySet());
         long key = System.currentTimeMillis();
         ParameterStorage stor = new ParameterStorage();
         CommandArgument arg = new CommandArgument(stor, alias, args, key);
@@ -67,7 +64,6 @@ public class MinecraftCommandImpl extends Command {
         if (impl.chain != null) {
             AutoCompleteSupplier sup = impl.chain.getCompleteSupplier();
             if (sup != null) {
-                System.out.println("Sup not null");
                 sup.editCompletion(stor, completer);
             }
         }

@@ -18,7 +18,6 @@ public class GlobalData {
         ex = defaultHandler.handle(ex, st, stack);
         if (ex != null) {
             ex.printStackTrace();
-            System.out.println("Not handled");
         }
 
     }

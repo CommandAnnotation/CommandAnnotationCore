@@ -70,8 +70,6 @@ public class ParameterMatchedInvoker {
             for (Map.Entry<Class, List<Integer>> cl : matched.entrySet()) {
                 List<Integer> ri = cl.getValue();
                 List<Object> slot = storage.getAll(cl.getKey());
-                System.out.println(slot);
-                System.out.println(ri);
                 for (int i = 0; i < ri.size(); i++) {
                     if (slot.size() <= i) {
                         if (cl.getKey().isPrimitive()) {
@@ -80,13 +78,10 @@ public class ParameterMatchedInvoker {
                             params[ri.get(i)] = null;
                         }
                     } else {
-                        System.out.println("Setting " + ri.get(i) + " to " + slot.get(i));
-                        params[ri.get(i)] = slot.get(i);
-                        System.out.println("Params=" + Arrays.toString(params));
+                         params[ri.get(i)] = slot.get(i);
                     }
                 }
             }
-            System.out.println(Arrays.toString(params));
             // 최종 - 메서드 실행
             try {
                 return mtd.invoke(null, params);

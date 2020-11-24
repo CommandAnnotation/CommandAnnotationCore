@@ -144,7 +144,6 @@ public class ClassData {
                             orig.getGlobal().registerAutoCompleteProvider(cplt.value(), sup);
                         if (mtd.getAnnotation(ApplyClass.class) != null) {
                             orig.setDefaultCompleter(sup);
-                            System.out.println("Applying autocomplete");
                         }
 
                         if (mtd.getAnnotation(ApplyGlobal.class) != null) {
