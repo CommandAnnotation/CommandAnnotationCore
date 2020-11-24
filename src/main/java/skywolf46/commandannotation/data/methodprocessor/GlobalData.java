@@ -47,4 +47,9 @@ public class GlobalData {
     public void setDefaultCompleter(AutoCompleteSupplier sup) {
         this.defSupplier = sup;
     }
+
+    public AutoCompleteSupplier getAutoCompleteSupplier() {
+        return defSupplier;
+    }
+
 }

@@ -50,6 +50,8 @@ public class ParameterStorage {
 
     public void set(Object o) {
         ClassUtil.iterateParentClass(o.getClass(), cl -> {
+            if (cl.equals(Object.class))
+                return;
             List<Object> ri = new ArrayList<>();
             ri.add(o);
             map.put(cl, ri);

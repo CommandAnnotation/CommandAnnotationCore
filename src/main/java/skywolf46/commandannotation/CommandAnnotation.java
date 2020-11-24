@@ -1,183 +1,112 @@
 package skywolf46.commandannotation;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.bukkit.help.HelpMap;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.EulerAngle;
+import skywolf46.commandannotation.annotations.autocomplete.AutoCompleteProvider;
+import skywolf46.commandannotation.annotations.common.ApplyClass;
 import skywolf46.commandannotation.annotations.legacy.MinecraftCommand;
-
+import skywolf46.commandannotation.data.command.CommandArgument;
+import skywolf46.commandannotation.data.methodprocessor.ClassData;
+import skywolf46.commandannotation.data.methodprocessor.GlobalData;
+import skywolf46.commandannotation.minecraft.MinecraftCommandImpl;
+import skywolf46.commandannotation.util.AutoCompleteUtil;
+import skywolf46.commandannotation.util.JarUtil;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommandAnnotation extends JavaPlugin {
+    public static final String VERSION = "2.0.0-DEV";
     private static CommandAnnotation inst;
     private static AtomicBoolean isEnabled = new AtomicBoolean(false);
+    private static HashMap<String, Command> commands;
+    private static HashMap<String, MinecraftCommandImpl> impl = new HashMap<>();
+    private static HelpMap helps;
 
     @Override
     public void onEnable() {
-//        forceInit(this);
-//        MinecraftAbstractCommand.builder()
-//                .command("!test","/test9213","/!test!","/test test 123","!test test 13","!test test 14")
-//                .autoComplete(true)
-//                .child("wa", new MinecraftAbstractCommand() {
-//                    @Override
-//                    public boolean onCommand(CommandArgument args) {
-//                        args.get(Player.class).sendMessage("Test");
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public int getCommandPriority() {
-//                        return 0;
-//                    }
-//                })
-//                .child("test", new MinecraftAbstractCommand() {
-//                    @Override
-//                    public boolean onCommand(CommandArgument args) {
-//                        args.get(Player.class).sendMessage("Test complete");
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public int getCommandPriority() {
-//                        return 0;
-//                    }
-//
-//                    @Override
-//                    public boolean processAutoComplete(CommandArgument arg) {
-//                        return arg.get(CommandSender.class).hasPermission("test.perm");
-//                    }
-//
-//                    @Override
-//                    public void editCompletion(List<String> complete, String lastArgument) {
-//                        System.out.println("Test " + lastArgument);
-//                    }
-//                })
-//                .add(new MinecraftAbstractCommand() {
-//                    @Override
-//                    public boolean onCommand(CommandArgument args) {
-//                        args.get(Player.class).sendMessage("Main command");
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public int getCommandPriority() {
-//                        return 0;
-//                    }
-//
-//                    @Override
-//                    public void editCompletion(List<String> complete, String lastArgument) {
-//                        System.out.println("Test2 " + lastArgument);
-//                    }
-//                }).complete();
-//        scanPackage(getClass());
-//
+        System.out.println("Init");
+        init(this);
+    }
+
+    public static void init(JavaPlugin pl) {
+        if (!isEnabled.get()) {
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fInitialization...");
+//            Bukkit.getPluginManager().registerEvents();
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fExtracting command map...");
+            commands = AutoCompleteUtil.parseCommandMap();
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fExtracting help map...");
+            helps = AutoCompleteUtil.parseHelpMap();
+        }
+        isEnabled.set(true);
+        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fInitializing " + pl.getName());
+        GlobalData global = new GlobalData();
+        try {
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fCreating blueprint from " + pl.getName() + "...");
+            Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");
+            getFileMethod.setAccessible(true);
+            File file = (File) getFileMethod.invoke(pl);
+            List<Class> cls = JarUtil.getAllClass(file);
+            List<ClassData.ClassDataBlueprint> cbp = new ArrayList<>();
+            for (Class c : cls) {
+                ClassData.ClassDataBlueprint print = ClassData.create(global, c);
+                cbp.add(print);
+            }
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fProcessing blueprint from " + pl.getName() + "...");
+//            System.out.println(cbp);
+            for (ClassData.ClassDataBlueprint bp_ : cbp) {
+                ClassData cd = bp_.process();
+                for (String n : cd.getCommands()) {
+                    String[] xl = n.split(" ");
+                    impl.computeIfAbsent(xl[0], a -> {
+                        System.out.println("Command " + a);
+                        MinecraftCommandImpl impl = new MinecraftCommandImpl(n);
+                        commands.put(a, impl);
+                        return impl;
+                    }).insert(xl, cd.getChain(n));
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @MinecraftCommand("/test")
+    public static void test(Player p) {
+        p.sendMessage("Test!");
+    }
+
+
+    @MinecraftCommand("/test hello")
+    public static void test2(Player p) {
+        p.sendMessage("Test2!");
+    }
+
+
+    @MinecraftCommand("/test hello world")
+    public static void test3(Player p) {
+        p.sendMessage("Test3!");
+    }
+
+    @AutoCompleteProvider
+    @ApplyClass
+    public static void edit(List<String> test, CommandArgument arg) {
+        test.clear();
+        test.add("Yay");
+    }
+
+
+    @AutoCompleteProvider
+    public static void edit(){
 
     }
-//
-//    public static void forceInit(JavaPlugin pl) {
-//        if (isEnabled.get()) {
-//            loadFiles(pl);
-//            return;
-//        }
-//        isEnabled.set(true);
-//        Bukkit.getConsoleSender().sendMessage("§aProject commandannotation §7| §fStarting 1.4...");
-//        Bukkit.getPluginManager().registerEvents(new CommandListener(), pl);
-//        MinecraftCommandManager.injectPluginManager();
-//        try {
-//            ParameterIterator.registerParser(new String[]{"string"},String.class, new StringParser());
-//            ParameterIterator.registerParser(new String[]{"integer","int"},Integer.class, new IntegerParser());
-//            ParameterIterator.registerParser(new String[]{"float"},Float.class, new FloatParser());
-//            ParameterIterator.registerParser(new String[]{"double"},Double.class, new DoubleParser());
-//            ParameterIterator.registerParser(new String[]{"loc","location"},Location.class, new LocationParser());
-//
-//            ParameterIterator.registerParser(new String[]{"vec","vector"},Vector.class, new VectorParser());
-//            ParameterIterator.registerParser(new String[]{"world"},World.class, new WorldParser());
-//            ParameterIterator.registerParser(new String[]{"player"},Player.class, new PlayerParser());
-//            ParameterIterator.registerParser(new String[]{"offplayer","offlineplayer"},OfflinePlayer.class, new OfflinePlayerParser());
-//            ParameterIterator.registerParser(new String[]{"eulerangle","angle"},EulerAngle.class, new EulerAngleParser());
-//        } catch (Error ex) {
-//
-//        }
-//        Bukkit.getConsoleSender().sendMessage("§aProject commandannotation §7| §fSystem all green");
-//        loadFiles(pl);
-//    }
-//
-//    private static void loadFiles(JavaPlugin pl) {
-//        try {
-//            Bukkit.getConsoleSender().sendMessage("§aProject commandannotation §7| §fLoading class from plugin " + pl.getName() + "...");
-//            Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");
-//            getFileMethod.setAccessible(true);
-//            File file = (File) getFileMethod.invoke(pl);
-//            List<Class> cls = JarUtil.getAllClass(file);
-//            for (Class cl : cls) {
-//                List<MCReflectiveCommand> cmd = MCReflectiveCommand.parse(cl);
-//                if (cmd.size() > 0) {
-//                    Bukkit.getConsoleSender().sendMessage("§aProject commandannotation §7| §fFound " + cmd.size() + " command method from " + cl.getSimpleName() + ". Registering....");
-//                    cmd.forEach(MCReflectiveCommand::register);
-//                }
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
-//
-//    public static CommandAnnotation getInstance() {
-//        return inst;
-//    }
-//
-//    private static Vector<Class> list(ClassLoader CL)
-//            throws NoSuchFieldException, SecurityException,
-//            IllegalArgumentException, IllegalAccessException {
-//        Class CL_class = ClassLoader.class;
-//        java.lang.reflect.Field ClassLoader_classes_field = CL_class
-//                .getDeclaredField("classes");
-//        ClassLoader_classes_field.setAccessible(true);
-//        return (Vector) ClassLoader_classes_field.get(CL);
-//    }
-//
-//    public static void scanPackage(Class... classes) {
-//        try {
-//            for (Class c : classes) {
-////                if (!c.getName().startsWith(packageName))
-////                    continue;
-//                for (Method mtd : c.getMethods()) {
-//                    if (Modifier.isStatic(mtd.getModifiers())) {
-//                        MinecraftCommand mc = mtd.getAnnotation(MinecraftCommand.class);
-//                        if (mc != null) {
-//                            ReflectiveAction rf = new ReflectiveAction(mtd,
-//                                    new CommandAttribute(mc.command())
-//                                            .requireParameter(mc.requireParameter())
-//                                            .autoComplete(mc.autoComplete())
-//                                            .fallBack(mc.fallbackOnSubCommandNotExist())
-//                            );
-//                            for (String n : mc.command())
-//                                CommandStorage.registerCommand(n, rf, mc.fallbackOnSubCommandNotExist(), mc.useCommandEvent());
-//                        }
-//                    } else
-//                        continue;
-//                }
-//            }
-//        } catch (Exception ex) {
-//
-//        }
-//    }
-//
 
-    @MinecraftCommand(command = {"/?Test"})
-    public static void test(Player p, CommandSender cs) {
-        if (p == null)
-            cs.sendMessage("Player only command!");
-        else
-            p.sendMessage("Why so serious?");
-
-    }
 }

@@ -55,8 +55,8 @@ public class MethodChain {
         this.redirection = redirection;
     }
 
-    public AutoCompleteSupplier getDefSupplier() {
-        return defSupplier;
+    public AutoCompleteSupplier getCompleteSupplier() {
+        return defSupplier == null ? parentData.getSupplier() : defSupplier;
     }
 
     public void setDefSupplier(AutoCompleteSupplier defSupplier) {

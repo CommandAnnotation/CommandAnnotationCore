@@ -1,5 +1,6 @@
 package skywolf46.commandannotation.data.methodprocessor;
 
+import org.bukkit.Bukkit;
 import skywolf46.commandannotation.annotations.autocomplete.AutoCompleteProvider;
 import skywolf46.commandannotation.annotations.common.*;
 import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static skywolf46.commandannotation.CommandAnnotation.VERSION;
 
 public class ClassData {
     private ExceptionalHandler classHandler = new ExceptionalHandler();
@@ -35,6 +38,14 @@ public class ClassData {
             return;
         }
         getGlobal().handle(ex, st, stack);
+    }
+
+    public List<String> getCommands() {
+        return new ArrayList<>(chain.keySet());
+    }
+
+    public MethodChain getCommand(String name) {
+        return chain.get(name);
     }
 
     public static ClassDataBlueprint create(GlobalData global, Class cl) {
@@ -58,16 +69,16 @@ public class ClassData {
                     if (classApply) {
                         for (Class<? extends Throwable> ex : handler.value()) {
                             cd.classHandler.registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
+                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fRegistered class exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
                     }
                     if (applyGlobal)
-                        for (Class<? extends Throwable> ex : handler.value())
+                        for (Class<? extends Throwable> ex : handler.value()) {
                             global.getExceptionHandler().registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
+                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fRegistered global exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
+                        }
                 }
 
-                if (prov != null) {
-
-                }
             }
         }
         return bp;
@@ -77,6 +88,11 @@ public class ClassData {
     public MethodChain getChain(String name) {
         return chain.get(name);
     }
+
+    public AutoCompleteSupplier getSupplier() {
+        return defaultCompleter == null ? global.getAutoCompleteSupplier() : defaultCompleter;
+    }
+
 
     public static class ClassDataBlueprint {
         private List<Method> mtds = new ArrayList<>();
@@ -102,7 +118,7 @@ public class ClassData {
                     MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd));
                     Redirect red = mtd.getAnnotation(Redirect.class);
                     if (red != null) {
-                        System.err.println("AutoCompleteSupplier not supports redirection. Ignoring in method " + mtd.getName() + " at " + cl.getName());
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fAutoCompleteSupplier not supports redirection. Ignoring in method " + mtd.getName() + " at " + cl.getName());
                     }
                     ErrorRedirect errRed = mtd.getAnnotation(ErrorRedirect.class);
                     if (errRed != null) {
@@ -111,23 +127,24 @@ public class ClassData {
                             if (inv != null) {
                                 ExceptHandler handle = inv.getMethod().getAnnotation(ExceptHandler.class);
                                 if (handle == null)
-                                    System.err.println("Method " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
+                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
                                 else
                                     for (Class<? extends Throwable> ex : handle.value())
                                         chain.getHandler().registerExceptionHandler(ex, inv);
                             } else {
-                                System.err.println("Method " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
+                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
                             }
                         }
                     }
                     AutoCompleteSupplier sup = AutoCompleteSupplier.from(chain);
                     if (sup == null) {
-                        System.err.println("Method " + mtd.getName() + " in " + cl.getName() + " declared as AutoCompleteProvider, but return value is not List or array, and parameter not contains List. AutoCompleteProvider register denied.");
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " in " + cl.getName() + " declared as AutoCompleteProvider, but return value is not List or array, and parameter not contains List. AutoCompleteProvider register denied.");
                     } else {
                         if (!cplt.value().isEmpty())
                             orig.getGlobal().registerAutoCompleteProvider(cplt.value(), sup);
                         if (mtd.getAnnotation(ApplyClass.class) != null) {
                             orig.setDefaultCompleter(sup);
+                            System.out.println("Applying autocomplete");
                         }
 
                         if (mtd.getAnnotation(ApplyGlobal.class) != null) {
@@ -152,17 +169,19 @@ public class ClassData {
                             if (inv != null) {
                                 ExceptHandler handle = inv.getMethod().getAnnotation(ExceptHandler.class);
                                 if (handle == null)
-                                    System.err.println("Method " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
+                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
                                 else
                                     for (Class<? extends Throwable> ex : handle.value())
                                         chain.getHandler().registerExceptionHandler(ex, inv);
                             } else {
-                                System.err.println("Method " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
+                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
                             }
                         }
                     }
-                    for (String xi : cmd.command())
-                        orig.chain.put(xi, chain);
+                    for (String xi : cmd.value()) {
+                        orig.chain.put(xi.startsWith("/") ? xi.substring(1) : xi, chain);
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §aRegistered command " + xi + " from " + cl.getName());
+                    }
                 }
             }
             return orig;

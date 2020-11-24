@@ -96,8 +96,8 @@ public class JarUtil {
             while (entry.hasMoreElements()) {
                 JarEntry zf = entry.nextElement();
                 if (zf.getName().endsWith(".class") || zf.getName().endsWith(".kt")) {
-                    if (zf.getName().startsWith("skywolf46/commandannotation"))
-                        continue;
+//                    if (zf.getName().startsWith("skywolf46/commandannotation"))
+//                        continue;
 //                    System.out.println("Find : " + zf.getName());
 //                    System.out.println(zf.getName());
                     try {
@@ -110,7 +110,7 @@ public class JarUtil {
                         name = name.replace("/", ".");
                         lc.add(Class.forName(name));
                     } catch (Exception e) {
-                        e.printStackTrace();
+//                        e.printStackTrace();
                     }
                 }
             }

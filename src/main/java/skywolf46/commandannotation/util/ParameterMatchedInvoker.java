@@ -43,7 +43,6 @@ public class ParameterMatchedInvoker {
                     matched.computeIfAbsent(p.getType(), a -> new ArrayList<>()).add(i);
                 }
             }
-            System.out.println(matched);
         }
 
         public Object invoke(ParameterStorage storage) throws Throwable {
