@@ -1,6 +1,8 @@
 package skywolf46.commandannotation.data.methodprocessor;
 
 import org.bukkit.Bukkit;
+import skywolf46.commandannotation.CommandAnnotation;
+import skywolf46.commandannotation.abstraction.AbstractAnnotationApplicable;
 import skywolf46.commandannotation.annotations.autocomplete.AutoCompleteProvider;
 import skywolf46.commandannotation.annotations.common.*;
 import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
@@ -10,6 +12,7 @@ import skywolf46.commandannotation.data.methodprocessor.exceptional.ExceptionSta
 import skywolf46.commandannotation.util.ParameterMatchedInvoker;
 import skywolf46.commandannotation.util.ParameterStorage;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -112,6 +115,7 @@ public class ClassData {
                 throw new IllegalStateException("ClassData blueprint already used");
             }
             proceed.set(true);
+            List<AbstractAnnotationApplicable> app = new ArrayList<>();
             for (Method mtd : mtds) {
                 AutoCompleteProvider cplt = mtd.getAnnotation(AutoCompleteProvider.class);
                 if (cplt != null) {
@@ -140,6 +144,14 @@ public class ClassData {
                     if (sup == null) {
                         Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " in " + cl.getName() + " declared as AutoCompleteProvider, but return value is not List or array, and parameter not contains List. AutoCompleteProvider register denied.");
                     } else {
+                        app.add(chain);
+
+                        for (Class<? extends Annotation> anot : CommandAnnotation.getScanTargets()) {
+                            Annotation at = mtd.getAnnotation(anot);
+                            if (at == null)
+                                continue;
+//                            sup.getChain().addStarter(CommandAnnotation.getStarter(anot).onCreate(, orig.global)); TODO
+                        }
                         if (!cplt.value().isEmpty())
                             orig.getGlobal().registerAutoCompleteProvider(cplt.value(), sup);
                         if (mtd.getAnnotation(ApplyClass.class) != null) {
@@ -160,7 +172,14 @@ public class ClassData {
                     if (red != null) {
 
                     }
-
+                    for (Class<? extends Annotation> anot : CommandAnnotation.getScanTargets()) {
+                        Annotation at = mtd.getAnnotation(anot);
+                        if (at == null)
+                            continue;
+//                        chain.addStarter(CommandAnnotation.getStarter(anot).onCreate(chain, orig.global)); TODO
+                    }
+                    if (!app.contains(chain))
+                        app.add(chain);
                     ErrorRedirect errRed = mtd.getAnnotation(ErrorRedirect.class);
                     if (errRed != null) {
                         for (String x : errRed.value()) {
@@ -183,6 +202,13 @@ public class ClassData {
                     }
                 }
             }
+            for (AbstractAnnotationApplicable ap : app) {
+                ap.processBlueprint(this);
+            }
+            return orig;
+        }
+
+        public ClassData getClassData() {
             return orig;
         }
     }

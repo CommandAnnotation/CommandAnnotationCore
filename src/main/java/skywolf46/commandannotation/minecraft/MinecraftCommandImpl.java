@@ -9,7 +9,6 @@ import skywolf46.commandannotation.data.command.CommandArgument;
 import skywolf46.commandannotation.data.methodprocessor.MethodChain;
 import skywolf46.commandannotation.util.ParameterStorage;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +52,7 @@ public class MinecraftCommandImpl extends Command {
         ParameterStorage stor = new ParameterStorage();
         CommandArgument arg = new CommandArgument(stor, alias, args, key);
         stor.set(arg);
+        stor.add(sender);
         List<String> completer = impl.chainSubCommands.keySet().stream().filter(r -> args.length == 0 || args[args.length - 1].isEmpty() || r.toLowerCase().startsWith(args[args.length - 1].toLowerCase())).collect(Collectors.toList());
         if (impl.chainSubCommands.size() <= 0 && args.length > 0) {
             for (Player pl : Bukkit.getOnlinePlayers()) {

@@ -1,6 +1,5 @@
 package skywolf46.commandannotation.annotations.autocomplete;
 
-import skywolf46.commandannotation.abstraction.AbstractAutoCompleterProvider;
 //import skywolf46.commandannotation.autocompleter.OnlinePlayerCompleter;
 
 import java.lang.annotation.ElementType;

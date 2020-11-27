@@ -5,11 +5,8 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.help.HelpMap;
 import org.bukkit.plugin.java.JavaPlugin;
-import skywolf46.commandannotation.annotations.autocomplete.AutoCompleteProvider;
-import skywolf46.commandannotation.annotations.common.ApplyClass;
-import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
+import skywolf46.commandannotation.abstraction.AbstractCommandStarter;
 import skywolf46.commandannotation.annotations.legacy.MinecraftCommand;
-import skywolf46.commandannotation.data.command.CommandArgument;
 import skywolf46.commandannotation.data.methodprocessor.ClassData;
 import skywolf46.commandannotation.data.methodprocessor.GlobalData;
 import skywolf46.commandannotation.minecraft.MinecraftCommandImpl;
@@ -17,6 +14,7 @@ import skywolf46.commandannotation.util.AutoCompleteUtil;
 import skywolf46.commandannotation.util.JarUtil;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,12 +22,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommandAnnotation extends JavaPlugin {
-    public static final String VERSION = "2.0.1";
+    public static final String VERSION = "2.0.3";
     private static CommandAnnotation inst;
     private static AtomicBoolean isEnabled = new AtomicBoolean(false);
     private static HashMap<String, Command> commands;
     private static HashMap<String, MinecraftCommandImpl> impl = new HashMap<>();
     private static HelpMap helps;
+    private static HashMap<Class<? extends Annotation>, AbstractCommandStarter> scanTarget = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -76,6 +75,19 @@ public class CommandAnnotation extends JavaPlugin {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+    }
+
+    public static void registerScanTarget(Class<? extends Annotation> cl, AbstractCommandStarter starter) {
+        scanTarget.put(cl, starter);
+    }
+
+    public static List<Class<? extends Annotation>> getScanTargets() {
+        return new ArrayList<>(scanTarget.keySet());
+    }
+
+    public static AbstractCommandStarter getStarter(Class<? extends Annotation> anot){
+        return scanTarget.get(anot);
     }
 
 }

@@ -20,7 +20,7 @@ public class CommandTest {
     }
 
     @Mark("Test")
-    @MinecraftCommand(command = "/test")
+    @MinecraftCommand("/test")
     @AutoComplete("Test")
     public static void test2() throws Exception {
         throw new NullPointerException();

@@ -1,11 +1,12 @@
 package skywolf46.commandannotation.data.methodprocessor;
 
+import skywolf46.commandannotation.abstraction.AbstractAnnotationApplicable;
 import skywolf46.commandannotation.data.autocomplete.AutoCompleteSupplier;
 import skywolf46.commandannotation.data.methodprocessor.exceptional.ExceptionStack;
 import skywolf46.commandannotation.util.ParameterMatchedInvoker;
 import skywolf46.commandannotation.util.ParameterStorage;
 
-public class MethodChain {
+public class MethodChain extends AbstractAnnotationApplicable {
     private ClassData parentData;
     private ExceptionalHandler handler = new ExceptionalHandler();
     private MethodChain redirection = null;
@@ -19,6 +20,8 @@ public class MethodChain {
 
     public <T> T invoke(ParameterStorage storage) {
         try {
+            if (!super.canProcess(storage))
+                return null;
             return invoker.invoke(storage);
         } catch (Throwable ex) {
 //            System.out.println("Handle?");

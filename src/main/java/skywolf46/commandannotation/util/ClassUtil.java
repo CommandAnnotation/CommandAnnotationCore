@@ -13,8 +13,11 @@ public class ClassUtil {
         do {
 //            System.out.println("Class: " + c);
             runner.accept(c);
-            for (Class x : c.getInterfaces())
+            for (Class x : c.getInterfaces()) {
                 runner.accept(x);
-        } while (!(c = c.getSuperclass()).equals(OBJECT));
+                iterateParentClass(x, runner);
+            }
+            System.out.println(c);
+        } while ((c = c.getSuperclass()) != null && !c.equals(OBJECT));
     }
 }
