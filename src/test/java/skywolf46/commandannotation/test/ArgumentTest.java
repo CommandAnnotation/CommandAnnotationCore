@@ -1,5 +1,6 @@
 package skywolf46.commandannotation.test;
 
+
 import skywolf46.commandannotation.data.command.CommandArgument;
 import skywolf46.commandannotation.util.ParameterStorage;
 
@@ -17,11 +18,11 @@ public class ArgumentTest {
                 key
         );
         System.out.println(arg.get(0, arg.length()));
-        arg.nextPointer(key);
+        arg.nextPointer();
         System.out.println(arg.get(0, arg.length()));
-        arg.nextPointer(key);
+        arg.nextPointer();
         System.out.println(arg.get(0, arg.length()));
-        arg.nextPointer(key);
+        arg.nextPointer();
 //        System.out.println(arg.get(0));
 //        arg.nextPointer(key);
     }

@@ -15,6 +15,8 @@ import java.util.List;
 
 public class AutoCompleteUtil {
     public static List<String> fetchStarting(List<String> str, String start) {
+        if (start == null)
+            start = "";
         str = new ArrayList<>(str);
         Iterator<String> iter = str.iterator();
         while (iter.hasNext()) {

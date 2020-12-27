@@ -17,7 +17,6 @@ public class ClassUtil {
                 runner.accept(x);
                 iterateParentClass(x, runner);
             }
-            System.out.println(c);
         } while ((c = c.getSuperclass()) != null && !c.equals(OBJECT));
     }
 }

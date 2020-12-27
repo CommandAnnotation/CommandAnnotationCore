@@ -13,6 +13,12 @@ buildscript {
 group = "skywolf46"
 version = properties["version"] as String
 
+tasks {
+    processResources {
+        expand("version" to project.properties["version"])
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -20,7 +26,7 @@ repositories {
 dependencies {
     // java dependencies
     compileOnly(files("V:/API/Java/Minecraft/Bukkit/Spigot/Spigot 1.12.2.jar"))
-//    compileOnly(files("O:\\Servers\\우마공\\1.16 - 유튜브\\spigot-1.16.3.jar"))
+    testCompile(":main")
 }
 
 publishing {

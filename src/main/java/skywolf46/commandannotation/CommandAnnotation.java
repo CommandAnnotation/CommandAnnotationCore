@@ -22,33 +22,35 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommandAnnotation extends JavaPlugin {
-    public static final String VERSION = "2.0.3";
+
     private static CommandAnnotation inst;
     private static AtomicBoolean isEnabled = new AtomicBoolean(false);
     private static HashMap<String, Command> commands;
     private static HashMap<String, MinecraftCommandImpl> impl = new HashMap<>();
     private static HelpMap helps;
     private static HashMap<Class<? extends Annotation>, AbstractCommandStarter> scanTarget = new HashMap<>();
-
     @Override
     public void onEnable() {
+    }
 
+    public static String getVersion() {
+        return inst.getDescription().getVersion();
     }
 
     public static void init(JavaPlugin pl) {
         if (!isEnabled.get()) {
-            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fInitialization...");
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fInitialization...");
 //            Bukkit.getPluginManager().registerEvents();
-            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fExtracting command map...");
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fExtracting command map...");
             commands = AutoCompleteUtil.parseCommandMap();
-            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fExtracting help map...");
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fExtracting help map...");
             helps = AutoCompleteUtil.parseHelpMap();
         }
         isEnabled.set(true);
-        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fInitializing " + pl.getName());
+        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fInitializing " + pl.getName());
         GlobalData global = new GlobalData();
         try {
-            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fCreating blueprint from " + pl.getName() + "...");
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion()+ "§7 | §fCreating blueprint from " + pl.getName() + "...");
             Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");
             getFileMethod.setAccessible(true);
             File file = (File) getFileMethod.invoke(pl);
@@ -58,7 +60,7 @@ public class CommandAnnotation extends JavaPlugin {
                 ClassData.ClassDataBlueprint print = ClassData.create(global, c);
                 cbp.add(print);
             }
-            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fProcessing blueprint from " + pl.getName() + "...");
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fProcessing blueprint from " + pl.getName() + "...");
 //            System.out.println(cbp);
             for (ClassData.ClassDataBlueprint bp_ : cbp) {
                 ClassData cd = bp_.process();
@@ -86,7 +88,7 @@ public class CommandAnnotation extends JavaPlugin {
         return new ArrayList<>(scanTarget.keySet());
     }
 
-    public static AbstractCommandStarter getStarter(Class<? extends Annotation> anot){
+    public static AbstractCommandStarter getStarter(Class<? extends Annotation> anot) {
         return scanTarget.get(anot);
     }
 

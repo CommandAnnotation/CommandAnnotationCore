@@ -3,6 +3,7 @@ package skywolf46.commandannotation.data.methodprocessor;
 import org.bukkit.Bukkit;
 import skywolf46.commandannotation.CommandAnnotation;
 import skywolf46.commandannotation.abstraction.AbstractAnnotationApplicable;
+import skywolf46.commandannotation.annotations.autocomplete.AutoComplete;
 import skywolf46.commandannotation.annotations.autocomplete.AutoCompleteProvider;
 import skywolf46.commandannotation.annotations.common.*;
 import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static skywolf46.commandannotation.CommandAnnotation.VERSION;
+import static skywolf46.commandannotation.CommandAnnotation.getVersion;
 
 public class ClassData {
     private ExceptionalHandler classHandler = new ExceptionalHandler();
@@ -72,13 +73,13 @@ public class ClassData {
                     if (classApply) {
                         for (Class<? extends Throwable> ex : handler.value()) {
                             cd.classHandler.registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
-                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fRegistered class exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
+                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered class exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
                     }
                     if (applyGlobal)
                         for (Class<? extends Throwable> ex : handler.value()) {
                             global.getExceptionHandler().registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
-                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fRegistered global exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
+                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered global exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
                 }
 
@@ -122,7 +123,7 @@ public class ClassData {
                     MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd));
                     Redirect red = mtd.getAnnotation(Redirect.class);
                     if (red != null) {
-                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fAutoCompleteSupplier not supports redirection. Ignoring in method " + mtd.getName() + " at " + cl.getName());
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fAutoCompleteSupplier not supports redirection. Ignoring in method " + mtd.getName() + " at " + cl.getName());
                     }
                     ErrorRedirect errRed = mtd.getAnnotation(ErrorRedirect.class);
                     if (errRed != null) {
@@ -131,18 +132,18 @@ public class ClassData {
                             if (inv != null) {
                                 ExceptHandler handle = inv.getMethod().getAnnotation(ExceptHandler.class);
                                 if (handle == null)
-                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
+                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
                                 else
                                     for (Class<? extends Throwable> ex : handle.value())
                                         chain.getHandler().registerExceptionHandler(ex, inv);
                             } else {
-                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
+                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
                             }
                         }
                     }
                     AutoCompleteSupplier sup = AutoCompleteSupplier.from(chain);
                     if (sup == null) {
-                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " in " + cl.getName() + " declared as AutoCompleteProvider, but return value is not List or array, and parameter not contains List. AutoCompleteProvider register denied.");
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " in " + cl.getName() + " declared as AutoCompleteProvider, but return value is not List or array, and parameter not contains List. AutoCompleteProvider register denied.");
                     } else {
                         app.add(chain);
 
@@ -187,18 +188,27 @@ public class ClassData {
                             if (inv != null) {
                                 ExceptHandler handle = inv.getMethod().getAnnotation(ExceptHandler.class);
                                 if (handle == null)
-                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
+                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
                                 else
                                     for (Class<? extends Throwable> ex : handle.value())
                                         chain.getHandler().registerExceptionHandler(ex, inv);
                             } else {
-                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
+                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
                             }
                         }
                     }
+                    AutoComplete ac = mtd.getAnnotation(AutoComplete.class);
+                    if (ac != null) {
+                        AutoCompleteSupplier ad = orig.global.getAutoCompleteSupplier(ac.value());
+                        if (ad != null)
+                            chain.setDefSupplier(ad);
+                        else
+                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown autocomplete provider " + ac.value() + ", ignoring.");
+                    }
+
                     for (String xi : cmd.value()) {
                         orig.chain.put(xi.startsWith("/") ? xi.substring(1) : xi, chain);
-                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + VERSION + "§7 | §aRegistered command " + xi + " from " + cl.getName());
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §aRegistered command " + xi + " from " + cl.getName());
                     }
                 }
             }

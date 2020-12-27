@@ -109,13 +109,13 @@ public class JarUtil {
                         }
                         name = name.replace("/", ".");
                         lc.add(Class.forName(name));
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
 //                        e.printStackTrace();
                     }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return lc;
     }

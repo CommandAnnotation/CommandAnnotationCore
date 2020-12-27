@@ -32,7 +32,7 @@ public class MinecraftCommandImpl extends Command {
         for (int i = 0; i < strings.length; i++) {
             if (implt.chainSubCommands.containsKey(strings[i])) {
                 implt = implt.chainSubCommands.get(strings[i]);
-                arg.nextPointer(key);
+                arg.nextPointer();
             }
         }
         implt.invokeCommand(storage);
@@ -42,15 +42,17 @@ public class MinecraftCommandImpl extends Command {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
         MinecraftCommandImpl impl = this;
-        int i = 0;
-        for (; i < args.length; i++) {
-            if (impl.chainSubCommands.containsKey(args[i]))
-                impl = impl.chainSubCommands.get(args[i]);
-            else break;
-        }
         long key = System.currentTimeMillis();
         ParameterStorage stor = new ParameterStorage();
         CommandArgument arg = new CommandArgument(stor, alias, args, key);
+
+        int i = 0;
+        for (; i < args.length; i++) {
+            if (impl.chainSubCommands.containsKey(args[i])) {
+                impl = impl.chainSubCommands.get(args[i]);
+                arg.nextPointer();
+            } else break;
+        }
         stor.set(arg);
         stor.add(sender);
         List<String> completer = impl.chainSubCommands.keySet().stream().filter(r -> args.length == 0 || args[args.length - 1].isEmpty() || r.toLowerCase().startsWith(args[args.length - 1].toLowerCase())).collect(Collectors.toList());
@@ -71,6 +73,8 @@ public class MinecraftCommandImpl extends Command {
     }
 
     private void invokeCommand(ParameterStorage storage) {
+        if (chain == null)
+            return;
         chain.invoke(storage);
     }
 
