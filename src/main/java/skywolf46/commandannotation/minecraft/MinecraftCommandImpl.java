@@ -91,4 +91,8 @@ public class MinecraftCommandImpl extends Command {
             impl.chain = chain;
         }
     }
+
+    public void invokeSubCommand(CommandArgument arg) {
+
+    }
 }

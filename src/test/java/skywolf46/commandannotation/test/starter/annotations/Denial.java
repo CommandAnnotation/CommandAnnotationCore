@@ -1,4 +1,4 @@
-package skywolf46.commandannotation.annotations.minecraft;
+package skywolf46.commandannotation.test.starter.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,10 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = ElementType.METHOD)
-public @interface PermissionHandler {
-    String value();
-
-    String message() default "";
-
-    boolean skipCheckIfOperator() default true;
+public @interface Denial {
+    boolean isDenial();
 }

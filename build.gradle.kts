@@ -19,14 +19,16 @@ tasks {
     }
 }
 
+
+
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
     // java dependencies
-    compileOnly(files("V:/API/Java/Minecraft/Bukkit/Spigot/Spigot 1.12.2.jar"))
-    testCompile(":main")
+    implementation(files("V:/API/Java/Minecraft/Bukkit/Spigot/Spigot 1.12.2.jar"))
 }
 
 publishing {

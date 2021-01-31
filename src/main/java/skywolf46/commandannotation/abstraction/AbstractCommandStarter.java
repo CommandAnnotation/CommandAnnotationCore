@@ -12,9 +12,16 @@ public abstract class AbstractCommandStarter<X extends Annotation> {
 
     public abstract boolean canProcessCommand(ParameterStorage storage);
 
-    public abstract AbstractCommandStarter onCreate(X data, GlobalData gl);
+    public abstract AbstractCommandStarter<X> onCreate(X data, GlobalData gl);
 
-    public abstract void process(ClassData.ClassDataBlueprint blueprint, MethodChain currentChain);
+
+    public void onCommandDenied(ParameterStorage storage) {
+
+    }
+
+    public void process(ClassData.ClassDataBlueprint blueprint, MethodChain currentChain) {
+
+    }
 
 
 }

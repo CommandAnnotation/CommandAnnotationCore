@@ -1,5 +1,7 @@
 package skywolf46.commandannotation.starter;
 
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import skywolf46.commandannotation.abstraction.AbstractCommandStarter;
 import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
@@ -12,9 +14,11 @@ import skywolf46.commandannotation.util.ParameterMatchedInvoker;
 import skywolf46.commandannotation.util.ParameterStorage;
 
 public class PlayerOnlyStarter extends AbstractCommandStarter<PlayerOnly> {
-    private ParameterMatchedInvoker chain = null;
-    private String chainName;
-    private ClassData cd;
+    private String msg;
+
+    public PlayerOnlyStarter(String msg) {
+        this.msg = msg;
+    }
 
     @Override
     public Class<PlayerOnly> getAnnotationClass() {
@@ -26,26 +30,18 @@ public class PlayerOnlyStarter extends AbstractCommandStarter<PlayerOnly> {
         if (storage.get(Player.class) != null) {
             return true;
         }
-        if (chain != null) {
-            try {
-                chain.invoke(storage);
-            } catch (Throwable throwable) {
-                cd.handle(throwable, storage, new ExceptionStack());
-            }
-        }
+        storage.get(CommandSender.class)
+                .sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
         return false;
     }
 
     @Override
-    public AbstractCommandStarter onCreate(PlayerOnly data, GlobalData gl) {
-        PlayerOnlyStarter sta = new PlayerOnlyStarter();
-        sta.chainName = data.handler();
-        return sta;
+    public AbstractCommandStarter<PlayerOnly> onCreate(PlayerOnly data, GlobalData gl) {
+        return new PlayerOnlyStarter(data.value());
     }
 
     @Override
     public void process(ClassData.ClassDataBlueprint blueprint, MethodChain currentChain) {
-        chain = blueprint.getClassData().getGlobal().getMethod(chainName);
-        cd = blueprint.getClassData();
+
     }
 }

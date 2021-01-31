@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -177,7 +178,7 @@ public class ClassData {
                         Annotation at = mtd.getAnnotation(anot);
                         if (at == null)
                             continue;
-//                        chain.addStarter(CommandAnnotation.getStarter(anot).onCreate(chain, orig.global)); TODO
+                        chain.addStarter(CommandAnnotation.getStarter(anot).onCreate(at, orig.global));
                     }
                     if (!app.contains(chain))
                         app.add(chain);
@@ -208,7 +209,7 @@ public class ClassData {
 
                     for (String xi : cmd.value()) {
                         orig.chain.put(xi.startsWith("/") ? xi.substring(1) : xi, chain);
-                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §aRegistered command " + xi + " from " + cl.getName());
+//                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §aRegistered command " + xi + " from " + cl.getName());
                     }
                 }
             }

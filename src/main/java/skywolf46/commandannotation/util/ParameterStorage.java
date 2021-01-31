@@ -35,7 +35,7 @@ public class ParameterStorage {
         return add(name, o, false);
     }
 
-    public <T> T get(Class cx) {
+    public <T> T get(Class<T> cx) {
 //        System.out.println("Class: " + map);
         return map.containsKey(cx) ? (T) map.get(cx).get(0) : null;
     }

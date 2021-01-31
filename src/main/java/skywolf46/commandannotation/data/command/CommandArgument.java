@@ -64,8 +64,9 @@ public class CommandArgument {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < end; i++) {
-            sb.append(args[start + i]);
+            sb.append(args[start + i]).append(" ");
         }
+        sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
 
@@ -98,8 +99,9 @@ public class CommandArgument {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < end; i++) {
-            sb.append(args[start + pointer + i]);
+            sb.append(args[start + pointer + i]).append(" ");
         }
+        sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
 }

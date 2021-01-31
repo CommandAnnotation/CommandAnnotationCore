@@ -87,8 +87,8 @@ public class JarUtil {
 
     }
 
-    public static List<Class> getAllClass(File f) {
-        List<Class> lc = new ArrayList<>();
+    public static List<Class<?>> getAllClass(File f) {
+        List<Class<?>> lc = new ArrayList<>();
         try {
 //            System.out.println("Target file: " + f.getName());
             JarFile jf = new JarFile(f, false);

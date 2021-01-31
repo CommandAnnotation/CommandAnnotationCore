@@ -10,6 +10,10 @@ import skywolf46.commandannotation.annotations.legacy.MinecraftCommand;
 import skywolf46.commandannotation.data.methodprocessor.ClassData;
 import skywolf46.commandannotation.data.methodprocessor.GlobalData;
 import skywolf46.commandannotation.minecraft.MinecraftCommandImpl;
+import skywolf46.commandannotation.starter.NonPlayerOnlyStarter;
+import skywolf46.commandannotation.starter.OperatorOnlyStarter;
+import skywolf46.commandannotation.starter.PermissionCheckStarter;
+import skywolf46.commandannotation.starter.PlayerOnlyStarter;
 import skywolf46.commandannotation.util.AutoCompleteUtil;
 import skywolf46.commandannotation.util.JarUtil;
 
@@ -29,8 +33,10 @@ public class CommandAnnotation extends JavaPlugin {
     private static HashMap<String, MinecraftCommandImpl> impl = new HashMap<>();
     private static HelpMap helps;
     private static HashMap<Class<? extends Annotation>, AbstractCommandStarter> scanTarget = new HashMap<>();
+
     @Override
     public void onEnable() {
+        inst = this;
     }
 
     public static String getVersion() {
@@ -45,18 +51,22 @@ public class CommandAnnotation extends JavaPlugin {
             commands = AutoCompleteUtil.parseCommandMap();
             Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fExtracting help map...");
             helps = AutoCompleteUtil.parseHelpMap();
+            registerScanTarget(new NonPlayerOnlyStarter(""));
+            registerScanTarget(new PlayerOnlyStarter(""));
+            registerScanTarget(new PermissionCheckStarter());
+            registerScanTarget(new OperatorOnlyStarter());
         }
         isEnabled.set(true);
         Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fInitializing " + pl.getName());
         GlobalData global = new GlobalData();
         try {
-            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion()+ "§7 | §fCreating blueprint from " + pl.getName() + "...");
+            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fCreating blueprint from " + pl.getName() + "...");
             Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");
             getFileMethod.setAccessible(true);
             File file = (File) getFileMethod.invoke(pl);
-            List<Class> cls = JarUtil.getAllClass(file);
+            List<Class<?>> cls = JarUtil.getAllClass(file);
             List<ClassData.ClassDataBlueprint> cbp = new ArrayList<>();
-            for (Class c : cls) {
+            for (Class<?> c : cls) {
                 ClassData.ClassDataBlueprint print = ClassData.create(global, c);
                 cbp.add(print);
             }
@@ -77,11 +87,12 @@ public class CommandAnnotation extends JavaPlugin {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
     }
 
-    public static void registerScanTarget(Class<? extends Annotation> cl, AbstractCommandStarter starter) {
-        scanTarget.put(cl, starter);
+
+
+    public static void registerScanTarget(AbstractCommandStarter starter) {
+        scanTarget.put(starter.getAnnotationClass(), starter);
     }
 
     public static List<Class<? extends Annotation>> getScanTargets() {
