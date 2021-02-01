@@ -10,6 +10,7 @@ import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
 import skywolf46.commandannotation.annotations.legacy.MinecraftCommand;
 import skywolf46.commandannotation.data.autocomplete.AutoCompleteSupplier;
 import skywolf46.commandannotation.data.methodprocessor.exceptional.ExceptionStack;
+import skywolf46.commandannotation.util.MinecraftChecker;
 import skywolf46.commandannotation.util.ParameterMatchedInvoker;
 import skywolf46.commandannotation.util.ParameterStorage;
 
@@ -17,7 +18,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +38,7 @@ public class ClassData {
         return global;
     }
 
-    public void handle(Throwable ex, ParameterStorage st, ExceptionStack stack) {
+    public void handle(Throwable ex, ParameterStorage st, ExceptionStack stack) throws Throwable {
         if ((ex = classHandler.handle(ex, st)) == null) {
             return;
         }
@@ -74,13 +74,15 @@ public class ClassData {
                     if (classApply) {
                         for (Class<? extends Throwable> ex : handler.value()) {
                             cd.classHandler.registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
-                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered class exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
+                            if (MinecraftChecker.isMinecraft())
+                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered class exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
                     }
                     if (applyGlobal)
                         for (Class<? extends Throwable> ex : handler.value()) {
                             global.getExceptionHandler().registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
-                            Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered global exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
+                            if (MinecraftChecker.isMinecraft())
+                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered global exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
                 }
 

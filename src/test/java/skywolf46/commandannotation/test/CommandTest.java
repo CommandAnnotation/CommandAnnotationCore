@@ -1,66 +1,73 @@
 package skywolf46.commandannotation.test;
 
-import skywolf46.commandannotation.annotations.autocomplete.AutoComplete;
-import skywolf46.commandannotation.annotations.autocomplete.AutoCompleteProvider;
+import org.junit.Test;
 import skywolf46.commandannotation.annotations.common.ApplyGlobal;
-import skywolf46.commandannotation.annotations.common.Mark;
 import skywolf46.commandannotation.annotations.handler.error.ExceptHandler;
 import skywolf46.commandannotation.annotations.legacy.MinecraftCommand;
 import skywolf46.commandannotation.data.methodprocessor.ClassData;
 import skywolf46.commandannotation.data.methodprocessor.GlobalData;
 import skywolf46.commandannotation.util.ParameterStorage;
 
-import java.util.List;
+import static org.junit.Assert.assertThrows;
 
 public class CommandTest {
 
-    public static void main(String[] args) {
+    @Test(expected = IllegalAccessException.class)
+    public void testCommandInvokeException01() throws Throwable {
         ClassData cd = ClassData.create(new GlobalData(), CommandTest.class).process();
         cd.getChain("test").invoke(new ParameterStorage());
     }
 
-    @Mark("Test")
+    @Test(expected = SecurityException.class)
+    public void testCommandInvokeException02() throws Throwable {
+        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class).process();
+        cd.getChain("test2").invoke(new ParameterStorage());
+    }
+
+
+    @Test
+    public void testCommandInvokeException03() {
+        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class).process();
+        assertThrows(RuntimeException.class, () -> {
+            cd.getChain("test3").invoke(new ParameterStorage());
+        });
+    }
+
     @MinecraftCommand("/test")
-    @AutoComplete("Test")
-    public static void test2() throws Exception {
+    public static void test() throws Exception {
+        System.out.println("NPE!");
         throw new NullPointerException();
     }
 
-    @AutoCompleteProvider("Test")
-    public static void provide(List<String> str) {
-        str.clear();
-        str.add("TestCommand");
+    @MinecraftCommand("/test2")
+    public static void test2() throws Exception {
+        throw new IllegalStateException();
+    }
+
+    @MinecraftCommand("/test3")
+    public static void test3() throws Exception {
+        throw new RuntimeException();
     }
 
 
-    @AutoCompleteProvider("Test2")
-    public static String[] provide() {
-        return new String[]{
-                "Test", "Command", "AutoCOmplete"
-        };
-    }
-
-
-    @ExceptHandler
-    @ApplyGlobal
-    public static void handleException(Exception ex) {
-        System.out.println("Exception!");
-        System.out.println("Stacktrace printed");
-    }
+//    @ExceptHandler
+//    @ApplyGlobal
+//    public static void handleException(Exception ex) {
+//        throw new RuntimeException();
+//    }
 
 
     @ExceptHandler(IllegalStateException.class)
     @ApplyGlobal
-    public static void handleException2(Exception ex) {
-        System.out.println("Illegal Exception!");
-        System.out.println("Stacktrace printed");
+    public static void handleException2(Exception ex) throws Exception {
+        throw new SecurityException();
     }
 
 
     @ExceptHandler(NullPointerException.class)
     @ApplyGlobal
-    public static void handleException3(Exception ex) {
-        System.out.println("NullPointer Exception!");
-        System.out.println("Stacktrace printed");
+    public static void handleException3(Exception ex) throws Exception {
+        System.out.println("Ill.");
+        throw new IllegalAccessException();
     }
 }

@@ -19,4 +19,8 @@ public class ClassUtil {
             }
         } while ((c = c.getSuperclass()) != null && !c.equals(OBJECT));
     }
+
+    public static String toObjectName(Class<?> cx) {
+        return cx.isArray() ? "array of " + toObjectName(cx.getComponentType()) : "class " + cx.getName();
+    }
 }

@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id ("maven-publish")
+    id("maven-publish")
 }
 
 buildscript {
@@ -17,6 +17,10 @@ tasks {
     processResources {
         expand("version" to project.properties["version"])
     }
+    test {
+        useJUnit()
+        maxHeapSize = "1G"
+    }
 }
 
 
@@ -29,6 +33,10 @@ repositories {
 dependencies {
     // java dependencies
     implementation(files("V:/API/Java/Minecraft/Bukkit/Spigot/Spigot 1.12.2.jar"))
+    compileOnly("org.projectlombok:lombok:1.18.16")
+    annotationProcessor("org.projectlombok:lombok:1.18.16")
+    testImplementation("junit:junit:4.13")
+
 }
 
 publishing {
@@ -42,13 +50,13 @@ publishing {
             }
         }
     }
-    publications{
-        create<MavenPublication>("jar"){
+    publications {
+        create<MavenPublication>("jar") {
             from(components["java"])
             groupId = "skywolf46"
             artifactId = "commandannotation"
             version = properties["version"] as String
-            pom{
+            pom {
                 url.set("https://github.com/milkyway0308/CommandAnnotation.git")
             }
         }

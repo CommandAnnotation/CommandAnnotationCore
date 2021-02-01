@@ -18,7 +18,7 @@ public class MethodChain extends AbstractAnnotationApplicable {
         this.invoker = invoker;
     }
 
-    public <T> T invoke(ParameterStorage storage) {
+    public <T> T invoke(ParameterStorage storage) throws Throwable {
         try {
             if (!super.canProcess(storage))
                 return null;
@@ -30,7 +30,7 @@ public class MethodChain extends AbstractAnnotationApplicable {
         return null;
     }
 
-    public void handleException(Throwable ex, ParameterStorage storage) {
+    public void handleException(Throwable ex, ParameterStorage storage) throws Throwable {
         ExceptionStack stack = new ExceptionStack();
         ex = handler.handle(ex, storage, stack);
         if (ex != null) {
@@ -66,9 +66,5 @@ public class MethodChain extends AbstractAnnotationApplicable {
         this.defSupplier = defSupplier;
     }
 
-    public static void main(String[] args) {
-        ClassData cd = new ClassData(new GlobalData());
-        MethodChain mc = new MethodChain(cd, null);
-        mc.handleException(new Exception(), new ParameterStorage());
-    }
+
 }

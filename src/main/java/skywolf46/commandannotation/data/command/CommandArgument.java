@@ -1,8 +1,12 @@
 package skywolf46.commandannotation.data.command;
 
+import skywolf46.commandannotation.abstraction.AbstractParseDefine;
+import skywolf46.commandannotation.data.parser.ArgumentParser;
 import skywolf46.commandannotation.util.ParameterStorage;
 
-public class CommandArgument {
+import java.util.Iterator;
+
+public class CommandArgument implements Iterable<String> {
     private String cmd;
     private String[] args;
     private ParameterStorage storage;
@@ -18,6 +22,20 @@ public class CommandArgument {
 
     public ParameterStorage getStorage() {
         return storage;
+    }
+
+    public ArgumentParser convert(Object... params) {
+        return ArgumentParser.parse(this, params);
+    }
+
+
+    public ArgumentParser convert(Class<?>... params) {
+        return ArgumentParser.parse(this, (Object[]) params);
+    }
+
+
+    public ArgumentParser convert(AbstractParseDefine<?>... params) {
+        return ArgumentParser.parse(this, (Object[]) params);
     }
 
     public void nextPointer() {
@@ -103,5 +121,36 @@ public class CommandArgument {
         }
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
+    }
+
+    @Override
+    public CommandIterator iterator() {
+        return new CommandIterator();
+    }
+
+    public class CommandIterator implements Iterator<String> {
+        private int iteratePointer = pointer;
+
+        @Override
+        public boolean hasNext() {
+            return iteratePointer < args.length;
+        }
+
+        @Override
+        public String next() {
+            return args[iteratePointer++];
+        }
+
+        public String peekPrevious() {
+            return args[iteratePointer - 1];
+        }
+
+        public String peek() {
+            return args[iteratePointer];
+        }
+
+        public int left() {
+            return args.length - (iteratePointer + 1);
+        }
     }
 }

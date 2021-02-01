@@ -9,11 +9,11 @@ import skywolf46.commandannotation.test.starter.annotations.Denial;
 import skywolf46.commandannotation.util.ParameterStorage;
 
 public class StarterTest {
-    public static void main(String[] args) {
-        CommandAnnotation.registerScanTarget(new DenialStarter(null));
-        ClassData cd = ClassData.create(new GlobalData(), StarterTest.class).process();
-        cd.getChain("test").invoke(new ParameterStorage());
-    }
+//    public static void main(String[] args) {
+//        CommandAnnotation.registerScanTarget(new DenialStarter(null));
+//        ClassData cd = ClassData.create(new GlobalData(), StarterTest.class).process();
+//        cd.getChain("test").invoke(new ParameterStorage());
+//    }
 
     @MinecraftCommand("/test")
     @Denial(isDenial = true)

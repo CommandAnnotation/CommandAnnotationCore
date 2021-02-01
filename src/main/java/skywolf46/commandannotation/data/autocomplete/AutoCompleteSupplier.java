@@ -23,7 +23,7 @@ public abstract class AutoCompleteSupplier{
         return chain;
     }
 
-    public abstract void editCompletion(ParameterStorage storage, List<String> str);
+    public abstract void editCompletion(ParameterStorage storage, List<String> str) throws Throwable;
 
     public static boolean check(Method mtd) {
         if (List.class.isAssignableFrom(mtd.getReturnType()) || String[].class.isAssignableFrom(mtd.getReturnType())) {
@@ -60,7 +60,7 @@ public abstract class AutoCompleteSupplier{
         }
 
         @Override
-        public void editCompletion(ParameterStorage st, List<String> str) {
+        public void editCompletion(ParameterStorage st, List<String> str) throws Throwable {
             st.set(str);
             String[] arr = getChain().invoke(st);
             if (arr == null)
@@ -76,7 +76,7 @@ public abstract class AutoCompleteSupplier{
         }
 
         @Override
-        public void editCompletion(ParameterStorage storage, List<String> str) {
+        public void editCompletion(ParameterStorage storage, List<String> str) throws Throwable {
             storage.set(str);
             List<String> xt = getChain().invoke(storage);
             if (xt == null)
@@ -104,7 +104,7 @@ public abstract class AutoCompleteSupplier{
         }
 
         @Override
-        public void editCompletion(ParameterStorage storage, List<String> str) {
+        public void editCompletion(ParameterStorage storage, List<String> str) throws Throwable {
             storage.set(str);
             getChain().invoke(storage);
         }

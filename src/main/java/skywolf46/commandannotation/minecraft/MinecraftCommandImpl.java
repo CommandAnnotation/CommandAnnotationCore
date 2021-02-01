@@ -35,7 +35,11 @@ public class MinecraftCommandImpl extends Command {
                 arg.nextPointer();
             }
         }
-        implt.invokeCommand(storage);
+        try {
+            implt.invokeCommand(storage);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
         return true;
     }
 
@@ -66,13 +70,17 @@ public class MinecraftCommandImpl extends Command {
         if (impl.chain != null) {
             AutoCompleteSupplier sup = impl.chain.getCompleteSupplier();
             if (sup != null) {
-                sup.editCompletion(stor, completer);
+                try {
+                    sup.editCompletion(stor, completer);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
             }
         }
         return completer;
     }
 
-    private void invokeCommand(ParameterStorage storage) {
+    private void invokeCommand(ParameterStorage storage) throws Throwable {
         if (chain == null)
             return;
         chain.invoke(storage);

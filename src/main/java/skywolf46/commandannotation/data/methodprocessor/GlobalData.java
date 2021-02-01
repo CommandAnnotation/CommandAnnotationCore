@@ -14,10 +14,10 @@ public class GlobalData {
     private AutoCompleteSupplier defSupplier;
 
 
-    public void handle(Throwable ex, ParameterStorage st, ExceptionStack stack) {
+    public void handle(Throwable ex, ParameterStorage st, ExceptionStack stack) throws Throwable {
         ex = defaultHandler.handle(ex, st, stack);
         if (ex != null) {
-            ex.printStackTrace();
+            throw ex;
         }
 
     }
