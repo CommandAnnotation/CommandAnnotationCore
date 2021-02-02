@@ -18,3 +18,6 @@ See Wiki page to apply CommandAnnotation to your project.<br>
 Sure! You can see wiki to get some help on this library.
 - [English Wiki]()
 - [한국어 위키]()
+<br><br><br><br>
+[![Jetbrains](https://i.ibb.co/0mGK8Yp/jetbrains-variant-4-grayscale.png)](https://www.jetbrains.com/?from=CommandAnnotation)<br>
+This project is supported by <b>[JetBrain Open Source License Program](https://www.jetbrains.com/community/opensource/#support)</b>.
