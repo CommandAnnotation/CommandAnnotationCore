@@ -1,5 +1,6 @@
 package skywolf46.commandannotation.data.methodprocessor;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import skywolf46.commandannotation.CommandAnnotation;
 import skywolf46.commandannotation.abstraction.AbstractAnnotationApplicable;
@@ -27,10 +28,14 @@ import static skywolf46.commandannotation.CommandAnnotation.getVersion;
 public class ClassData {
     private ExceptionalHandler classHandler = new ExceptionalHandler();
     private HashMap<String, MethodChain> chain = new HashMap<>();
+    private HashMap<String, MethodChain> subCommand = new HashMap<>();
     private GlobalData global;
     private AutoCompleteSupplier defaultCompleter;
+    @Getter
+    private Class<?> originalClass;
 
-    public ClassData(GlobalData gd) {
+    public ClassData(Class cl, GlobalData gd) {
+        this.originalClass = cl;
         this.global = gd;
     }
 
@@ -49,12 +54,16 @@ public class ClassData {
         return new ArrayList<>(chain.keySet());
     }
 
+    public MethodChain getSubCommand(String name) {
+        return subCommand.get(name);
+    }
+
     public MethodChain getCommand(String name) {
         return chain.get(name);
     }
 
     public static ClassDataBlueprint create(GlobalData global, Class cl) {
-        ClassData cd = new ClassData(global);
+        ClassData cd = new ClassData(cl, global);
         List<Method> process = new ArrayList<>();
         ClassDataBlueprint bp = new ClassDataBlueprint(cl, process, cd);
         for (Method mtd : cl.getMethods()) {
@@ -170,7 +179,14 @@ public class ClassData {
             }
             for (Method mtd : mtds) {
                 MinecraftCommand cmd = mtd.getAnnotation(MinecraftCommand.class);
-                if (cmd != null) {
+                SubCommand sub = mtd.getAnnotation(SubCommand.class);
+                if (cmd != null && sub != null) {
+                    if (MinecraftChecker.isMinecraft()) {
+                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use SubCommand and MinecraftCommand annotation together, ignoring.");
+                    }
+                    continue;
+                }
+                if (cmd != null || sub != null) {
                     MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd));
                     Redirect red = mtd.getAnnotation(Redirect.class);
                     if (red != null) {
@@ -190,13 +206,15 @@ public class ClassData {
                             ParameterMatchedInvoker inv = orig.getGlobal().getMethod(x);
                             if (inv != null) {
                                 ExceptHandler handle = inv.getMethod().getAnnotation(ExceptHandler.class);
-                                if (handle == null)
-                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
-                                else
+                                if (handle == null) {
+                                    if (MinecraftChecker.isMinecraft())
+                                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unexisting error handler" + x + ", ignoring.");
+                                } else
                                     for (Class<? extends Throwable> ex : handle.value())
                                         chain.getHandler().registerExceptionHandler(ex, inv);
                             } else {
-                                Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
+                                if (MinecraftChecker.isMinecraft())
+                                    Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown error handler " + x + ", ignoring.");
                             }
                         }
                     }
@@ -205,13 +223,18 @@ public class ClassData {
                         AutoCompleteSupplier ad = orig.global.getAutoCompleteSupplier(ac.value());
                         if (ad != null)
                             chain.setDefSupplier(ad);
-                        else
+                        else if (MinecraftChecker.isMinecraft())
                             Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fMethod " + mtd.getName() + " from " + cl.getClass().getSimpleName() + " try to use unknown autocomplete provider " + ac.value() + ", ignoring.");
                     }
 
-                    for (String xi : cmd.value()) {
-                        orig.chain.put(xi.startsWith("/") ? xi.substring(1) : xi, chain);
-//                        Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §aRegistered command " + xi + " from " + cl.getName());
+                    if (sub != null) {
+                        for (String xi : sub.value()) {
+                            orig.subCommand.put(xi, chain);
+                        }
+                    } else {
+                        for (String xi : cmd.value()) {
+                            orig.chain.put(xi.startsWith("/") ? xi.substring(1) : xi, chain);
+                        }
                     }
                 }
             }

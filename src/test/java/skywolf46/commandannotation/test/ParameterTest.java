@@ -15,8 +15,6 @@ public class ParameterTest {
         storage.add("Test", "Hello World");
         ParameterMatchedInvoker invoker = new ParameterMatchedInvoker(ParameterTest.class.getMethod("test", String.class, String.class, int.class, String.class));
         invoker.invoke(storage);
-
-
     }
 
     public static void test(String x1, @CommandParam("Test") String x2, int x3, String x4) {

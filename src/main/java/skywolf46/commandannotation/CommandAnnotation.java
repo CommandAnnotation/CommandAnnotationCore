@@ -2,13 +2,12 @@ package skywolf46.commandannotation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
 import org.bukkit.help.HelpMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import skywolf46.commandannotation.abstraction.AbstractCommandStarter;
-import skywolf46.commandannotation.annotations.legacy.MinecraftCommand;
 import skywolf46.commandannotation.data.methodprocessor.ClassData;
 import skywolf46.commandannotation.data.methodprocessor.GlobalData;
+import skywolf46.commandannotation.data.methodprocessor.MethodChain;
 import skywolf46.commandannotation.minecraft.MinecraftCommandImpl;
 import skywolf46.commandannotation.starter.NonPlayerOnlyStarter;
 import skywolf46.commandannotation.starter.OperatorOnlyStarter;
@@ -16,6 +15,7 @@ import skywolf46.commandannotation.starter.PermissionCheckStarter;
 import skywolf46.commandannotation.starter.PlayerOnlyStarter;
 import skywolf46.commandannotation.util.AutoCompleteUtil;
 import skywolf46.commandannotation.util.JarUtil;
+import skywolf46.commandannotation.util.ParameterStorage;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -33,6 +33,7 @@ public class CommandAnnotation extends JavaPlugin {
     private static HashMap<String, MinecraftCommandImpl> impl = new HashMap<>();
     private static HelpMap helps;
     private static HashMap<Class<? extends Annotation>, AbstractCommandStarter> scanTarget = new HashMap<>();
+    private static HashMap<Class<?>, ClassData> proceed = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -82,6 +83,7 @@ public class CommandAnnotation extends JavaPlugin {
                         return impl;
                     }).insert(xl, cd.getChain(n));
                 }
+                proceed.put(cd.getOriginalClass(), cd);
             }
 
         } catch (Exception ex) {
@@ -89,6 +91,18 @@ public class CommandAnnotation extends JavaPlugin {
         }
     }
 
+    public static boolean triggerSubCommand(Class<?> target, String command, ParameterStorage storage) throws Throwable {
+        ClassData cd = proceed.computeIfAbsent(target, cl -> {
+            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl);
+            return bp.process();
+        });
+        MethodChain sub = cd.getSubCommand(command);
+        if (sub == null) {
+            return false;
+        }
+        sub.invoke(storage);
+        return true;
+    }
 
 
     public static void registerScanTarget(AbstractCommandStarter starter) {

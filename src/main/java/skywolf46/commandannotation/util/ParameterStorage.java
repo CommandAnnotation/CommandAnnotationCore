@@ -9,6 +9,10 @@ public class ParameterStorage {
     private HashMap<Class, List<Object>> map = new HashMap<>();
     private HashMap<String, Object> namedVariable = new HashMap<>();
 
+    public ParameterStorage() {
+        add(this);
+    }
+
     public static ParameterStorage of(Object... o) {
         ParameterStorage storage = new ParameterStorage();
         for (Object x : o)
@@ -17,7 +21,7 @@ public class ParameterStorage {
     }
 
     public ParameterStorage add(Object o) {
-        ClassUtil.iterateParentClass(o.getClass(), cl -> {
+        ClassUtil.iterateParentClass(PrimitiveConverter.boxPrimitive(o.getClass()), cl -> {
             map.computeIfAbsent(cl, a -> new ArrayList<>()).add(o);
         });
         return this;
@@ -36,11 +40,12 @@ public class ParameterStorage {
     }
 
     public <T> T get(Class<T> cx) {
-//        System.out.println("Class: " + map);
+        cx = (Class<T>) PrimitiveConverter.boxPrimitive(cx);
         return map.containsKey(cx) ? (T) map.get(cx).get(0) : null;
     }
 
     public <T> List<T> getAll(Class cx) {
+        cx = (Class<T>) PrimitiveConverter.boxPrimitive(cx);
         return map.containsKey(cx) ? (List<T>) map.get(cx) : new ArrayList<>();
     }
 
