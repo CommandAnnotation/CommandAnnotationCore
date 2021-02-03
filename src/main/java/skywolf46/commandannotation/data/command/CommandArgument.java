@@ -55,7 +55,11 @@ public class CommandArgument implements Iterable<String> {
     }
 
     public String getArgumentBefore() {
-        return getOriginalOrNull(0, pointer);
+        return getArgumentBefore(false);
+    }
+
+    public String getArgumentBefore(boolean addSpaceAfter) {
+        return getOriginalOrNull(0, pointer) + (addSpaceAfter ? " " : "");
     }
 
 
