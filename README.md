@@ -7,8 +7,8 @@ No need to split. Just annotate, convert, use.
 ### How can I use it?
 You can use it though adding dependency to your project.<br>
 See Wiki page to apply CommandAnnotation to your project.<br>
-- Apply with Gradle (Github Repository) ([Minecraft]() / [Java Application]())
-- Apply with Kotlin Build Script (Github Repository)  ([Minecraft]() / [Java Application]())
+- Apply with Gradle (Github Repository) ([Minecraft]() / [Java Application]()))
+- Apply with Kotlin Build Script (Github Repository)  ([Minecraft]() / [Java Application](https://github.com/milkyway0308/CommandAnnotation/wiki/Applying-CommandAnnotation-to-your-project-(-Kotlin-Build-Script-Github-Repository-))
 - Apply with Maven (Github Repository) ([Minecraft]() / [Java Application]())
 - Apply with Gradle (Maven Central / Preparing)
 - Apply with Kotlin Build Script (Maven Central / Preparing)

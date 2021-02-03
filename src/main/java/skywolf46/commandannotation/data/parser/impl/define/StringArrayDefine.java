@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import skywolf46.commandannotation.abstraction.AbstractParseDefine;
 import skywolf46.commandannotation.data.command.CommandArgument;
+import skywolf46.commandannotation.data.parser.exception.ParameterNotEnoughException;
 
 @AllArgsConstructor
 public class StringArrayDefine extends AbstractParseDefine<String[]> {
@@ -26,7 +27,7 @@ public class StringArrayDefine extends AbstractParseDefine<String[]> {
     public String[] parse(CommandArgument.CommandIterator iterator) throws Exception {
         if (iterator.left() < getAmount()) {
             if (!softLimit) {
-                throw new ArrayIndexOutOfBoundsException();
+                throw new ParameterNotEnoughException();
             }
         }
         String[] arrs = new String[Math.min(iterator.left(), getAmount())];

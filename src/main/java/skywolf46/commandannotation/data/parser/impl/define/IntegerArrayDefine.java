@@ -2,6 +2,7 @@ package skywolf46.commandannotation.data.parser.impl.define;
 
 import skywolf46.commandannotation.abstraction.AbstractParseDefine;
 import skywolf46.commandannotation.data.command.CommandArgument;
+import skywolf46.commandannotation.data.parser.exception.ParameterNotEnoughException;
 
 public class IntegerArrayDefine extends AbstractParseDefine<Integer[]> {
     private int length;
@@ -17,6 +18,8 @@ public class IntegerArrayDefine extends AbstractParseDefine<Integer[]> {
 
     @Override
     public Integer[] parse(CommandArgument.CommandIterator iterator) throws Exception {
+        if (iterator.left() < length)
+            throw new ParameterNotEnoughException();
         Integer[] ax = new Integer[length];
         for (int i = 0; i < length; i++) {
             ax[i] = Integer.parseInt(iterator.next());
