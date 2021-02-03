@@ -90,4 +90,23 @@ public class ArgumentTest {
             assertNotEquals(argument.getOriginal(0), argument.get(0));
         }
     }
+
+    @Test
+    public void testArgumentOriginalEqualsBefore01() {
+        argument.nextPointer();
+        assertEquals("test1", argument.getArgumentBefore());
+    }
+
+
+    @Test
+    public void testArgumentOriginalEqualsBefore02() {
+        argument.nextPointer();
+        argument.nextPointer();
+        assertEquals("test1 test2", argument.getArgumentBefore());
+    }
+
+    @Test
+    public void testArgumentOriginalEqualsBeforeException() {
+        assertNull(argument.getArgumentBefore());
+    }
 }

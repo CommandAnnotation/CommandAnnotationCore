@@ -46,6 +46,18 @@ public class CommandArgument implements Iterable<String> {
         return args.length - pointer;
     }
 
+    public int lengthOriginal() {
+        return args.length;
+    }
+
+    public int pointer() {
+        return pointer;
+    }
+
+    public String getArgumentBefore() {
+        return getOriginalOrNull(0, pointer);
+    }
+
 
     public String getCommand() {
         return cmd;
@@ -70,6 +82,23 @@ public class CommandArgument implements Iterable<String> {
             return null;
         }
         return args[start];
+    }
+
+    public String getOriginalOrNull(int start, int end) {
+        if (start < 0)
+            return null;
+        int len = args.length;
+        if (len < end) {
+            return null;
+        }
+        if (start == end)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = start; i < end; i++) {
+            sb.append(args[start + i]).append(" ");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 
 
