@@ -6,7 +6,7 @@ import skywolf46.commandannotation.util.ParameterStorage;
 
 import java.util.Iterator;
 
-public class CommandArgument implements Iterable<String> {
+public class CommandArgument implements Iterable<String>, Cloneable {
     private String cmd;
     private String[] args;
     private ParameterStorage storage;
@@ -59,7 +59,10 @@ public class CommandArgument implements Iterable<String> {
     }
 
     public String getArgumentBefore(boolean addSpaceAfter) {
-        return getOriginalOrNull(0, pointer) + (addSpaceAfter ? " " : "");
+        String x = getOriginalOrNull(0, pointer);
+        if (x != null && addSpaceAfter)
+            x += " ";
+        return x;
     }
 
 
@@ -157,9 +160,17 @@ public class CommandArgument implements Iterable<String> {
     }
 
     @Override
+    public CommandArgument clone() throws CloneNotSupportedException {
+        CommandArgument cArgs = new CommandArgument(storage.clone(), cmd, args, 0L);
+        cArgs.pointer = pointer;
+        return cArgs;
+    }
+
+    @Override
     public CommandIterator iterator() {
         return new CommandIterator();
     }
+
 
     public class CommandIterator implements Iterator<String> {
         private int iteratePointer = pointer;

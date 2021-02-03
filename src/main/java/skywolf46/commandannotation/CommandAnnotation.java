@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.help.HelpMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import skywolf46.commandannotation.abstraction.AbstractCommandStarter;
+import skywolf46.commandannotation.data.command.CommandArgument;
 import skywolf46.commandannotation.data.methodprocessor.ClassData;
 import skywolf46.commandannotation.data.methodprocessor.GlobalData;
 import skywolf46.commandannotation.data.methodprocessor.MethodChain;
@@ -102,6 +103,29 @@ public class CommandAnnotation extends JavaPlugin {
         }
         sub.invoke(storage);
         return true;
+    }
+
+
+    public static boolean triggerSubCommand(Class<?> target, CommandArgument nextArgs, ParameterStorage storage) throws Throwable {
+        nextArgs = nextArgs.clone();
+        ClassData cd = proceed.computeIfAbsent(target, cl -> {
+            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl);
+            return bp.process();
+        });
+        StringBuilder args = new StringBuilder();
+        while (nextArgs.length() > 0) {
+            if (args.length() != 0)
+                args.append(" ");
+            args.append(nextArgs.get(0));
+            nextArgs.nextPointer();
+            MethodChain sub = cd.getSubCommand(args.toString());
+            if (sub != null) {
+                storage.set(nextArgs);
+                sub.invoke(storage);
+                return true;
+            }
+        }
+        return false;
     }
 
 

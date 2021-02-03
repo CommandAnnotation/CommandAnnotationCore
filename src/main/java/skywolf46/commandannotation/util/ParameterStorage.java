@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ParameterStorage {
+public class ParameterStorage implements Cloneable {
     private HashMap<Class, List<Object>> map = new HashMap<>();
     private HashMap<String, Object> namedVariable = new HashMap<>();
 
@@ -61,5 +61,13 @@ public class ParameterStorage {
             ri.add(o);
             map.put(cl, ri);
         });
+    }
+
+    @Override
+    public ParameterStorage clone() throws CloneNotSupportedException {
+        ParameterStorage storage = new ParameterStorage();
+        storage.map = new HashMap<>(map);
+        storage.namedVariable = new HashMap<>(namedVariable);
+        return storage;
     }
 }

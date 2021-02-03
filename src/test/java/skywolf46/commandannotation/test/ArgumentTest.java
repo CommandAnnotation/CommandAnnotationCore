@@ -109,4 +109,5 @@ public class ArgumentTest {
     public void testArgumentOriginalEqualsBeforeException() {
         assertNull(argument.getArgumentBefore());
     }
+
 }
