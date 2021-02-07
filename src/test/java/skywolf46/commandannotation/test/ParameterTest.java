@@ -13,7 +13,7 @@ public class ParameterTest {
     public void testMethodParameterInjection() throws Throwable {
         ParameterStorage storage = ParameterStorage.of("Test1", "Test2", "Test4", 49, 60);
         storage.add("Test", "Hello World");
-        ParameterMatchedInvoker invoker = new ParameterMatchedInvoker(ParameterTest.class.getMethod("test", String.class, String.class, int.class, String.class));
+        ParameterMatchedInvoker invoker = new ParameterMatchedInvoker(ParameterTest.class.getMethod("test", String.class, String.class, int.class, String.class), null);
         invoker.invoke(storage);
     }
 

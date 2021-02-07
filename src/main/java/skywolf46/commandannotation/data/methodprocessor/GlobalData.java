@@ -17,6 +17,7 @@ public class GlobalData {
     public void handle(Throwable ex, ParameterStorage st, ExceptionStack stack) throws Throwable {
         ex = defaultHandler.handle(ex, st, stack);
         if (ex != null) {
+            System.out.println("Throw!");
             throw ex;
         }
 

@@ -14,20 +14,20 @@ public class CommandTest {
 
     @Test(expected = IllegalAccessException.class)
     public void testCommandInvokeException01() throws Throwable {
-        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class).process();
+        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class, null).process(null);
         cd.getChain("test").invoke(new ParameterStorage());
     }
 
     @Test(expected = SecurityException.class)
     public void testCommandInvokeException02() throws Throwable {
-        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class).process();
+        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class, null).process(null);
         cd.getChain("test2").invoke(new ParameterStorage());
     }
 
 
     @Test
     public void testCommandInvokeException03() {
-        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class).process();
+        ClassData cd = ClassData.create(new GlobalData(), CommandTest.class, null).process(null);
         assertThrows(RuntimeException.class, () -> {
             cd.getChain("test3").invoke(new ParameterStorage());
         });
@@ -60,6 +60,7 @@ public class CommandTest {
     @ExceptHandler(IllegalStateException.class)
     @ApplyGlobal
     public static void handleException2(Exception ex) throws Exception {
+        System.out.println("Illegal Handle");
         throw new SecurityException();
     }
 

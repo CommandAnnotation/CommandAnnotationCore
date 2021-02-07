@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.help.HelpMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import skywolf46.commandannotation.abstraction.AbstractCommandStarter;
+import skywolf46.commandannotation.annotations.common.DeprecatedDescription;
 import skywolf46.commandannotation.data.command.CommandArgument;
 import skywolf46.commandannotation.data.methodprocessor.ClassData;
 import skywolf46.commandannotation.data.methodprocessor.GlobalData;
@@ -69,13 +70,13 @@ public class CommandAnnotation extends JavaPlugin {
             List<Class<?>> cls = JarUtil.getAllClass(file);
             List<ClassData.ClassDataBlueprint> cbp = new ArrayList<>();
             for (Class<?> c : cls) {
-                ClassData.ClassDataBlueprint print = ClassData.create(global, c);
+                ClassData.ClassDataBlueprint print = ClassData.create(global, c, null);
                 cbp.add(print);
             }
             Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fProcessing blueprint from " + pl.getName() + "...");
 //            System.out.println(cbp);
             for (ClassData.ClassDataBlueprint bp_ : cbp) {
-                ClassData cd = bp_.process();
+                ClassData cd = bp_.process(null);
                 for (String n : cd.getCommands()) {
                     String[] xl = n.split(" ");
                     impl.computeIfAbsent(xl[0], a -> {
@@ -92,10 +93,28 @@ public class CommandAnnotation extends JavaPlugin {
         }
     }
 
+    @Deprecated
+    @DeprecatedDescription({
+            "CommandAnnotation designed for static method registration to remove confusion on command registering.",
+            "Object command registration feature will not removed, but will be deprecated forever."
+    })
+    public static void registerCommandObject(Object obj) {
+        ClassData cd = ClassData.create(new GlobalData(), obj.getClass(), null).process(obj);
+        for (String n : cd.getCommands()) {
+            String[] xl = n.split(" ");
+            impl.computeIfAbsent(xl[0], a -> {
+                MinecraftCommandImpl impl = new MinecraftCommandImpl(n);
+                commands.put(a, impl);
+                return impl;
+            }).insert(xl, cd.getChain(n));
+        }
+//        proceed.put(cd.getOriginalClass(), cd);
+    }
+
     public static boolean triggerSubCommand(Class<?> target, String command, ParameterStorage storage) throws Throwable {
         ClassData cd = proceed.computeIfAbsent(target, cl -> {
-            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl);
-            return bp.process();
+            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl, null);
+            return bp.process(null);
         });
         MethodChain sub = cd.getSubCommand(command);
         if (sub == null) {
@@ -109,8 +128,8 @@ public class CommandAnnotation extends JavaPlugin {
     public static boolean triggerSubCommand(Class<?> target, CommandArgument nextArgs, ParameterStorage storage) throws Throwable {
         nextArgs = nextArgs.clone();
         ClassData cd = proceed.computeIfAbsent(target, cl -> {
-            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl);
-            return bp.process();
+            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl, null);
+            return bp.process(null);
         });
         StringBuilder args = new StringBuilder();
         while (nextArgs.length() > 0) {

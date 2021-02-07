@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,6 +46,7 @@ public class ClassData {
 
     public void handle(Throwable ex, ParameterStorage st, ExceptionStack stack) throws Throwable {
         if ((ex = classHandler.handle(ex, st)) == null) {
+//            System.out.println("Cannot handle!");
             return;
         }
         getGlobal().handle(ex, st, stack);
@@ -62,34 +64,36 @@ public class ClassData {
         return chain.get(name);
     }
 
-    public static ClassDataBlueprint create(GlobalData global, Class cl) {
+    public static ClassDataBlueprint create(GlobalData global, Class cl, Object basedObject) {
         ClassData cd = new ClassData(cl, global);
         List<Method> process = new ArrayList<>();
         ClassDataBlueprint bp = new ClassDataBlueprint(cl, process, cd);
         for (Method mtd : cl.getMethods()) {
             process.add(mtd);
-            if (Modifier.isStatic(mtd.getModifiers())) {
+            if ((basedObject == null) == Modifier.isStatic(mtd.getModifiers())) {
                 // Static, process
                 ExceptHandler handler = mtd.getAnnotation(ExceptHandler.class);
+                System.out.println(mtd.getName());
                 boolean classApply = mtd.getAnnotation(ApplyClass.class) != null;
                 boolean applyGlobal = mtd.getAnnotation(ApplyGlobal.class) != null;
                 Mark mark = mtd.getAnnotation(Mark.class);
                 AutoCompleteProvider prov = mtd.getAnnotation(AutoCompleteProvider.class);
                 ParameterMatchedInvoker invoker = null;
                 if (mark != null) {
-                    global.registerMethod(mark.value(), (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
+                    global.registerMethod(mark.value(), (invoker == null ? invoker = new ParameterMatchedInvoker(mtd, basedObject) : invoker));
                 }
                 if (handler != null) {
+                    System.out.println(Arrays.toString(handler.value()));
                     if (classApply) {
                         for (Class<? extends Throwable> ex : handler.value()) {
-                            cd.classHandler.registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
+                            cd.classHandler.registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd, basedObject) : invoker));
                             if (MinecraftChecker.isMinecraft())
                                 Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered class exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
                     }
                     if (applyGlobal)
                         for (Class<? extends Throwable> ex : handler.value()) {
-                            global.getExceptionHandler().registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd) : invoker));
+                            global.getExceptionHandler().registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd, basedObject) : invoker));
                             if (MinecraftChecker.isMinecraft())
                                 Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fRegistered global exception handler " + mtd.getName() + " at " + cl.getName() + " on " + ex.getName());
                         }
@@ -102,6 +106,7 @@ public class ClassData {
 
 
     public MethodChain getChain(String name) {
+        System.out.println(chain);
         return chain.get(name);
     }
 
@@ -123,7 +128,7 @@ public class ClassData {
         }
 
 
-        public ClassData process() {
+        public ClassData process(Object baseObject) {
             if (proceed.get()) {
                 throw new IllegalStateException("ClassData blueprint already used");
             }
@@ -132,7 +137,7 @@ public class ClassData {
             for (Method mtd : mtds) {
                 AutoCompleteProvider cplt = mtd.getAnnotation(AutoCompleteProvider.class);
                 if (cplt != null) {
-                    MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd));
+                    MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd, baseObject));
                     Redirect red = mtd.getAnnotation(Redirect.class);
                     if (red != null) {
                         Bukkit.getConsoleSender().sendMessage("§aCommandAnnotation " + getVersion() + "§7 | §fAutoCompleteSupplier not supports redirection. Ignoring in method " + mtd.getName() + " at " + cl.getName());
@@ -187,7 +192,7 @@ public class ClassData {
                     continue;
                 }
                 if (cmd != null || sub != null) {
-                    MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd));
+                    MethodChain chain = new MethodChain(orig, new ParameterMatchedInvoker(mtd, baseObject));
                     Redirect red = mtd.getAnnotation(Redirect.class);
                     if (red != null) {
 

@@ -20,7 +20,7 @@ public class SubCommandTest {
 
     @Before
     public void parameterSetup() {
-        cd = ClassData.create(new GlobalData(), getClass()).process();
+        cd = ClassData.create(new GlobalData(), getClass(), null).process(null);
         argument = new ArgumentProvider("/test test1 test2 test3").getArgument();
     }
 

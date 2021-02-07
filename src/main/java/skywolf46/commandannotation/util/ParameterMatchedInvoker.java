@@ -5,15 +5,20 @@ import skywolf46.commandannotation.annotations.CommandParam;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ParameterMatchedInvoker {
     private Method mtd;
     private ParameterMatcher matcher;
+    private Object target;
 
-    public ParameterMatchedInvoker(Method target) {
+    public ParameterMatchedInvoker(Method target, Object invokeBase) {
         this.mtd = target;
         this.matcher = new ParameterMatcher();
+        this.target = invokeBase;
     }
 
 
@@ -78,13 +83,13 @@ public class ParameterMatchedInvoker {
                             params[ri.get(i)] = null;
                         }
                     } else {
-                         params[ri.get(i)] = slot.get(i);
+                        params[ri.get(i)] = slot.get(i);
                     }
                 }
             }
             // 최종 - 메서드 실행
             try {
-                return mtd.invoke(null, params);
+                return mtd.invoke(target, params);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
