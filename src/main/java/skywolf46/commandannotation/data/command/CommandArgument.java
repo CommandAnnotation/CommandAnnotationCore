@@ -194,7 +194,7 @@ public class CommandArgument implements Iterable<String>, Cloneable {
         }
 
         public int left() {
-            return args.length - (iteratePointer + 1);
+            return args.length - (iteratePointer);
         }
     }
 }

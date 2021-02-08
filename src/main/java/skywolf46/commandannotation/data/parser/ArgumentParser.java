@@ -47,6 +47,7 @@ public class ArgumentParser {
         for (int i = 0; i < targets.length; i++) {
             AbstractParseDefine<?> define = targets[i];
             try {
+//                System.out.println(iterator.left());
                 params[i] = define.parse(iterator);
             } catch (Throwable ex) {
                 brokenPosition = i;
@@ -96,7 +97,7 @@ public class ArgumentParser {
                     def[i] = (AbstractParseDefine<Object>) defines.get(target = PrimitiveConverter.boxPrimitive(target));
                     if (def[i] == null)
                         throw new ClassCastException("Cannot parse class " + ClassUtil.toObjectName(target) + ": Define not registered");
-                    def[i] = def[i].createInstance(objes[i]);
+                    def[i] = def[i].createInstance(objes[i] instanceof Class ? null : objes[i]);
                 }
             }
         }

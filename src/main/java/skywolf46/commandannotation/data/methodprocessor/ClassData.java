@@ -73,7 +73,7 @@ public class ClassData {
             if ((basedObject == null) == Modifier.isStatic(mtd.getModifiers())) {
                 // Static, process
                 ExceptHandler handler = mtd.getAnnotation(ExceptHandler.class);
-                System.out.println(mtd.getName());
+//                System.out.println(mtd.getName());
                 boolean classApply = mtd.getAnnotation(ApplyClass.class) != null;
                 boolean applyGlobal = mtd.getAnnotation(ApplyGlobal.class) != null;
                 Mark mark = mtd.getAnnotation(Mark.class);
@@ -83,7 +83,7 @@ public class ClassData {
                     global.registerMethod(mark.value(), (invoker == null ? invoker = new ParameterMatchedInvoker(mtd, basedObject) : invoker));
                 }
                 if (handler != null) {
-                    System.out.println(Arrays.toString(handler.value()));
+//                    System.out.println(Arrays.toString(handler.value()));
                     if (classApply) {
                         for (Class<? extends Throwable> ex : handler.value()) {
                             cd.classHandler.registerExceptionHandler(ex, (invoker == null ? invoker = new ParameterMatchedInvoker(mtd, basedObject) : invoker));
@@ -106,7 +106,7 @@ public class ClassData {
 
 
     public MethodChain getChain(String name) {
-        System.out.println(chain);
+//        System.out.println(chain);
         return chain.get(name);
     }
 
