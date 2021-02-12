@@ -124,6 +124,33 @@ public class CommandAnnotation extends JavaPlugin {
         return true;
     }
 
+    public static void triggerAutoComplete(Class<?> target, String command, ParameterStorage storage, List<String> cplt) throws Throwable {
+        cplt.clear();
+        ClassData cd = proceed.computeIfAbsent(target, cl -> {
+            ClassData.ClassDataBlueprint bp = ClassData.create(new GlobalData(), cl, null);
+            return bp.process(null);
+        });
+        if (cd.getSubCommand(command) == null) {
+            cplt.addAll(cd.getCommands());
+            AutoCompleteUtil.fetchStarting(cplt, command);
+            return;
+        }
+        MethodChain mc = cd.getChain(command);
+        if (mc.getCompleteSupplier() != null) {
+            mc.getCompleteSupplier().editCompletion(storage, cplt);
+            return;
+        }
+        if (cd.getSupplier() != null) {
+            cd.getSupplier().editCompletion(storage, cplt);
+            return;
+        }
+
+        if (cd.getGlobal().getAutoCompleteSupplier() != null) {
+            cd.getGlobal().getAutoCompleteSupplier().editCompletion(storage, cplt);
+        }
+
+    }
+
 
     public static boolean triggerSubCommand(Class<?> target, CommandArgument nextArgs, ParameterStorage storage) throws Throwable {
         nextArgs = nextArgs.clone();

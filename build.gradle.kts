@@ -15,17 +15,16 @@ version = properties["version"] as String
 
 tasks {
     processResources {
-        expand("version" to project.properties["version"])
+        outputs.upToDateWhen({ false })
+        filesMatching("plugin.yml") {
+            expand("version" to project.properties["version"])
+        }
     }
     test {
         useJUnit()
         maxHeapSize = "1G"
     }
 }
-
-
-
-
 repositories {
     mavenCentral()
 }

@@ -1,6 +1,5 @@
 package skywolf46.commandannotation.data.autocomplete;
 
-import skywolf46.commandannotation.abstraction.AbstractAnnotationApplicable;
 import skywolf46.commandannotation.data.methodprocessor.MethodChain;
 import skywolf46.commandannotation.exception.autocomplete.AutoCompleteTypeMismatchException;
 import skywolf46.commandannotation.util.ParameterStorage;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AutoCompleteSupplier{
+public abstract class AutoCompleteSupplier {
     private final MethodChain chain;
 
 
