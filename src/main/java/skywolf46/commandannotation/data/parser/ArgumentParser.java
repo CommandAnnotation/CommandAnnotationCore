@@ -3,10 +3,7 @@ package skywolf46.commandannotation.data.parser;
 import lombok.Getter;
 import skywolf46.commandannotation.abstraction.AbstractParseDefine;
 import skywolf46.commandannotation.data.command.CommandArgument;
-import skywolf46.commandannotation.data.parser.impl.define.IntegerArrayDefine;
-import skywolf46.commandannotation.data.parser.impl.define.IntegerDefine;
-import skywolf46.commandannotation.data.parser.impl.define.StringArrayDefine;
-import skywolf46.commandannotation.data.parser.impl.define.StringDefine;
+import skywolf46.commandannotation.data.parser.impl.define.*;
 import skywolf46.commandannotation.data.parser.impl.minecraft.LocationDefine;
 import skywolf46.commandannotation.data.parser.impl.minecraft.OfflinePlayerDefine;
 import skywolf46.commandannotation.data.parser.impl.minecraft.PlayerDefine;
@@ -25,6 +22,7 @@ public class ArgumentParser {
         registerDefine(new StringDefine());
         registerDefine(new StringArrayDefine(0, true));
         registerDefine(new IntegerArrayDefine(0));
+        registerDefine(new DoubleDefine());
         if (MinecraftChecker.isMinecraft()) {
             registerDefine(new LocationDefine());
             registerDefine(new VectorDefine());
