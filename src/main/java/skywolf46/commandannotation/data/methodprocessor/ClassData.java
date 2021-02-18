@@ -56,6 +56,11 @@ public class ClassData {
         return new ArrayList<>(chain.keySet());
     }
 
+
+    public List<String> getSubCommands() {
+        return new ArrayList<>(subCommand.keySet());
+    }
+
     public MethodChain getSubCommand(String name) {
         return subCommand.get(name);
     }

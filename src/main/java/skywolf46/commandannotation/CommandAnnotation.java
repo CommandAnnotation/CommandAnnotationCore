@@ -131,11 +131,11 @@ public class CommandAnnotation extends JavaPlugin {
             return bp.process(null);
         });
         if (cd.getSubCommand(command) == null) {
-            cplt.addAll(cd.getCommands());
+            cplt.addAll(cd.getSubCommands());
             AutoCompleteUtil.fetchStarting(cplt, command);
             return;
         }
-        MethodChain mc = cd.getChain(command);
+        MethodChain mc = cd.getSubCommand(command);
         if (mc.getCompleteSupplier() != null) {
             mc.getCompleteSupplier().editCompletion(storage, cplt);
             return;
