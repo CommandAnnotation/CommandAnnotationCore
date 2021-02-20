@@ -84,13 +84,13 @@ public abstract class AutoCompleteSupplier {
                 if (xt.size() == 0)
                     str.clear();
                 else {
-                    List<String> clone = new ArrayList<>(str);
-                    if (!(str.get(0) instanceof String))
+                    if (!(xt.get(0) instanceof String))
                         throw new Exception();
                     str.clear();
-                    str.addAll(clone);
+                    str.addAll(xt);
                 }
             } catch (Exception ex) {
+                ex.printStackTrace();
                 getChain().handleException(new AutoCompleteTypeMismatchException(xt.get(0)), storage);
             }
         }
