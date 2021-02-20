@@ -2,6 +2,7 @@ package skywolf46.commandannotation.data.parser;
 
 import lombok.Getter;
 import skywolf46.commandannotation.abstraction.AbstractParseDefine;
+import skywolf46.commandannotation.data.ExceptionRelay;
 import skywolf46.commandannotation.data.command.CommandArgument;
 import skywolf46.commandannotation.data.parser.impl.define.*;
 import skywolf46.commandannotation.data.parser.impl.minecraft.LocationDefine;
@@ -39,6 +40,8 @@ public class ArgumentParser {
     @Getter
     private Throwable brokenCause = null;
 
+
+
     public ArgumentParser(CommandArgument args, AbstractParseDefine<?>[] targets) {
         CommandArgument.CommandIterator iterator = args.iterator();
         params = new Object[targets.length];
@@ -55,6 +58,15 @@ public class ArgumentParser {
             }
         }
     }
+
+    public boolean handle(ExceptionRelay exr){
+        if(brokenCause == null)
+            return false;
+        exr.handle(brokenCause);
+        return true;
+    }
+
+
 
     public <T> T get(int pointer) {
         return (T) params[pointer];
