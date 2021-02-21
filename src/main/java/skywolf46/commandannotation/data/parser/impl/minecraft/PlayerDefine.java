@@ -21,6 +21,6 @@ public class PlayerDefine extends AbstractParseDefine<Player> {
 
     @Override
     public AbstractParseDefine<Player> createInstance(Player obj) {
-        return null;
+        return new PlayerDefine();
     }
 }
