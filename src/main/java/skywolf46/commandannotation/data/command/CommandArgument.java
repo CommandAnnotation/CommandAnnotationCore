@@ -55,13 +55,13 @@ public class CommandArgument implements Iterable<String>, Cloneable {
     }
 
     public String getArgumentBefore() {
-        return getArgumentBefore(false);
+        return getArgumentBefore(true);
     }
 
-    public String getArgumentBefore(boolean addSpaceAfter) {
+    public String getArgumentBefore(boolean addCommand) {
         String x = getOriginalOrNull(0, pointer);
-        if (x != null && addSpaceAfter)
-            x += " ";
+        if (x != null && addCommand)
+            x = getCommand() + " " + x;
         return x;
     }
 
