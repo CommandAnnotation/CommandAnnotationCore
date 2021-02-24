@@ -1,6 +1,7 @@
 package skywolf46.commandannotation.data.parser;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 import skywolf46.commandannotation.abstraction.AbstractParseDefine;
 import skywolf46.commandannotation.data.ExceptionRelay;
 import skywolf46.commandannotation.data.command.CommandArgument;
@@ -59,6 +60,12 @@ public class ArgumentParser {
         }
     }
 
+    public void throwIfBroken(){
+        if(brokenCause != null)
+            brokenCause.printStackTrace();
+    }
+
+
     public boolean handle(ExceptionRelay exr){
         if(brokenCause == null)
             return false;
@@ -73,6 +80,22 @@ public class ArgumentParser {
     }
 
     public <T> T get(Class<T> positional, int pointer) {
+        return (T) params[pointer];
+    }
+
+    @SneakyThrows
+    public <T> T getOrThrow(int pointer) {
+        if(brokenPosition >= pointer){
+            throw brokenCause;
+        }
+        return (T) params[pointer];
+    }
+
+    @SneakyThrows
+    public <T> T getOrThrow(Class<T> positional, int pointer) {
+        if(brokenPosition >= pointer){
+            throw brokenCause;
+        }
         return (T) params[pointer];
     }
 
