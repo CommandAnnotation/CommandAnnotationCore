@@ -136,11 +136,21 @@ public class CommandAnnotation extends JavaPlugin {
             }).insert(x, new MethodChain(new ClassData(null, new GlobalData()), new ParameterMatchedInvoker(null, null) {
                 @Override
                 public <T> T invoke(ParameterStorage storage) throws Throwable {
+                    for (Class<? extends Annotation> anot : CommandAnnotation.getScanTargets()) {
+                        Annotation at = arg.getClass().getAnnotatedInterfaces()[0].getAnnotation(anot);
+                        if (at == null)
+                            continue;
+                    }
                     arg.accept(storage.get(CommandArgument.class));
                     return null;
                 }
             }));
         }
+    }
+
+    public static void registerDynamic(String[] command, Consumer<CommandArgument> arg) {
+
+        registerDynamic(arg, command);
     }
 
     public static void triggerAutoComplete(Class<?> target, String command, ParameterStorage storage, List<String> cplt) throws Throwable {

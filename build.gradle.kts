@@ -43,7 +43,7 @@ dependencies {
 publishing {
     repositories {
         maven {
-            name = "Github"
+            name = "Reposilite"
             url = uri(properties["reposilite.release"] as String)
             credentials {
                 username = properties["reposilite.user"] as String
