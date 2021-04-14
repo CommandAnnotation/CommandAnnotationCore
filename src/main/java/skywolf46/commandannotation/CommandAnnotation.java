@@ -17,6 +17,7 @@ import skywolf46.commandannotation.starter.PermissionCheckStarter;
 import skywolf46.commandannotation.starter.PlayerOnlyStarter;
 import skywolf46.commandannotation.util.AutoCompleteUtil;
 import skywolf46.commandannotation.util.JarUtil;
+import skywolf46.commandannotation.util.ParameterMatchedInvoker;
 import skywolf46.commandannotation.util.ParameterStorage;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class CommandAnnotation extends JavaPlugin {
 
@@ -122,6 +124,23 @@ public class CommandAnnotation extends JavaPlugin {
         }
         sub.invoke(storage);
         return true;
+    }
+
+    public static void registerDynamic(Consumer<CommandArgument> arg, String... command) {
+        for (String cmd : command) {
+            String[] x = cmd.split(" ");
+            impl.computeIfAbsent(x[0], a -> {
+                MinecraftCommandImpl impl = new MinecraftCommandImpl(cmd);
+                commands.put(a, impl);
+                return impl;
+            }).insert(x, new MethodChain(new ClassData(null, new GlobalData()), new ParameterMatchedInvoker(null, null) {
+                @Override
+                public <T> T invoke(ParameterStorage storage) throws Throwable {
+                    arg.accept(storage.get(CommandArgument.class));
+                    return null;
+                }
+            }));
+        }
     }
 
     public static void triggerAutoComplete(Class<?> target, String command, ParameterStorage storage, List<String> cplt) throws Throwable {

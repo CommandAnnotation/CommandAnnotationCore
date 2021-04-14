@@ -45,7 +45,7 @@ public class ParameterStorage implements Cloneable {
     }
 
     public <T> List<T> getAll(Class cx) {
-        cx = (Class<T>) PrimitiveConverter.boxPrimitive(cx);
+        cx = PrimitiveConverter.boxPrimitive(cx);
         return map.containsKey(cx) ? (List<T>) map.get(cx) : new ArrayList<>();
     }
 

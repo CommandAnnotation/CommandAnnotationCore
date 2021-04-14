@@ -27,11 +27,13 @@ tasks {
 }
 repositories {
     mavenCentral()
+    maven(properties["reposilite.spigot"] as String)
+    maven(properties["reposilite.release"] as String)
 }
 
 dependencies {
     // java dependencies
-    implementation(files("V:/API/Java/Minecraft/Bukkit/Spigot/Spigot 1.12.2.jar"))
+    compileOnly("org.spigotmc:spigot:1.12.2")
     compileOnly("org.projectlombok:lombok:1.18.16")
     annotationProcessor("org.projectlombok:lombok:1.18.16")
     testImplementation("junit:junit:4.13")
@@ -42,10 +44,10 @@ publishing {
     repositories {
         maven {
             name = "Github"
-            url = uri("https://maven.pkg.github.com/milkyway0308/CommandAnnotation")
+            url = uri(properties["reposilite.release"] as String)
             credentials {
-                username = properties["gpr.user"] as String
-                password = properties["gpr.key"] as String
+                username = properties["reposilite.user"] as String
+                password = properties["reposilite.token"] as String
             }
         }
     }
