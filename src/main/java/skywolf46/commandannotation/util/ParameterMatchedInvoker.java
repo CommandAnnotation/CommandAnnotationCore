@@ -40,6 +40,8 @@ public class ParameterMatchedInvoker {
         private boolean exceptionWhenMismatch = false;
 
         public ParameterMatcher() {
+            if (mtd == null)
+                return;
             Parameter[] pl = mtd.getParameters();
             this.paramLength = pl.length;
             for (int i = 0; i < pl.length; i++) {

@@ -128,8 +128,9 @@ public class CommandAnnotation extends JavaPlugin {
 
     public static void registerDynamic(Consumer<CommandArgument> arg, String... command) {
         for (String cmd : command) {
+
             String[] x = cmd.split(" ");
-            impl.computeIfAbsent(x[0], a -> {
+            impl.computeIfAbsent(cmd.substring(1), a -> {
                 MinecraftCommandImpl impl = new MinecraftCommandImpl(cmd);
                 commands.put(a, impl);
                 return impl;
