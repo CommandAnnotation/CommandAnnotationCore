@@ -19,6 +19,8 @@ public class ParameterMatchedInvoker {
         this.mtd = target;
         this.matcher = new ParameterMatcher();
         this.target = invokeBase;
+        if (target == null)
+            return;
         target.setAccessible(true);
     }
 
