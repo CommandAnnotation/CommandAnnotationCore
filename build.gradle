@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'skywolf46.wolfradle' version "1.1.3"
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
+}
+
+version properties["version"]
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+
+
+    // java dependencies
+    compileOnly("org.spigotmc:spigot:1.12.2")
+    compileOnly("org.projectlombok:lombok:1.18.16")
+    annotationProcessor("org.projectlombok:lombok:1.18.16")
+    testImplementation("junit:junit:4.13")
+
+    compileOnly("skywolf46:exutil:latest.release")
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "Reposilite"
+            url(rootProject.properties["snapshot"] as Boolean ? rootProject.properties['reposilite.snapshot'] as String : rootProject.properties['reposilite.release'] as String)
+            credentials {
+                username rootProject.properties['reposilite.user'] as String
+                password rootProject.properties['reposilite.token'] as String
+            }
+        }
+    }
+    publications {
+        create("jar", MavenPublication) {
+            groupId 'skywolf46'
+            artifactId "commandannotation"
+            version rootProject.properties['version'] as String
+            from components.java
+        }
+    }
+}
+
+
