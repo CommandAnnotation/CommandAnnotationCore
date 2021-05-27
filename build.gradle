@@ -1,8 +1,6 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'skywolf46.wolfradle' version "1.1.3"
-    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
 }
 
 version properties["version"]
@@ -12,17 +10,6 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
-
-
-    // java dependencies
-    compileOnly("org.spigotmc:spigot:1.12.2")
-    compileOnly("org.projectlombok:lombok:1.18.16")
-    annotationProcessor("org.projectlombok:lombok:1.18.16")
-    testImplementation("junit:junit:4.13")
-
-    compileOnly("skywolf46:exutil:latest.release")
 }
 
 publishing {

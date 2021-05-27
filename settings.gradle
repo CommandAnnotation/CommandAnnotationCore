@@ -7,4 +7,5 @@ pluginManagement {
     }
 }
 rootProject.name = 'CommandAnnotation'
+include 'core'
 
