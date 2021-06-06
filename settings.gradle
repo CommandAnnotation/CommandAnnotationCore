@@ -8,4 +8,5 @@ pluginManagement {
 }
 rootProject.name = 'CommandAnnotation'
 include 'core'
+include 'minecraft'
 
