@@ -1,4 +1,4 @@
-package skywolf46.commandannotationmc.minecraft.annotations
+package skywolf46.commandannotation.kotlin.annotation
 
 /**
  * Command condition checker.

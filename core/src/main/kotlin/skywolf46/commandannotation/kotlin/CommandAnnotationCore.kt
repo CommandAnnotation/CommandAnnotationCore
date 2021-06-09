@@ -3,16 +3,16 @@ package skywolf46.commandannotation.kotlin
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.abstraction.ICommandProvider
+import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.data.BaseCommandStartStorage
 import skywolf46.commandannotation.kotlin.data.PreprocessorStorage
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
-import java.lang.reflect.Method
 
-object CommandAnnotation {
+object CommandAnnotationCore {
     private val providers = mutableMapOf<Class<out Annotation>, ICommandProvider<Annotation>>()
-    private val preprocessor = mutableMapOf<Class<*>, PreprocessorStorage>()
+    private val preprocessors = mutableMapOf<Class<*>, PreprocessorStorage>()
     private val commands = mutableMapOf<String, BaseCommandStartStorage<*>>()
 
     fun getCommand(commandType: String, commandStart: String, vararg condition: ICommandCondition): ICommand? {
@@ -25,29 +25,44 @@ object CommandAnnotation {
     }
 
     @JvmStatic
-    fun <T : Annotation, X : Annotation> registerPreprocessAnnotation(
+    fun <T : Annotation> registerPreprocessAnnotation(
         annotation: Class<T>,
         priority: Int,
-        preProcessor: Class<X>,
-        processingUnit: ArgumentStorage.() -> Boolean,
+        processingUnit: Arguments.(T) -> Boolean,
     ) {
-
+        if (!this.preprocessors.containsKey(annotation))
+            preprocessors[annotation] = PreprocessorStorage()
+        this.preprocessors[annotation]!!.apply {
+            this.register(annotation as Class<Annotation>, priority, processingUnit as Arguments.(Annotation) -> Boolean)
+        }
     }
 
     @JvmStatic
-    fun scanAllClass(cls: List<Class<*>>) {
-        println("CommandAnnotation-Core | Scanning methods..")
+    fun scanAllClass(cls: List<Class<*>>, log: Boolean = true) {
+        var timer = System.currentTimeMillis()
+        if (log) {
+            println("CommandAnnotation-Core | Scanning methods..")
+        }
         val baseFilter = MethodUtil.filter(*cls.toTypedArray())
-
-        println("CommandAnnotation-Core | Processing marks...")
-
-        println("CommandAnnotation-Core | Processing commands...")
+        if (log) {
+            println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
+            println("CommandAnnotation-Core | Processing marks...")
+        }
+        timer = System.currentTimeMillis()
+        processMarks(baseFilter)
+        if (log) {
+            println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
+            println("CommandAnnotation-Core | Processing commands...")
+        }
+        timer = System.currentTimeMillis()
         processCommands(baseFilter)
+        if (log) {
+            println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
+        }
     }
 
     fun processMarks(mtd: MethodUtil.MethodFilter) {
-        mtd
-            .filter(false, *providers.keys.toTypedArray())
+        mtd.filter()
             .filter({
                 System.err.println("Warning: Method ${method.name} in ${method.declaringClass.name} requires instance. Method marking rejected.")
             }, MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
@@ -62,8 +77,7 @@ object CommandAnnotation {
     }
 
     fun processMethods(mtd: MethodUtil.MethodFilter) {
-        mtd
-            .filter(false, *providers.keys.toTypedArray())
+        mtd.filter(false, *providers.keys.toTypedArray())
             .filter({
                 System.err.println("Warning: Method ${method.name} in ${method.declaringClass.name} requires instance. Method marking rejected.")
             }, MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)

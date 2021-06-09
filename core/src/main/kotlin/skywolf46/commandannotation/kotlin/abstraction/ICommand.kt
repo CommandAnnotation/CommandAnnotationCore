@@ -4,9 +4,12 @@ import com.sun.xml.internal.fastinfoset.util.StringArray
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.util.CommandInspector
 import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.util.MethodInvoker
 import java.util.*
 
 interface ICommand {
+    fun getMethod(): MethodInvoker
+
     fun getRawCommand(): Array<out String>
 
     fun invoke(storage: Arguments)

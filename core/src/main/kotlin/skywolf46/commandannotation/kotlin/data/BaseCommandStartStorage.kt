@@ -2,9 +2,13 @@ package skywolf46.commandannotation.kotlin.data
 
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
+import skywolf46.extrautility.util.MethodInvoker
 
 class BaseCommandStartStorage<T : ICommand> {
     private val map = mutableMapOf<String, CommandStorage<T>>()
+    private val markedGlobal = MarkedStorage()
+    private val markedClass = mutableMapOf<Class<*>, MarkedStorage>()
+    private val markedProject = mutableMapOf<String, MarkedStorage>()
 
     fun register(command: T, commandStart: String, vararg inspected: ICommandCondition) {
         if (!map.containsKey(commandStart))
@@ -19,5 +23,13 @@ class BaseCommandStartStorage<T : ICommand> {
 
     fun get(commandStart: String, vararg args: ICommandCondition): T? {
         return map[commandStart]?.getCommand(*args)
+    }
+
+    fun <X: Annotation> findMarked(baseCommand: ICommand) : List<MethodInvoker> {
+
+    }
+
+    fun findMarked() {
+
     }
 }

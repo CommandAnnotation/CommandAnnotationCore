@@ -1,4 +1,4 @@
-package skywolf46.commandannotationmc.minecraft.enums
+package skywolf46.commandannotation.kotlin.enums
 
 enum class MarkVisibilityStatus {
     /**

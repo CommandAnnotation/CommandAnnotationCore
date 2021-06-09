@@ -6,7 +6,7 @@ import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotationmc.minecraft.CommandAnnotation
 import skywolf46.extrautility.data.ArgumentStorage
 
-class MinecraftCommandImpl : Command("") {
+class MinecraftCommandImpl(starting: String) : Command(starting) {
     override fun execute(p0: CommandSender, p1: String, p2: Array<String>): Boolean {
         val arguments = Arguments(false, "/$p1", ArgumentStorage(), p2, 0)
         arguments.addParameter(p0)
