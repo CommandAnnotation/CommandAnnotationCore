@@ -9,6 +9,7 @@ import kotlin.reflect.KClass
 // inline reified 호환 문제로 언더바로 private 표시.
 class Arguments(
     val _isPreprocessing: Boolean,
+    val command: String,
     val _storage: ArgumentStorage,
     val _separated: Array<String>,
     var _sysPointer: Int = 0,
@@ -21,6 +22,18 @@ class Arguments(
         }
 
         fun of(cls: KClass<*>) = parser[cls]
+
+        init {
+            register(String::class) {
+                return@register next()
+            }
+            register(Int::class) {
+                return@register next().toInt()
+            }
+            register(Double::class) {
+                return@register next().toDouble()
+            }
+        }
     }
 
     constructor(
@@ -29,16 +42,19 @@ class Arguments(
         command: String,
     ) : this(
         isPreprocessing,
+        command.split(" ")[0],
         storage,
-        command.split("").toTypedArray())
+        command.substring(command.indexOf(' ')).split(" ").toTypedArray())
 
-    override fun iterator(): Iterator<String> {
+    val preArguments = mutableListOf<Int>()
+
+    override fun iterator(): ArgumentIterator {
         return ArgumentIterator(_separated, _sysPointer)
     }
 
     fun increasePointer(cloneInstance: Boolean, args: Int = 1): Arguments {
         return if (cloneInstance) {
-            Arguments(_isPreprocessing, _storage, _separated, _sysPointer + args)
+            Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer + args)
         } else {
             _sysPointer += args
             this
@@ -52,11 +68,16 @@ class Arguments(
     fun condition(cloneInstance: Boolean, str: String, unit: Arguments.() -> Unit): ArgumentCondition {
         val cond =
             ArgumentCondition(if (cloneInstance) Arguments(_isPreprocessing,
+                command,
                 _storage,
                 _separated,
                 _sysPointer) else this)
         cond.condition(str, unit)
         return cond
+    }
+
+    fun next(): String {
+        return _separated[_sysPointer++]
     }
 
     fun condition(str: String, unit: Arguments.() -> Unit): ArgumentCondition {
@@ -95,15 +116,19 @@ class Arguments(
     }
 
 
+    fun originalArgs(pointer: Int) = _separated[pointer + 1]
+
+
     inline fun <reified T : Any> params(unit: Arguments.(T) -> Unit) {
-        (_storage[T::class]?.get(0) as T?).let {
-            unit(this, it!!)
+        params<T>()?.apply {
+            unit(this@Arguments, this)
         }
     }
 
     inline fun <reified T : Any> params(str: String): T? {
         return _storage[str] as T?
     }
+
 
     inline fun <reified T : Any> params(str: String, unit: Arguments.(T) -> Unit): ArgumentHandler {
         return params<T>(str)?.let {
@@ -127,10 +152,23 @@ class Arguments(
         if (!parser.containsKey(T::class))
             return ArgumentHandler(null)
         try {
-            val temp = Arguments(_isPreprocessing, _storage, _separated, _sysPointer)
-            unit(temp, parser[T::class]!!.invoke(this) as T)
-            if (!peek)
+            if (preArguments.isNotEmpty()) {
+                // Must clone
+                try {
+                    val temp = Arguments(_isPreprocessing, command, _storage, _separated, preArguments[0])
+                    unit(temp, parser[T::class]!!.invoke(temp) as T)
+                    if (!peek)
+                        preArguments.removeAt(0)
+                } catch (e: Throwable) {
+                    return ArgumentHandler(e)
+                }
+                return ArgumentHandler(null)
+            }
+            val temp = Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
+            unit(temp, parser[T::class]!!.invoke(temp) as T)
+            if (!peek){
                 this._sysPointer = temp._sysPointer
+            }
         } catch (e: Throwable) {
             return ArgumentHandler(e)
         }
@@ -142,23 +180,6 @@ class Arguments(
     fun get(pointer: Int, useOriginalPointer: Boolean = false) =
         _separated[if (useOriginalPointer) this._sysPointer else 0 + pointer]
 
-    fun test() {
-        condition("heal") {
-            args<Int> { damage ->
-                params<AtomicInteger> {
-                    it.set(damage)
-                }
-            }
-        }.condition("damage") {
-            args<Int> { damage ->
-                params<AtomicLong> {
-                    it.set(damage.toLong())
-                }
-            }
-        } denial {
-            println("명령어 파라미터가 잘못되었습니다.")
-        }
-    }
 
     class ArgumentHandler(val exception: Throwable?) {
         inline infix fun except(unit: Exception.() -> Unit): ArgumentHandler {
@@ -184,14 +205,18 @@ class Arguments(
     class ArgumentCondition(val args: Arguments) {
         private var isProceed = false
         private var currentPointer = args._sysPointer
-
+        private var exception: Throwable? = null
         fun condition(str: String, unit: Arguments.() -> Unit): ArgumentCondition {
             if (isProceed)
                 return this
             if (args.get(currentPointer, true) == str) {
                 isProceed = true
                 args.increasePointer(1)
-                unit(args)
+                try {
+                    unit(args)
+                } catch (e: Throwable) {
+                    exception = e
+                }
             }
             return this
         }
@@ -199,6 +224,12 @@ class Arguments(
         infix fun denial(unit: Arguments.() -> Unit): ArgumentCondition {
             if (!isProceed)
                 unit(args)
+            return this
+        }
+
+        infix fun handle(unit: Arguments.(Throwable) -> Unit): ArgumentCondition {
+            if (exception != null)
+                unit(args, exception!!)
             return this
         }
     }
@@ -219,6 +250,7 @@ class Arguments(
             return arr[pointer + basePointer + skipping]
         }
 
+        fun forwardedSize() = pointer
     }
 
 }
