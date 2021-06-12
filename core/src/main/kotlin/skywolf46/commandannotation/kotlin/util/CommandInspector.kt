@@ -5,7 +5,6 @@ import skywolf46.commandannotation.kotlin.impl.DoubleCommandCondition
 import skywolf46.commandannotation.kotlin.impl.FixedStringCondition
 import skywolf46.commandannotation.kotlin.impl.IntCommandCondition
 import skywolf46.commandannotation.kotlin.impl.StringCommandCondition
-import java.lang.IllegalStateException
 
 object CommandInspector {
     private val registeredConditions: MutableMap<String, ICommandCondition> = mutableMapOf()

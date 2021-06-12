@@ -1,10 +1,10 @@
 package skywolf46.commandannotation.kotlin.data
 
-import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.PriorityReference
+import java.lang.reflect.Proxy
 
 class PreprocessorStorage {
-    private val processor = mutableMapOf<Class<Annotation>, PriorityReference<Arguments.(Any) -> Boolean>>()
+    val processor = mutableMapOf<Class<Annotation>, PriorityReference<Arguments.(Any) -> Boolean>>()
     private val processorList = object : ArrayList<PriorityReference<Arguments.(Any) -> Boolean>>() {
         override fun add(element: PriorityReference<Arguments.(Any) -> Boolean>): Boolean {
             val added = super.add(element)
@@ -23,9 +23,14 @@ class PreprocessorStorage {
     operator fun get(cls: Class<Annotation>): PriorityReference<Arguments.(Any) -> Boolean>? = processor[cls]
 
     operator fun invoke(arguments: Arguments, annotation: Annotation): Boolean {
-        for (x in processorList)
-            if (!x.data(arguments, annotation))
+        var cls: Class<*> = annotation::class.java
+        if (Proxy.isProxyClass(cls)) {
+            cls = cls.interfaces[0]
+        }
+        processor[cls]?.apply {
+            if (!data(arguments, annotation))
                 return false
+        }
         return true
     }
 

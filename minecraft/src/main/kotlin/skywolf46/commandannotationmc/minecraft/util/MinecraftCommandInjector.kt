@@ -1,12 +1,11 @@
 package skywolf46.commandannotationmc.minecraft.util
 
-import skywolf46.commandannotationmc.minecraft.impl.MinecraftCommandInstance
 import skywolf46.commandannotationmc.minecraft.impl.minecraft.MinecraftCommandImpl
 
 object MinecraftCommandInjector {
     private val commands = MinecraftCommandExtractor.parseCommandMap()
     fun inject(commandStart: String) {
-        commands!![commandStart.filterCommand()] = MinecraftCommandImpl()
+        commands!![commandStart.filterCommand()] = MinecraftCommandImpl(commandStart)
     }
 
     fun uninject(commandStart: String) {

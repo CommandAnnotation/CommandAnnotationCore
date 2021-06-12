@@ -1,11 +1,8 @@
 package skywolf46.commandannotation.kotlin.abstraction
 
-import com.sun.xml.internal.fastinfoset.util.StringArray
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.util.CommandInspector
-import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
-import java.util.*
 
 interface ICommand {
     fun getMethod(): MethodInvoker
@@ -20,9 +17,12 @@ interface ICommand {
 
     fun onRegister() {
         for (cmd in getRawCommand()) {
+            println("CommandAnnotation-Core | ..Registered command ${getMethod().method.declaringClass.kotlin.qualifiedName}#${getMethod().method.name} as \"${cmd}\"")
             val cmdSplit = cmd.trim().split(" ")
             val base = cmdSplit[0]
-            val condition = CommandInspector.inspect(cmd.trim().substring(base.length + 1).trim())
+            val condition =
+                if (cmdSplit.size == 1) emptyArray() else CommandInspector.inspect(cmd.trim().substring(base.length + 1)
+                    .trim())
             onRegister(base, *condition)
         }
     }
@@ -31,7 +31,9 @@ interface ICommand {
         for (cmd in getRawCommand()) {
             val cmdSplit = cmd.trim().split(" ")
             val base = cmdSplit[0]
-            val condition = CommandInspector.inspect(cmd.trim().substring(base.length + 1).trim())
+            val condition =
+                if (cmdSplit.size == 1) emptyArray() else CommandInspector.inspect(cmd.trim().substring(base.length + 1)
+                    .trim())
             onUnregister(base, *condition)
         }
     }

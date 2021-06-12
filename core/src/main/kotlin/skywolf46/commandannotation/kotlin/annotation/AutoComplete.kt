@@ -1,6 +1,5 @@
 package skywolf46.commandannotation.kotlin.annotation
 
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION)
 annotation class AutoComplete()

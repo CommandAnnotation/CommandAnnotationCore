@@ -1,8 +1,6 @@
 package skywolf46.commandannotation.kotlin.data
 
 import skywolf46.extrautility.data.ArgumentStorage
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.reflect.KClass
 
 // Preprocessing이 true이면 최초 실행 (초기화) 실행이다.
@@ -166,7 +164,7 @@ class Arguments(
             }
             val temp = Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
             unit(temp, parser[T::class]!!.invoke(temp) as T)
-            if (!peek){
+            if (!peek) {
                 this._sysPointer = temp._sysPointer
             }
         } catch (e: Throwable) {
@@ -178,7 +176,7 @@ class Arguments(
 
     @JvmOverloads
     fun get(pointer: Int, useOriginalPointer: Boolean = false) =
-        _separated[if (useOriginalPointer) this._sysPointer else 0 + pointer]
+        _separated[(if (useOriginalPointer) this._sysPointer else 0) + pointer]
 
 
     class ArgumentHandler(val exception: Throwable?) {
@@ -209,7 +207,9 @@ class Arguments(
         fun condition(str: String, unit: Arguments.() -> Unit): ArgumentCondition {
             if (isProceed)
                 return this
-            if (args.get(currentPointer, true) == str) {
+            if (currentPointer >= args._separated.size)
+                return this
+            if (args.get(currentPointer, false) == str) {
                 isProceed = true
                 args.increasePointer(1)
                 try {

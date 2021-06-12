@@ -14,7 +14,7 @@ class CommandTest {
             println(this)
         }
         val storage = CommandStorage<NothingCommand>()
-        storage.registerCommand(NothingCommand(), *inspected)
+        storage.registerCommand(NothingCommand(), "/test", *inspected)
         storage.inspectCommand("/test 20 test test41, 20 test5", ArgumentStorage())!!.invoke(ArgumentStorage())
     }
 }

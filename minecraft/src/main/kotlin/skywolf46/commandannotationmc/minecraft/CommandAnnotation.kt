@@ -23,7 +23,7 @@ class CommandAnnotation : JavaPlugin() {
             log("§bCommandAnnotation §7| §eScanning classes")
             val elapsed = System.currentTimeMillis()
             CommandAnnotationCore.scanAllClass(MinecraftLoader.loadAllClass())
-            log("§bCommandAnnotation §7| §bClass scanning completed in ${System.currentTimeMillis() - elapsed}ms")
+            log("§bCommandAnnotation §7| §eClass scanning completed in ${System.currentTimeMillis() - elapsed}ms")
         }
     }
 

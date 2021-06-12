@@ -1,17 +1,20 @@
 package skywolf46.commandannotation.kotlin.impl
 
+import skywolf46.commandannotation.kotlin.CommandAnnotationCore
+import skywolf46.commandannotation.kotlin.abstraction.AbstractAnnotable
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.util.CommandInspector
 import skywolf46.extrautility.util.MethodInvoker
 
-abstract class AbstractCommand(protected val command: Array<out String>, protected val wrapper: MethodInvoker) :
-    ICommand {
+abstract class AbstractCommand(protected val command: Array<out String>, wrapper: MethodInvoker, priority: Int = 0) :
+    AbstractAnnotable(wrapper, priority), ICommand {
 
     companion object {
         private val completeMap = mutableMapOf<String, Int>()
     }
+
 
     constructor(commandStart: String, wrapper: MethodInvoker) : this(arrayOf(commandStart), wrapper)
 
@@ -28,6 +31,11 @@ abstract class AbstractCommand(protected val command: Array<out String>, protect
 
     override fun invoke(storage: Arguments) {
         storage._sysPointer = inspectedSize
+       CommandAnnotationCore.markManager.findMarkedMethods(this).forEach { methods ->
+            if (!methods.runMarked(storage)) {
+                return
+            }
+        }
         wrapper.invoke(storage._storage)
     }
 
@@ -48,8 +56,7 @@ abstract class AbstractCommand(protected val command: Array<out String>, protect
             onBaseCommandRegister(commandStart, *condition)
         }
         completeMap[commandStart] = (completeMap[commandStart] ?: 0) + 1
-        for (command in commandStart)
-            onCommandRegister(commandStart, *condition)
+        onCommandRegister(commandStart, *condition)
     }
 
 
@@ -60,6 +67,15 @@ abstract class AbstractCommand(protected val command: Array<out String>, protect
     protected abstract fun onBaseCommandUnregister(commandStart: String, vararg condition: ICommandCondition)
 
     protected abstract fun onCommandUnregister(commandStart: String, vararg condition: ICommandCondition)
+
+    fun findAnnotations(annot: Class<Annotation>): List<Annotation> {
+        val lst = mutableListOf<Annotation>()
+        findMarked(annot)?.apply {
+            lst += this
+        }
+        lst += CommandAnnotationCore.markManager.findMarkedAnnotations(this, annot)
+        return lst
+    }
 
 
 }
