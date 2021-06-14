@@ -1,10 +1,9 @@
 package skywolf46.commandannotation.kotlin.data
 
-import skywolf46.commandannotation.kotlin.CommandAnnotationCore
-import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.annotation.AutoComplete
 import skywolf46.commandannotation.kotlin.impl.AbstractCommand
+import skywolf46.commandannotation.kotlin.impl.FixedStringCondition
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.PriorityReference
 
@@ -77,29 +76,44 @@ class CommandStorage<T : AbstractCommand>() {
         registerCommand(commandStart, command, 0, *args)
     }
 
-    fun inspectNextParameter(prevParam: List<T>, arguments: Arguments): List<String> {
-//        for ((x, y) in map) {
-//            val iterator = arguments.iterator()
-//            try {
-//                if (x.isMatched(iterator)) {
-//                    arguments.increasePointer(iterator.forwardedSize())
-//                    val next = y.inspectNextParameter(boundedCommand, arguments)
-//                }
-//            } catch (_: Exception) {
-//                // Ignored
-//            }
-//        }
-//        val next = mutableListOf<AutoComplete>()
-//        for (x in prevParam) {
-//            x.findAnnotations(AutoComplete::class.java)?.forEach {
-//                x.runMarked()
-//                next += CommandAnnotationCore.markManager.findMarked(it.n)
-//            }
-//        }
-//
+    fun inspectNextParameter(prevParam: List<PriorityReference<T>>, arguments: Arguments): List<String> {
+        for ((x, y) in map) {
+            val iterator = arguments.iterator()
+            try {
+                if (x.isMatched(iterator)) {
+                    arguments.increasePointer(iterator.forwardedSize())
+                    return y.inspectNextParameter(boundedCommand, arguments)
+                }
+            } catch (_: Exception) {
+                // Ignored
+            }
+        }
+        val next = mutableListOf<AutoComplete>()
+        for (x in prevParam) {
+            x.data.findAnnotations(AutoComplete::class.java)?.forEach {
+                next.add(it as AutoComplete)
+            }
+        }
+        val nextParam = mutableListOf<String>()
+        if (next.isNotEmpty()) {
+            // Use first autocomplete
+            // TODO make custom autocomplete
+            return nextParam
+        }
+        // If no auto complete, just return string params
+        for ((x, _) in map) {
+            if (x is FixedStringCondition)
+                nextParam += x.text
+        }
 
-        // TODO: 2021-06-13 Make autocomplete inspector
-        return emptyList()
+        return try {
+            val prefix = arguments.next()
+            nextParam.filter {
+                prefix.isEmpty() || it.startsWith(prefix)
+            }
+        } catch (e: Exception) {
+            nextParam
+        }
 
     }
 
