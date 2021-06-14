@@ -1,11 +1,14 @@
 package skywolf46.commandannotation.kotlin.data
 
+import skywolf46.commandannotation.kotlin.CommandAnnotationCore
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
+import skywolf46.commandannotation.kotlin.annotation.AutoComplete
+import skywolf46.commandannotation.kotlin.impl.AbstractCommand
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.PriorityReference
 
-class CommandStorage<T : ICommand>() {
+class CommandStorage<T : AbstractCommand>() {
     private val map = mutableListOf<Pair<ICommandCondition, CommandStorage<T>>>()
     var boundedCommand = object : ArrayList<PriorityReference<T>>() {
         override fun add(element: PriorityReference<T>): Boolean {
@@ -72,6 +75,32 @@ class CommandStorage<T : ICommand>() {
 
     fun registerCommand(command: PriorityReference<T>, commandStart: String, vararg args: ICommandCondition) {
         registerCommand(commandStart, command, 0, *args)
+    }
+
+    fun inspectNextParameter(prevParam: List<T>, arguments: Arguments): List<String> {
+//        for ((x, y) in map) {
+//            val iterator = arguments.iterator()
+//            try {
+//                if (x.isMatched(iterator)) {
+//                    arguments.increasePointer(iterator.forwardedSize())
+//                    val next = y.inspectNextParameter(boundedCommand, arguments)
+//                }
+//            } catch (_: Exception) {
+//                // Ignored
+//            }
+//        }
+//        val next = mutableListOf<AutoComplete>()
+//        for (x in prevParam) {
+//            x.findAnnotations(AutoComplete::class.java)?.forEach {
+//                x.runMarked()
+//                next += CommandAnnotationCore.markManager.findMarked(it.n)
+//            }
+//        }
+//
+
+        // TODO: 2021-06-13 Make autocomplete inspector
+        return emptyList()
+
     }
 
 }

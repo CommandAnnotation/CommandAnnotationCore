@@ -2,8 +2,9 @@ package skywolf46.commandannotation.kotlin.data
 
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.annotation.Apply
+import skywolf46.commandannotation.kotlin.annotation.Force
 import skywolf46.commandannotation.kotlin.annotation.Mark
-import skywolf46.commandannotation.kotlin.enums.MarkVisibilityStatus
+import skywolf46.commandannotation.kotlin.enums.VisibilityScope
 import skywolf46.extrautility.util.MethodInvoker
 import java.lang.reflect.Method
 
@@ -15,14 +16,17 @@ class MarkManager {
     private val cachedMarks = mutableMapOf<Method, MutableList<MarkedMethod>>()
     fun registerMark(invoker: MethodInvoker) {
         invoker.method.getDeclaredAnnotation(Mark::class.java)?.apply {
-            println("CommandAnnotation-Core | ..Registered Mark \"${this.value}\" at ${invoker.method.declaringClass.kotlin.qualifiedName}#${invoker.method.name}")
+            val data: MarkedStorage = when (this.scope) {
+                VisibilityScope.GLOBAL -> markedGlobal
+                VisibilityScope.PROJECT -> markedProject.computeIfAbsent(invoker.method.declaringClass.toProject()) { MarkedStorage() }
+                VisibilityScope.CLASS -> markedClass.computeIfAbsent(invoker.method.declaringClass) { MarkedStorage() }
+            }
             val marked = MarkedMethod(invoker)
-            when (this.scope) {
-                MarkVisibilityStatus.GLOBAL -> markedGlobal.addMarked(marked)
-                MarkVisibilityStatus.PROJECT -> markedProject.computeIfAbsent(invoker.method.declaringClass.toProject()) { MarkedStorage() }
-                    .addMarked(marked)
-                MarkVisibilityStatus.CLASS -> markedClass.computeIfAbsent(invoker.method.declaringClass) { MarkedStorage() }
-                    .addMarked(marked)
+            val isForced = invoker.method.getDeclaredAnnotation(Force::class.java) != null
+            println("CommandAnnotation-Core | ..Registered Mark \"${this.value}\"(Scope $scope${if (isForced) ", Forced" else ""}) at ${invoker.method.declaringClass.kotlin.qualifiedName}#${invoker.method.name}")
+            data.addMarked(marked)
+            if (isForced) {
+                data.forcedMarks.add(marked)
             }
         }
     }
@@ -46,6 +50,17 @@ class MarkManager {
                 findMarked(x, baseCommand.getMethod().method)?.apply {
                     foundList!!.add(this)
                 }
+            }
+            for (x in markedGlobal.forcedMarks)
+                foundList!! += x
+            markedProject[baseCommand.getMethod().method.declaringClass.toProject()]?.apply {
+                for (x in forcedMarks)
+                    foundList!! += x
+            }
+
+            markedClass[baseCommand.getMethod().method.declaringClass]?.apply {
+                for (x in forcedMarks)
+                    foundList!! += x
             }
             cachedMarks[baseCommand.getMethod().method] = foundList!!
             // Cache only compatible annotations

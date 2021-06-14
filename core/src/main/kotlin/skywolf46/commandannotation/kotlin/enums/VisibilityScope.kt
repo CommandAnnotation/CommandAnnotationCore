@@ -1,6 +1,6 @@
 package skywolf46.commandannotation.kotlin.enums
 
-enum class MarkVisibilityStatus {
+enum class VisibilityScope {
     /**
      * **Global visibility.**
      * Mark will visible in all project.

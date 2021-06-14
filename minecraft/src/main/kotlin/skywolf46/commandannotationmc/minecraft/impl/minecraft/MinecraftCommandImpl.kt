@@ -13,8 +13,16 @@ class MinecraftCommandImpl(starting: String) : Command(starting) {
         arguments.addParameter(arguments._storage)
         arguments.addParameter(arguments)
         CommandAnnotation.command.inspect("/$p1", arguments).forEach {
-             it.invoke(arguments)
+            it.invoke(arguments)
         }
         return true
+    }
+
+    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): MutableList<String> {
+        val arg = Arguments(false, "/$alias", ArgumentStorage(), args, 0)
+        arg.addParameter(sender)
+        val inspected = CommandAnnotation.command.inspect("/$alias", arg)
+
+        return super.tabComplete(sender, alias, args)
     }
 }

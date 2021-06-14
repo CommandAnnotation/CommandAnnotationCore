@@ -68,12 +68,12 @@ abstract class AbstractCommand(protected val command: Array<out String>, wrapper
 
     protected abstract fun onCommandUnregister(commandStart: String, vararg condition: ICommandCondition)
 
-    fun findAnnotations(annot: Class<Annotation>): List<Annotation> {
+    fun findAnnotations(annot: Class<out Annotation>): List<Annotation> {
         val lst = mutableListOf<Annotation>()
         findMarked(annot)?.apply {
             lst += this
         }
-        lst += CommandAnnotationCore.markManager.findMarkedAnnotations(this, annot)
+        lst += CommandAnnotationCore.markManager.findMarkedAnnotations(this, annot as Class<Annotation>)
         return lst
     }
 
