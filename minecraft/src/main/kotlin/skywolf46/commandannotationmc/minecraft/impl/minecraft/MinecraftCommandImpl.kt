@@ -13,7 +13,8 @@ class MinecraftCommandImpl(starting: String) : Command(starting) {
         arguments.addParameter(arguments._storage)
         arguments.addParameter(arguments)
         CommandAnnotation.command.inspect("/$p1", arguments).forEach {
-            it.invoke(arguments)
+            if (!it.invoke(arguments))
+                return false
         }
         return true
     }

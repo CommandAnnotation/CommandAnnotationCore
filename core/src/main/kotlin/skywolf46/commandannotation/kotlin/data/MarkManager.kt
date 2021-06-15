@@ -21,7 +21,7 @@ class MarkManager {
                 VisibilityScope.PROJECT -> markedProject.computeIfAbsent(invoker.method.declaringClass.toProject()) { MarkedStorage() }
                 VisibilityScope.CLASS -> markedClass.computeIfAbsent(invoker.method.declaringClass) { MarkedStorage() }
             }
-            val marked = MarkedMethod(invoker)
+            val marked = MarkedMethod(invoker, this.force)
             val isForced = invoker.method.getDeclaredAnnotation(Force::class.java) != null
             println("CommandAnnotation-Core | ..Registered Mark \"${this.value}\"(Scope $scope${if (isForced) ", Forced" else ""}) at ${invoker.method.declaringClass.kotlin.qualifiedName}#${invoker.method.name}")
             data.addMarked(marked)

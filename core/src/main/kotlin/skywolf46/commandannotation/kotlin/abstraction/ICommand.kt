@@ -9,7 +9,7 @@ interface ICommand {
 
     fun getRawCommand(): Array<out String>
 
-    fun invoke(storage: Arguments)
+    fun invoke(storage: Arguments) : Boolean
 
     fun onUnregister(commandStart: String, vararg condition: ICommandCondition)
 

@@ -41,6 +41,7 @@ abstract class AbstractAnnotable(val wrapper: MethodInvoker, val priority: Int =
         val result = wrapper.call(storage._storage)
         if (result is Boolean && !result)
             return false
+
         return true
     }
 

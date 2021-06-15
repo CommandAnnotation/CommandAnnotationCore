@@ -29,14 +29,24 @@ abstract class AbstractCommand(protected val command: Array<out String>, wrapper
         return command
     }
 
-    override fun invoke(storage: Arguments) {
+    override fun invoke(storage: Arguments): Boolean {
         storage._sysPointer = inspectedSize
-       CommandAnnotationCore.markManager.findMarkedMethods(this).forEach { methods ->
+        CommandAnnotationCore.markManager.findMarkedMethods(this).forEach { methods ->
             if (!methods.runMarked(storage)) {
-                return
+                return true
             }
         }
-        wrapper.invoke(storage._storage)
+
+        for (x in annotationPriority) {
+            if (!CommandAnnotationCore.preprocessors.invoke(storage, x)) {
+                return false
+            }
+        }
+
+        val result = wrapper.invoke(storage._storage)
+        if (result is Boolean && result)
+            return result
+        return true
     }
 
     override fun onUnregister(commandStart: String, vararg condition: ICommandCondition) {

@@ -8,6 +8,7 @@ import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.data.BaseCommandStartStorage
 import skywolf46.commandannotation.kotlin.data.MarkManager
 import skywolf46.commandannotation.kotlin.data.PreprocessorStorage
+import skywolf46.extrautility.util.ClassUtil
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
 
@@ -40,9 +41,14 @@ object CommandAnnotationCore {
     @JvmStatic
     fun scanAllClass(cls: List<Class<*>>, log: Boolean = true) {
         var timer = System.currentTimeMillis()
+//        if (log) {
+//            for (x in cls) {
+//            }
+//        }
         if (log) {
             println("CommandAnnotation-Core | Scanning methods..")
         }
+        timer = System.currentTimeMillis()
         val baseFilter = MethodUtil.filter(*cls.toTypedArray())
         if (log) {
             println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
