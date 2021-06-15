@@ -9,7 +9,7 @@ class Arguments(
     val _isPreprocessing: Boolean,
     val command: String,
     val _storage: ArgumentStorage,
-    val _separated: Array<String>,
+    var _separated: Array<String>,
     var _sysPointer: Int = 0,
 ) :
     Iterable<String> {

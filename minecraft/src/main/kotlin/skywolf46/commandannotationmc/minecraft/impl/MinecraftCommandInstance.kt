@@ -7,8 +7,11 @@ import skywolf46.commandannotationmc.minecraft.util.MinecraftCommandInjector
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.PriorityReference
 
-class MinecraftCommandInstance(command: Array<out String>, wrapper: MethodInvoker, priority: Int) :
-    AbstractCommand(command, wrapper, priority) {
+class MinecraftCommandInstance(
+    command: Array<out String>,
+    condition: Array<out ICommandCondition>, wrapper: MethodInvoker, priority: Int,
+) :
+    AbstractCommand(command, condition, wrapper, priority) {
 
     override fun onBaseCommandRegister(commandStart: String, vararg condition: ICommandCondition) {
         MinecraftCommandInjector.inject(commandStart)
@@ -16,6 +19,7 @@ class MinecraftCommandInstance(command: Array<out String>, wrapper: MethodInvoke
 
     override fun onCommandRegister(commandStart: String, vararg condition: ICommandCondition) {
         CommandAnnotation.command.register(PriorityReference(MinecraftCommandInstance(arrayOf(commandStart),
+            condition,
             wrapper,
             priority), priority),
             commandStart,

@@ -8,7 +8,12 @@ import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.util.CommandInspector
 import skywolf46.extrautility.util.MethodInvoker
 
-abstract class AbstractCommand(protected val command: Array<out String>, wrapper: MethodInvoker, priority: Int = 0) :
+abstract class AbstractCommand(
+    protected val command: Array<out String>,
+    condition: Array<out ICommandCondition>,
+    wrapper: MethodInvoker,
+    priority: Int = 0,
+) :
     AbstractAnnotable(wrapper, priority), ICommand {
 
     companion object {
@@ -16,13 +21,16 @@ abstract class AbstractCommand(protected val command: Array<out String>, wrapper
     }
 
 
-    constructor(commandStart: String, wrapper: MethodInvoker) : this(arrayOf(commandStart), wrapper)
+    constructor(commandStart: String, wrapper: MethodInvoker) : this(arrayOf(commandStart),
+        emptyArray<ICommandCondition>(),
+        wrapper)
 
     private var inspectedSize = 0
 
     init {
-        if (command.size == 1)
-            inspectedSize = CommandInspector.inspect(command[0]).size
+        if (command.size == 1) {
+            inspectedSize = condition.size
+        }
     }
 
     override fun getRawCommand(): Array<out String> {
