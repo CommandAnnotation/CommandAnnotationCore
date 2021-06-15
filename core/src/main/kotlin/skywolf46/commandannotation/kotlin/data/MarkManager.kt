@@ -44,11 +44,12 @@ class MarkManager {
         return foundList?.run {
             return@run cachedAnnotations[baseCommand.getMethod().method]!! to foundList!!
         } ?: run {
-            val currentMarked = baseCommand.getMethod().method.getAnnotation(Apply::class.java)
             foundList = mutableListOf()
-            for (x in currentMarked.value) {
-                findMarked(x, baseCommand.getMethod().method)?.apply {
-                    foundList!!.add(this)
+            baseCommand.getMethod().method.getAnnotation(Apply::class.java)?.apply {
+                for (x in value) {
+                    findMarked(x, baseCommand.getMethod().method)?.apply {
+                        foundList!!.add(this)
+                    }
                 }
             }
             for (x in markedGlobal.forcedMarks)

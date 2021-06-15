@@ -22,7 +22,7 @@ abstract class AbstractCommand(protected val command: Array<out String>, wrapper
 
     init {
         if (command.size == 1)
-            inspectedSize = CommandInspector.inspect(command[0]).size - 1
+            inspectedSize = CommandInspector.inspect(command[0]).size
     }
 
     override fun getRawCommand(): Array<out String> {

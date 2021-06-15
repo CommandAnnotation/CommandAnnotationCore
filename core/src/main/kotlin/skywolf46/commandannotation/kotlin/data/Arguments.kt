@@ -74,8 +74,13 @@ class Arguments(
         return cond
     }
 
+
     fun next(): String {
         return _separated[_sysPointer++]
+    }
+
+    fun size(): Int {
+        return _separated.size - _sysPointer
     }
 
     fun condition(str: String, unit: Arguments.() -> Unit): ArgumentCondition {
