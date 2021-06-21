@@ -4,7 +4,7 @@ import skywolf46.commandannotation.kotlin.data.Arguments
 
 interface ICommandCondition : Comparable<ICommandCondition> {
     fun parse(str: String?): ICommandCondition
-    fun isMatched(iterator: Arguments.ArgumentIterator): Boolean
+    fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean
 
     fun getConditionPriority(): Int
 

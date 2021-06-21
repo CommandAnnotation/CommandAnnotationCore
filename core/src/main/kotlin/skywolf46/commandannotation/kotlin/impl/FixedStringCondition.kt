@@ -8,7 +8,7 @@ class FixedStringCondition(val text: String) : ICommandCondition {
         return FixedStringCondition("")
     }
 
-    override fun isMatched(iterator: Arguments.ArgumentIterator): Boolean {
+    override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
         return text == iterator.next()
     }
 

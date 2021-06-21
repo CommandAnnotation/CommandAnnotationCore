@@ -8,7 +8,7 @@ class RangedCommandCondition(val minRange: Int, val maxRange: Int) : ICommandCon
         TODO("Not yet implemented")
     }
 
-    override fun isMatched(iterator: Arguments.ArgumentIterator): Boolean {
+    override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
         TODO("Not yet implemented")
     }
 

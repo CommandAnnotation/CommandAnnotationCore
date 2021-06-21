@@ -26,7 +26,7 @@ class CommandStorage<T : AbstractCommand>() {
         for ((x, y) in map) {
             val iterator = arguments.iterator()
             try {
-                if (x.isMatched(iterator)) {
+                if (x.isMatched(arguments, iterator)) {
                     arguments.increasePointer(iterator.forwardedSize())
                     return y.inspectCommand(arguments)
                 }
@@ -80,7 +80,7 @@ class CommandStorage<T : AbstractCommand>() {
         for ((x, y) in map) {
             val iterator = arguments.iterator()
             try {
-                if (x.isMatched(iterator)) {
+                if (x.isMatched(arguments, iterator)) {
                     arguments.increasePointer(iterator.forwardedSize())
                     return y.inspectNextParameter(boundedCommand, arguments)
                 }

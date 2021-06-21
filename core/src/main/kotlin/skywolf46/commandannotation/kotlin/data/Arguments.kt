@@ -1,6 +1,7 @@
 package skywolf46.commandannotation.kotlin.data
 
 import skywolf46.extrautility.data.ArgumentStorage
+import kotlin.math.absoluteValue
 import kotlin.reflect.KClass
 
 // Preprocessing이 true이면 최초 실행 (초기화) 실행이다.
@@ -80,7 +81,7 @@ class Arguments(
     }
 
     fun size(): Int {
-        return _separated.size - _sysPointer
+        return _separated.size - _sysPointer + preArguments.size
     }
 
     fun condition(str: String, unit: Arguments.() -> Unit): ArgumentCondition {
@@ -152,26 +153,38 @@ class Arguments(
 
 
     inline fun <reified T : Any> Arguments.args(peek: Boolean = false, unit: Arguments.(T) -> Unit): ArgumentHandler {
-        if (!parser.containsKey(T::class))
+         if (!parser.containsKey(T::class))
             return ArgumentHandler(null)
         try {
             if (preArguments.isNotEmpty()) {
                 // Must clone
                 try {
                     val temp = Arguments(_isPreprocessing, command, _storage, _separated, preArguments[0])
-                    unit(temp, parser[T::class]!!.invoke(temp) as T)
-                    if (!peek)
-                        preArguments.removeAt(0)
+                    val next = parser[T::class]!!.invoke(temp) as T
+                    if (!peek) {
+                        var diff = (temp._sysPointer - this._sysPointer).absoluteValue
+                        while (diff > 0 && preArguments.isNotEmpty()) {
+                            preArguments.removeAt(0)
+                            diff--
+                        }
+                        if (diff > 0) {
+                            this._sysPointer += diff
+                        }
+                    }
+                    unit(temp, next)
                 } catch (e: Throwable) {
+                    e.printStackTrace()
                     return ArgumentHandler(e)
                 }
+
                 return ArgumentHandler(null)
             }
             val temp = Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
-            unit(temp, parser[T::class]!!.invoke(temp) as T)
+            val next = parser[T::class]!!.invoke(temp) as T
             if (!peek) {
                 this._sysPointer = temp._sysPointer
             }
+            unit(temp, next)
         } catch (e: Throwable) {
             return ArgumentHandler(e)
         }
@@ -239,8 +252,14 @@ class Arguments(
         }
     }
 
-    class ArgumentIterator(private val arr: Array<String>, private val basePointer: Int) : Iterator<String> {
-        private var pointer = 0
+    class ArgumentIterator(private val arr: Array<String>, val basePointer: Int) : Iterator<String> {
+        var pointer = 0
+            private set
+
+        fun currentPointer(): Int {
+            return pointer + basePointer
+        }
+
         override fun hasNext(): Boolean {
             return arr.size <= pointer + basePointer
         }

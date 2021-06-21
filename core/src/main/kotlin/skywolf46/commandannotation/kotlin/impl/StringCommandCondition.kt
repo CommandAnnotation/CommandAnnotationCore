@@ -8,8 +8,9 @@ class StringCommandCondition : ICommandCondition {
         return StringCommandCondition()
     }
 
-    override fun isMatched(iterator: Arguments.ArgumentIterator): Boolean {
+    override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
         iterator.next()
+        argument.preArguments.add(iterator.currentPointer() - 1)
         return true
     }
 
