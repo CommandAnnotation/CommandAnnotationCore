@@ -89,19 +89,27 @@ class Arguments(
     }
 
     inline fun <reified T : Any> arg(peek: Boolean = false): T? {
-        return args()
+        return args(T::class, peek)
     }
 
     inline fun <reified T : Any> arg(peek: Boolean, unit: Arguments.(T) -> Unit): ArgumentHandler {
-        return args(peek, unit)
+        return args(T::class, peek, unit)
+    }
+
+    inline fun <T : Any> arg(cls: KClass<T>, peek: Boolean, unit: Arguments.(T) -> Unit): ArgumentHandler {
+        return args(cls, peek, unit)
     }
 
     inline fun <reified T : Any> peekArg(): T? {
-        return args(true)
+        return args(T::class, true)
     }
 
     inline fun <reified T : Any> peekArgs(): T? {
-        args<T>(true) {
+        return args(T::class, true)
+    }
+
+    fun <T : Any> args(cls: KClass<T>, peek: Boolean = false): T? {
+        args(cls, peek) {
             return it
         }
         return null
@@ -151,16 +159,24 @@ class Arguments(
         _storage.setArgument(name, any)
     }
 
-
     inline fun <reified T : Any> Arguments.args(peek: Boolean = false, unit: Arguments.(T) -> Unit): ArgumentHandler {
-         if (!parser.containsKey(T::class))
+        return args(T::class, peek, unit)
+    }
+
+
+    inline fun <X : Any> Arguments.args(
+        cls: KClass<X>,
+        peek: Boolean = false,
+        unit: Arguments.(X) -> Unit,
+    ): ArgumentHandler {
+        if (!parser.containsKey(cls))
             return ArgumentHandler(null)
         try {
             if (preArguments.isNotEmpty()) {
                 // Must clone
                 try {
                     val temp = Arguments(_isPreprocessing, command, _storage, _separated, preArguments[0])
-                    val next = parser[T::class]!!.invoke(temp) as T
+                    val next = parser[cls]!!.invoke(temp) as X
                     if (!peek) {
                         var diff = (temp._sysPointer - this._sysPointer).absoluteValue
                         while (diff > 0 && preArguments.isNotEmpty()) {
@@ -180,7 +196,7 @@ class Arguments(
                 return ArgumentHandler(null)
             }
             val temp = Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
-            val next = parser[T::class]!!.invoke(temp) as T
+            val next = parser[cls]!!.invoke(temp) as X
             if (!peek) {
                 this._sysPointer = temp._sysPointer
             }
