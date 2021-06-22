@@ -1,6 +1,9 @@
 package skywolf46.commandannotation.kotlin.data
 
+import skywolf46.commandannotation.kotlin.exceptions.NoArgumentProcessorException
 import skywolf46.extrautility.data.ArgumentStorage
+import java.lang.IllegalStateException
+import java.lang.NumberFormatException
 import kotlin.math.absoluteValue
 import kotlin.reflect.KClass
 
@@ -170,7 +173,7 @@ class Arguments(
         unit: Arguments.(X) -> Unit,
     ): ArgumentHandler {
         if (!parser.containsKey(cls))
-            return ArgumentHandler(null)
+            return ArgumentHandler(NoArgumentProcessorException)
         try {
             if (preArguments.isNotEmpty()) {
                 // Must clone
@@ -220,7 +223,27 @@ class Arguments(
             return this
         }
 
+        inline infix fun noArgs(unit: NoArgumentProcessorException.() -> Unit): ArgumentHandler {
+            if (exception is NoArgumentProcessorException)
+                unit(exception)
+            return this
+        }
+
+        inline infix fun illegalNumber(unit: NumberFormatException.() -> Unit): ArgumentHandler {
+            if (exception is NumberFormatException)
+                unit(exception)
+            return this
+        }
+
+        inline infix fun illegalState(unit: IllegalStateException.() -> Unit): ArgumentHandler {
+            if (exception is IllegalStateException)
+                unit(exception)
+            return this
+        }
+
         inline infix fun throws(unit: Throwable.() -> Unit): ArgumentHandler {
+            if (exception is NoArgumentProcessorException)
+                return this
             exception?.apply(unit)
             return this
         }
