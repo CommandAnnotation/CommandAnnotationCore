@@ -1,5 +1,6 @@
 package skywolf46.commandannotation.kotlin.data
 
+import org.omg.PortableServer._ServantActivatorStub
 import skywolf46.commandannotation.kotlin.exceptions.NoArgumentProcessorException
 import skywolf46.extrautility.data.ArgumentStorage
 import java.lang.IllegalStateException
@@ -80,6 +81,9 @@ class Arguments(
 
 
     fun next(): String {
+        if (preArguments.isNotEmpty()) {
+            return _separated[preArguments.removeAt(0)]
+        }
         return _separated[_sysPointer++]
     }
 
@@ -178,19 +182,19 @@ class Arguments(
             if (preArguments.isNotEmpty()) {
                 // Must clone
                 try {
-                    val temp = Arguments(_isPreprocessing, command, _storage, _separated, preArguments[0])
+                    val temp = Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
+                    temp._sysPointer = _sysPointer
+                    temp.preArguments.addAll(preArguments)
                     val next = parser[cls]!!.invoke(temp) as X
                     if (!peek) {
-                        var diff = (temp._sysPointer - this._sysPointer).absoluteValue
-                        while (diff > 0 && preArguments.isNotEmpty()) {
-                            preArguments.removeAt(0)
-                            diff--
-                        }
-                        if (diff > 0) {
-                            this._sysPointer += diff
-                        }
+                        extractFromTemp(temp)
                     }
                     unit(temp, next)
+                    if (!peek &&
+                        (temp.preArguments.size != preArguments.size || temp._sysPointer != _sysPointer)
+                    ) {
+                        extractFromTemp(temp)
+                    }
                 } catch (e: Throwable) {
                     e.printStackTrace()
                     return ArgumentHandler(e)
@@ -199,6 +203,7 @@ class Arguments(
                 return ArgumentHandler(null)
             }
             val temp = Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
+            temp.preArguments.addAll(preArguments)
             val next = parser[cls]!!.invoke(temp) as X
             if (!peek) {
                 this._sysPointer = temp._sysPointer
@@ -210,6 +215,15 @@ class Arguments(
         return ArgumentHandler(null)
     }
 
+    @Deprecated("Inner method")
+    fun extractFromTemp(temp: Arguments) {
+        val diff = (temp._sysPointer - this._sysPointer).absoluteValue
+        if (diff > 0) {
+            this._sysPointer += diff
+        }
+        this.preArguments.clear()
+        this.preArguments.addAll(temp.preArguments)
+    }
 
     @JvmOverloads
     fun get(pointer: Int, useOriginalPointer: Boolean = false) =
