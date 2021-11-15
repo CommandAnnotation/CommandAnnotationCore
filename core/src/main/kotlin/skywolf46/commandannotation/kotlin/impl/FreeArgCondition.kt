@@ -3,31 +3,33 @@ package skywolf46.commandannotation.kotlin.impl
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.data.Arguments
 
-class StringCommandCondition : ICommandCondition {
+object FreeArgCondition : ICommandCondition {
     override fun parse(str: String?): ICommandCondition {
-        return StringCommandCondition()
+        return FreeArgCondition
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
-        return try {
-            iterator.next()
-            argument.preArguments.add(iterator.currentPointer() - 1)
-            true
-        } catch (e: Exception) {
-            false
-        }
+        return true
+    }
+
+    // Always allowed
+    override fun isLastCountMatched(args: Arguments, remaining: Int): Boolean {
+        return true
     }
 
     override fun getConditionPriority(): Int {
-        return Integer.MAX_VALUE
+        return 0
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is StringCommandCondition
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return true
     }
 
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
+
 
 }

@@ -14,6 +14,7 @@ class IntCommandCondition : ICommandCondition {
         return true
     }
 
+
     override fun getConditionPriority(): Int {
         return 1000000
     }

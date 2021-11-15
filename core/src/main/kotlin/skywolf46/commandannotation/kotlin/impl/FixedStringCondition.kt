@@ -24,4 +24,8 @@ class FixedStringCondition(val text: String) : ICommandCondition {
         return "FixedStringCondition {$text}"
     }
 
+    override fun isLastCountMatched(args: Arguments, remaining: Int): Boolean {
+        return remaining == 1
+    }
+
 }

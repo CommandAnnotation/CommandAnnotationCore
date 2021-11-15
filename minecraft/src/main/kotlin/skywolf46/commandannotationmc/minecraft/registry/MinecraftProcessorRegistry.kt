@@ -21,6 +21,7 @@ object MinecraftProcessorRegistry {
             params<Player> {
                 return@registerPreprocessAnnotation false
             }
+
             return@registerPreprocessAnnotation true
         }
 

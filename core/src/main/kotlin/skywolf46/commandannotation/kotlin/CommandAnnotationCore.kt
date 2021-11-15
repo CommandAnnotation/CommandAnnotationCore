@@ -3,20 +3,28 @@ package skywolf46.commandannotation.kotlin
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.abstraction.ICommandProvider
+import skywolf46.commandannotation.kotlin.annotation.AutoCompleteProvider
 import skywolf46.commandannotation.kotlin.annotation.Mark
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.data.BaseCommandStartStorage
 import skywolf46.commandannotation.kotlin.data.MarkManager
 import skywolf46.commandannotation.kotlin.data.PreprocessorStorage
-import skywolf46.extrautility.util.ClassUtil
+import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
 
 object CommandAnnotationCore {
-    internal val providers = mutableMapOf<Class<out Annotation>, ICommandProvider<Annotation>>()
+    private val providers = mutableMapOf<Class<out Annotation>, ICommandProvider<Annotation>>()
     internal val preprocessors = PreprocessorStorage()
-    internal val commands = mutableMapOf<String, BaseCommandStartStorage<*>>()
+    private val commands = mutableMapOf<String, BaseCommandStartStorage<*>>()
     val markManager = MarkManager()
+    private val completerCache = ArgumentStorage()
+
+    fun registerCompleter(name: String, completer: (ArgumentStorage) -> MutableList<String>) {
+        completerCache[name] = completer
+    }
+
+    fun getCompleter(name: String) = completerCache.get<(ArgumentStorage) -> MutableList<String>>(name)
 
     fun getCommand(commandType: String, commandStart: String, vararg condition: ICommandCondition): List<ICommand> {
         return commands[commandType]?.get(commandStart, *condition) ?: emptyList()
@@ -49,7 +57,7 @@ object CommandAnnotationCore {
             println("CommandAnnotation-Core | Scanning methods..")
         }
         timer = System.currentTimeMillis()
-        val baseFilter = MethodUtil.filter(*cls.toTypedArray())
+        val baseFilter = MethodUtil.getCache()
         if (log) {
             println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
             println("CommandAnnotation-Core | Processing marks...")
@@ -64,10 +72,31 @@ object CommandAnnotationCore {
         processCommands(baseFilter)
         if (log) {
             println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
+            println("CommandAnnotation-Core | Processing completer...")
+        }
+
+        timer = System.currentTimeMillis()
+        processCompleter(baseFilter)
+        if (log) {
+            println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
         }
     }
 
-    fun processMarks(mtd: MethodUtil.MethodFilter) {
+    fun processCompleter(mtd: MethodUtil.MethodFilter) {
+        mtd.filter(AutoCompleteProvider::class.java)
+            .filter({
+                System.err.println("Warning: Method ${method.name} in ${method.declaringClass.name} requires instance. Autocomplete registering rejected.")
+            }, MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
+            .methods.forEach { mtd ->
+                val invoker = MethodInvoker(mtd.method, mtd.instance)
+                registerCompleter(mtd.method.getAnnotation(AutoCompleteProvider::class.java).provider) {
+                    invoker.invoke(it) as MutableList<String>
+                }
+            }
+    }
+
+
+    private fun processMarks(mtd: MethodUtil.MethodFilter) {
         mtd.filter(Mark::class.java)
             .filter({
                 System.err.println("Warning: Method ${method.name} in ${method.declaringClass.name} requires instance. Method marking rejected.")
@@ -78,7 +107,7 @@ object CommandAnnotationCore {
     }
 
 
-    fun processCommands(methods: MethodUtil.MethodFilter) {
+    private fun processCommands(methods: MethodUtil.MethodFilter) {
         methods
             .filter(false, *providers.keys.toTypedArray())
             .filter({
@@ -93,5 +122,6 @@ object CommandAnnotationCore {
                 }
             }
     }
+
 
 }

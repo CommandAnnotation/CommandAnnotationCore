@@ -12,6 +12,7 @@ class MinecraftCommandImpl(starting: String) : Command(starting) {
         arguments.addParameter(p0)
         arguments.addParameter(arguments._storage)
         arguments.addParameter(arguments)
+
         CommandAnnotation.command.inspect("/$p1", arguments).forEach {
             if (!it.invoke(arguments.increasePointer(true, 0)))
                 return false
@@ -22,7 +23,10 @@ class MinecraftCommandImpl(starting: String) : Command(starting) {
     override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> {
         val arg = Arguments(false, "/$alias", ArgumentStorage(), args, 0)
         arg.addParameter(sender)
-        val cplt = CommandAnnotation.command.inspectNextParameter("/$alias", arg)
-        return cplt
+        CommandAnnotation.command.inspect("/$alias", arg).apply {
+            if (!isNotEmpty() && get(0).getCompleter() != null)
+                get(0).getCompleter()!!.findCompleter(arg)
+        }
+        return CommandAnnotation.command.inspectNextParameter("/$alias", arg)
     }
 }

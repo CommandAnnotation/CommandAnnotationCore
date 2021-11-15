@@ -3,20 +3,30 @@ package skywolf46.commandannotation.kotlin.impl
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.data.Arguments
 
-class DoubleCommandCondition : ICommandCondition{
+class DoubleCommandCondition : ICommandCondition {
     override fun parse(str: String?): ICommandCondition {
-        TODO("Not yet implemented")
+        return DoubleCommandCondition()
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
-        TODO("Not yet implemented")
+        iterator.next().toDouble()
+        argument.preArguments.add(iterator.currentPointer() - 1)
+        return true
     }
 
     override fun getConditionPriority(): Int {
-        TODO("Not yet implemented")
+        return 1000000
     }
 
     override fun equals(other: Any?): Boolean {
-        TODO("Not yet implemented")
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return true
     }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+
+
 }

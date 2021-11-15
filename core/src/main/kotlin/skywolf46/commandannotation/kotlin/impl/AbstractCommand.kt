@@ -4,8 +4,9 @@ import skywolf46.commandannotation.kotlin.CommandAnnotationCore
 import skywolf46.commandannotation.kotlin.abstraction.AbstractAnnotable
 import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
+import skywolf46.commandannotation.kotlin.annotation.AutoComplete
 import skywolf46.commandannotation.kotlin.data.Arguments
-import skywolf46.commandannotation.kotlin.util.CommandInspector
+import skywolf46.commandannotation.kotlin.data.BasicCompleterModule
 import skywolf46.extrautility.util.MethodInvoker
 
 abstract class AbstractCommand(
@@ -30,6 +31,9 @@ abstract class AbstractCommand(
     init {
         if (command.size == 1) {
             inspectedSize = condition.size
+        }
+        wrapper.method.getDeclaredAnnotation(AutoComplete::class.java)?.apply {
+            bindCompleter(BasicCompleterModule.analyze(this.completer))
         }
     }
 

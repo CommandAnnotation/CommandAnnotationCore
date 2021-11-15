@@ -35,7 +35,7 @@ object CommandInspector {
                 }
                 registeredConditions[check]?.apply {
                     conditions += parse(parameter)
-                } ?: throw IllegalStateException("Condition $check is not reigstered")
+                } ?: throw IllegalStateException("Condition $check is not registered")
             } else {
                 conditions += FixedStringCondition(proc)
             }

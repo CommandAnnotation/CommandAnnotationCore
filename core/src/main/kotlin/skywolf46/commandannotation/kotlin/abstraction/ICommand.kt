@@ -1,8 +1,10 @@
 package skywolf46.commandannotation.kotlin.abstraction
 
 import skywolf46.commandannotation.kotlin.data.Arguments
+import skywolf46.commandannotation.kotlin.data.BasicCompleterModule
 import skywolf46.commandannotation.kotlin.util.CommandInspector
 import skywolf46.extrautility.util.MethodInvoker
+import skywolf46.placeholderskotlin.data.WrappedString
 
 interface ICommand {
     fun getMethod(): MethodInvoker
@@ -14,6 +16,10 @@ interface ICommand {
     fun onUnregister(commandStart: String, vararg condition: ICommandCondition)
 
     fun onRegister(commandStart: String, vararg condition: ICommandCondition)
+
+    fun bindCompleter(wrapper: BasicCompleterModule)
+
+    fun getCompleter() : BasicCompleterModule?
 
     fun onRegister() {
         for (cmd in getRawCommand()) {

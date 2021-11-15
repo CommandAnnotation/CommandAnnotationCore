@@ -13,7 +13,7 @@ class MarkedStorage {
     fun <X : Annotation> getMarked(cls: Class<X>) = markedList[cls] as List<Annotation>
 
 
-    fun getMarked(name: String): MarkedMethod? = markedList[name] as MarkedMethod?
+    fun getMarked(name: String): MarkedMethod? = markedList[name]
 
     fun addMarked(mark: MarkedMethod) {
         for ((x, y) in mark.markedMap) {

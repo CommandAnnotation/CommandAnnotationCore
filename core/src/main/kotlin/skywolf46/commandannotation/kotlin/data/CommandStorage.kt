@@ -4,10 +4,11 @@ import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.annotation.AutoComplete
 import skywolf46.commandannotation.kotlin.impl.AbstractCommand
 import skywolf46.commandannotation.kotlin.impl.FixedStringCondition
+import skywolf46.commandannotation.kotlin.impl.FreeArgCondition
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.PriorityReference
 
-class CommandStorage<T : AbstractCommand>() {
+class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandCondition = FreeArgCondition) {
     private val map = mutableListOf<Pair<ICommandCondition, CommandStorage<T>>>()
     var boundedCommand = object : ArrayList<PriorityReference<T>>() {
         override fun add(element: PriorityReference<T>): Boolean {
@@ -19,23 +20,40 @@ class CommandStorage<T : AbstractCommand>() {
 
     fun inspectCommand(command: String, argumentStorage: ArgumentStorage): List<T> {
         val args = Arguments(false, argumentStorage, command)
-        return inspectCommand(args)
+        return inspect(args, true)
     }
 
-    fun inspectCommand(arguments: Arguments): List<T> {
+    fun inspect(args: Arguments, skipArgs: Boolean): List<T> {
+        val matched = mutableListOf<Pair<Int, List<PriorityReference<T>>>>()
+        // Return as map.
+        if (currentCondition.checkMatched(args) && currentCondition.checkLastCountMatched(args, 0))
+            matched += 0 to boundedCommand
+        inspect(args.increasePointer(true, 0), matched, 0)
+        if (matched.isEmpty())
+            return emptyList()
+        return matched.associate { it.first to it.second.map { x -> x.data } }.run {
+            this[maxOf { it.key }.apply {
+                if (skipArgs)
+                    args.increasePointer(this)
+            }]!!
+        }
+    }
+
+
+    private fun inspect(args: Arguments, lst: MutableList<Pair<Int, List<PriorityReference<T>>>>, depth: Int) {
         for ((x, y) in map) {
-            val iterator = arguments.iterator()
-            try {
-                if (x.isMatched(arguments, iterator)) {
-                    arguments.increasePointer(iterator.forwardedSize())
-                    return y.inspectCommand(arguments)
+            val iter = args.iterator()
+            if (x.isMatched(args.increasePointer(true, 1), iter)) {
+                if (x.isLastCountMatched(args.increasePointer(true, 1), args.size() - depth)) {
+                    lst.add(depth to y.boundedCommand)
+                } else {
+                    // Next depth..
+                    y.inspect(args.increasePointer(true, 1), lst, depth + 1)
                 }
-            } catch (_: Exception) {
-                // Ignored
             }
         }
-        return boundedCommand.map { x -> x.data }
     }
+
 
     private fun getCommand(vararg args: ICommandCondition, pointer: Int): List<T> {
         if (args.size <= pointer)
@@ -65,7 +83,7 @@ class CommandStorage<T : AbstractCommand>() {
                 break
             }
         }
-        (condition ?: (args[pointer] to CommandStorage<T>()).apply {
+        (condition ?: (args[pointer] to CommandStorage<T>(args[pointer])).apply {
             map += this
         }.second).registerCommand(commandStart, command, pointer + 1, *args)
     }

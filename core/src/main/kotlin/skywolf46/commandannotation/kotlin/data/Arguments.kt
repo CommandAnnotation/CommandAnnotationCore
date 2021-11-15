@@ -1,15 +1,12 @@
 package skywolf46.commandannotation.kotlin.data
 
-import org.omg.PortableServer._ServantActivatorStub
 import skywolf46.commandannotation.kotlin.exceptions.NoArgumentProcessorException
 import skywolf46.extrautility.data.ArgumentStorage
-import java.lang.IllegalStateException
-import java.lang.NumberFormatException
 import kotlin.math.absoluteValue
 import kotlin.reflect.KClass
 
-// Preprocessing이 true이면 최초 실행 (초기화) 실행이다.
-// inline reified 호환 문제로 언더바로 private 표시.
+// If _isPreprocessing is true, it's initializing.
+// To evade inline reified variable problem all variable will mark as public with underscore (Direct access is deprecated)
 class Arguments(
     val _isPreprocessing: Boolean,
     val command: String,
@@ -64,6 +61,10 @@ class Arguments(
         }
     }
 
+    fun clone(): Arguments {
+        return Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer)
+    }
+
     fun increasePointer(args: Int = 1): Arguments {
         return increasePointer(false, args)
     }
@@ -107,6 +108,11 @@ class Arguments(
         return args(cls, peek, unit)
     }
 
+    inline fun <reified T : Any> args(peek: Boolean, unit: Arguments.(T) -> Unit): ArgumentHandler {
+        return args(T::class, peek, unit)
+    }
+
+
     inline fun <reified T : Any> peekArg(): T? {
         return args(T::class, true)
     }
@@ -131,7 +137,7 @@ class Arguments(
 
 
     inline fun <reified T : Any> params(): T? {
-        return _storage[T::class]?.get(0) as T?
+        return _storage[T::class][0]
     }
 
 
@@ -145,7 +151,7 @@ class Arguments(
     }
 
     inline fun <reified T : Any> params(str: String): T? {
-        return _storage[str] as T?
+        return _storage[str]
     }
 
 
