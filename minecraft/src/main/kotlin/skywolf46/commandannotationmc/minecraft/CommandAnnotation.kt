@@ -8,6 +8,7 @@ import skywolf46.commandannotationmc.minecraft.impl.MinecraftCommandInstance
 import skywolf46.commandannotationmc.minecraft.provider.MinecraftCommandProvider
 import skywolf46.commandannotationmc.minecraft.registry.MinecraftArgumentRegistry
 import skywolf46.commandannotationmc.minecraft.registry.MinecraftProcessorRegistry
+import skywolf46.commandannotationmc.minecraft.registry.versionSpecific.SuggestionRegistry
 import skywolf46.extrautility.annotations.AllowScanning
 import skywolf46.extrautility.util.MinecraftLoader
 import skywolf46.extrautility.util.log
@@ -23,6 +24,8 @@ class CommandAnnotation : JavaPlugin() {
         CommandAnnotationCore.registerCommandProvider(MinecraftCommand::class.java, MinecraftCommandProvider())
         MinecraftProcessorRegistry.register()
         MinecraftArgumentRegistry.register()
+
+        SuggestionRegistry()
         schedule {
             log("§bCommandAnnotation §7| §eScanning classes")
             val elapsed = System.currentTimeMillis()
