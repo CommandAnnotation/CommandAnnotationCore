@@ -16,6 +16,7 @@ class MinecraftCommandInstance(
 
     private var completer: BasicCompleterModule? = null
 
+
     override fun onBaseCommandRegister(commandStart: String, vararg condition: ICommandCondition) {
         MinecraftCommandInjector.inject(commandStart)
     }
@@ -47,6 +48,7 @@ class MinecraftCommandInstance(
     }
 
     override fun getCompleter(): BasicCompleterModule? {
+
         return completer
     }
 
