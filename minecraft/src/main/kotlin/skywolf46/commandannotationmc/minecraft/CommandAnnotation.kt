@@ -1,6 +1,9 @@
 package skywolf46.commandannotationmc.minecraft
 
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.util.StringUtil
 import skywolf46.commandannotation.kotlin.CommandAnnotationCore
 import skywolf46.commandannotation.kotlin.data.BaseCommandStartStorage
 import skywolf46.commandannotationmc.minecraft.annotations.MinecraftCommand
@@ -29,9 +32,8 @@ class CommandAnnotation : JavaPlugin() {
         schedule {
             log("§bCommandAnnotation §7| §eScanning classes")
             val elapsed = System.currentTimeMillis()
-           CommandAnnotationCore.scanAllClass(MinecraftLoader.loadAllClass())
+            CommandAnnotationCore.scanAllClass(MinecraftLoader.loadAllClass())
             log("§bCommandAnnotation §7| §eClass scanning completed in ${System.currentTimeMillis() - elapsed}ms")
         }
     }
-
 }
