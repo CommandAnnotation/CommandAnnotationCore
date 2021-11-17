@@ -44,7 +44,8 @@ class Arguments(
         isPreprocessing,
         command.split(" ")[0],
         storage,
-        command.substring(command.indexOf(' ')).split(" ").toTypedArray())
+        if (command.indexOf(' ') != -1) command.substring(command.indexOf(' ')).split(" ")
+            .toTypedArray() else emptyArray())
 
     val preArguments = mutableListOf<Int>()
 
