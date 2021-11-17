@@ -114,8 +114,6 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         }
         val nextParam = mutableListOf<String>()
         if (next.isNotEmpty()) {
-            // Use first autocomplete
-            // TODO make custom autocomplete
             return nextParam
         }
         // If no auto complete, just return string params
@@ -132,7 +130,23 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         } catch (e: Exception) {
             nextParam
         }
-
     }
 
+    fun inspectNextCondition(arguments: Arguments, depth: Int): Pair<Int, List<ICommandCondition>> {
+        println("Inspect..")
+        println(map.map { x -> x.first }.joinToString(","))
+        for ((x, y) in map) {
+            val iterator = arguments.iterator()
+            try {
+                if (x.isMatched(arguments, iterator)) {
+                    arguments.increasePointer(iterator.forwardedSize())
+                    return y.inspectNextCondition(arguments, depth + 1)
+                }
+            } catch (_: Exception) {
+                // Ignored
+            }
+        }
+        val nextParam = map.map { (x, _) -> x }
+        return depth to nextParam
+    }
 }

@@ -28,4 +28,8 @@ class FixedStringCondition(val text: String) : ICommandCondition {
         return remaining == 1
     }
 
+    override fun findNextAutoComplete(argument: Arguments, includeSelf: Boolean): List<String> {
+        return mutableListOf(text)
+    }
+
 }

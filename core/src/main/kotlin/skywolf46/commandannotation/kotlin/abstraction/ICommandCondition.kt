@@ -3,6 +3,11 @@ package skywolf46.commandannotation.kotlin.abstraction
 import skywolf46.commandannotation.kotlin.data.Arguments
 
 interface ICommandCondition : Comparable<ICommandCondition> {
+
+    open fun findNextAutoComplete(argument: Arguments, includeSelf: Boolean): List<String> {
+        return emptyList()
+    }
+
     fun parse(str: String?): ICommandCondition
 
     fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean

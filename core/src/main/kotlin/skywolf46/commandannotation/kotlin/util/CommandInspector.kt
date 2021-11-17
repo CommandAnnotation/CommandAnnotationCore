@@ -20,6 +20,8 @@ object CommandInspector {
         registeredConditions[name] = condition
     }
 
+    fun getCondition(name: String) = registeredConditions[name]
+
     fun inspect(command: String): Array<ICommandCondition> {
         val conditions = mutableListOf<ICommandCondition>()
         val split = command.split(" ")

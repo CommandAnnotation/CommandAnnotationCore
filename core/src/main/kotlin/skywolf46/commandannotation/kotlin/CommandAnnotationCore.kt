@@ -4,14 +4,18 @@ import skywolf46.commandannotation.kotlin.abstraction.ICommand
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.abstraction.ICommandProvider
 import skywolf46.commandannotation.kotlin.annotation.AutoCompleteProvider
+import skywolf46.commandannotation.kotlin.annotation.CompactCondition
 import skywolf46.commandannotation.kotlin.annotation.Mark
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.data.BaseCommandStartStorage
 import skywolf46.commandannotation.kotlin.data.MarkManager
 import skywolf46.commandannotation.kotlin.data.PreprocessorStorage
+import skywolf46.commandannotation.kotlin.impl.CompactCommandCondition
+import skywolf46.commandannotation.kotlin.util.CommandInspector
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
+import skywolf46.extrautility.util.MethodWrapper
 
 object CommandAnnotationCore {
     private val providers = mutableMapOf<Class<out Annotation>, ICommandProvider<Annotation>>()
@@ -56,8 +60,11 @@ object CommandAnnotationCore {
         if (log) {
             println("CommandAnnotation-Core | Scanning methods..")
         }
-        timer = System.currentTimeMillis()
+
         val baseFilter = MethodUtil.getCache()
+        processCompactCondition(baseFilter)
+        timer = System.currentTimeMillis()
+
         if (log) {
             println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
             println("CommandAnnotation-Core | Processing marks...")
@@ -74,12 +81,50 @@ object CommandAnnotationCore {
             println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
             println("CommandAnnotation-Core | Processing completer...")
         }
-
         timer = System.currentTimeMillis()
         processCompleter(baseFilter)
         if (log) {
             println("CommandAnnotation-Core | ...Completed on ${System.currentTimeMillis() - timer}ms")
         }
+
+    }
+
+
+    fun processCompactCondition(mtd: MethodUtil.MethodFilter) {
+        mtd.filter(CompactCondition::class.java)
+            .filter({}, MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED).methods.forEach {
+                val ret = it.method.returnType
+                if (Array::class.java.isAssignableFrom(ret)) {
+                    processCompactCompleterMethod(it)
+                } else if (Boolean::class.java.isAssignableFrom(ret)) {
+                    processCompactConditionMethod(it)
+                }
+            }
+    }
+
+    private fun processCompactConditionMethod(mtd: MethodWrapper) {
+        findCondition(mtd) {
+            it.conditionMethod = MethodInvoker(mtd)
+        }
+    }
+
+    private fun processCompactCompleterMethod(mtd: MethodWrapper) {
+        findCondition(mtd) {
+            it.autoCompleteMethod = MethodInvoker(mtd)
+        }
+    }
+
+    private inline fun findCondition(mtd: MethodWrapper, funct: (CompactCommandCondition) -> Unit) {
+        val annot = mtd.method.getDeclaredAnnotation(CompactCondition::class.java)
+        val cond = CommandInspector.getCondition(annot.completer) ?: run {
+            CommandInspector.registerCondition(annot.completer, CompactCommandCondition())
+            CommandInspector.getCondition(annot.completer)
+        }
+        if (cond !is CompactCommandCondition) {
+            System.err.println("Failed to register compact condition ${annot.completer} : Condition is already registered and not compact condition")
+            return
+        }
+        funct(cond)
     }
 
     fun processCompleter(mtd: MethodUtil.MethodFilter) {

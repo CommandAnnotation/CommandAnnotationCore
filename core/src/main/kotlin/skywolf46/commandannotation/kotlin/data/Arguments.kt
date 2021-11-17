@@ -44,10 +44,14 @@ class Arguments(
         isPreprocessing,
         command.split(" ")[0],
         storage,
-        if (command.indexOf(' ') != -1) command.substring(command.indexOf(' ')).split(" ")
+        if (command.indexOf(' ') != -1) command.substring(command.indexOf(' ') + 1).split(" ")
             .toTypedArray() else emptyArray())
 
     val preArguments = mutableListOf<Int>()
+
+    init {
+        addParameter(this)
+    }
 
     override fun iterator(): ArgumentIterator {
         return ArgumentIterator(_separated, _sysPointer)
@@ -81,6 +85,10 @@ class Arguments(
         return cond
     }
 
+
+    fun last(): String {
+        return _separated[_separated.size - 1]
+    }
 
     fun next(): String {
         if (preArguments.isNotEmpty()) {

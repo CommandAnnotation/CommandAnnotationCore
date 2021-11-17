@@ -18,6 +18,15 @@ class BaseCommandStartStorage<T : AbstractCommand> {
         return map[commandStart]!!.inspectNextParameter(emptyList(), args)
     }
 
+    fun inspectNextCondition(commandStart: String, args: Arguments): List<ICommandCondition> {
+        if (!map.containsKey(commandStart))
+            return emptyList()
+        val next = map[commandStart]!!.inspectNextCondition(args, 0)
+        if(next.first != args.size())
+            return emptyList()
+        return next.second
+    }
+
     fun inspect(commandStart: String, args: Arguments): List<T> {
         return map[commandStart]?.inspect(args, true) ?: emptyList()
     }

@@ -28,7 +28,7 @@ class CommandAnnotation : JavaPlugin() {
         MinecraftProcessorRegistry.register()
         MinecraftArgumentRegistry.register()
 
-        SuggestionRegistry()
+        SuggestionRegistry.test()
         schedule {
             log("§bCommandAnnotation §7| §eScanning classes")
             val elapsed = System.currentTimeMillis()
