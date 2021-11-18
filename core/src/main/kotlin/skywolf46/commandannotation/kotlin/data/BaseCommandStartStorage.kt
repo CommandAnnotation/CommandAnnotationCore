@@ -19,11 +19,11 @@ class BaseCommandStartStorage<T : AbstractCommand> {
     }
 
     fun inspectNextCondition(commandStart: String, args: Arguments): List<ICommandCondition> {
+        println("Arg count: ${args.fullSize()}")
+        println("Arg current count: ${args.size()}")
         if (!map.containsKey(commandStart))
             return emptyList()
         val next = map[commandStart]!!.inspectNextCondition(args, 0)
-        println("Args size: ${args.fullSize()}")
-        println("Depth: ${next.first}")
         // ..Starting from depth level 1..
         if(next.first + 1 != args.fullSize())
             return emptyList()

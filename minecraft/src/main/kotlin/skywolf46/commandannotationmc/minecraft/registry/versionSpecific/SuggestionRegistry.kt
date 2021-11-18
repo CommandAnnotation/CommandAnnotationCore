@@ -85,10 +85,12 @@ object SuggestionRegistry {
             val suggestions = mutableListOf<Suggestion>()
             val range = StringRange(p1.input.length, p1.input.length)
             val inspected = CommandAnnotation.command.inspectNextCondition(args.command, args)
+            println("Inspected: ${inspected}")
             println(inspected.size)
             println("'${p1.input}'")
             val last = args.last()
-            for (x in CommandAnnotation.command.inspectNextCondition(args.command, args)) {
+            for (x in inspected) {
+                println(x)
                 for (str in x.findNextAutoComplete(args.clone(), false)) {
                     if (args.last().isEmpty() || (str != args.last() && str.startsWith(args.last())))
                         suggestions.add(Suggestion(StringRange(p1.input.length, p1.input.length),

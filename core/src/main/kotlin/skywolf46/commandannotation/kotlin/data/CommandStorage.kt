@@ -133,12 +133,18 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
     }
 
     fun inspectNextCondition(arguments: Arguments, depth: Int): Pair<Int, List<ICommandCondition>> {
-        println("Inspect..")
-        println(map.map { x -> x.first }.joinToString(","))
+         if (arguments.size() == 1) {
+            println("Zero-argument, returning all")
+            println(map)
+            // If last, return all.
+            val nextParam = map.map { (x, _) -> x }
+            return depth to nextParam
+        }
         for ((x, y) in map) {
             val iterator = arguments.iterator()
             try {
                 if (x.isMatched(arguments, iterator)) {
+                    println("Matched")
                     arguments.increasePointer(iterator.forwardedSize())
                     return y.inspectNextCondition(arguments, depth + 1)
                 }

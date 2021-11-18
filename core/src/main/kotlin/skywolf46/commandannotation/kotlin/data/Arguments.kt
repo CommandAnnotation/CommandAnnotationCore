@@ -53,6 +53,7 @@ class Arguments(
         addParameter(this)
     }
 
+    // TODO add pre-argument
     override fun iterator(): ArgumentIterator {
         return ArgumentIterator(_separated, _sysPointer)
     }

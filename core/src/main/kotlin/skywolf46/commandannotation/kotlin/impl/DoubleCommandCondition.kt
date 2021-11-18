@@ -9,6 +9,8 @@ class DoubleCommandCondition : ICommandCondition {
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
+        if (!iterator.hasNext())
+            return false
         iterator.next().toDouble()
         argument.preArguments.add(iterator.currentPointer() - 1)
         return true

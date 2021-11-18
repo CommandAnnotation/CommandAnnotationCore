@@ -13,7 +13,8 @@ class CompactCommandCondition : ICommandCondition {
     }
 
     override fun findNextAutoComplete(argument: Arguments, includeSelf: Boolean): List<String> {
-        return autoCompleteMethod?.invoke(argument._storage) as List<String>? ?: emptyList()
+        println("Compact completer : Called auto complete")
+        return (autoCompleteMethod?.invoke(argument._storage) as Array<String>?)?.toList() ?: emptyList()
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
