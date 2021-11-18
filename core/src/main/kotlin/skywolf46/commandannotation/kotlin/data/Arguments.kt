@@ -244,6 +244,10 @@ class Arguments(
     fun get(pointer: Int, useOriginalPointer: Boolean = false) =
         _separated[(if (useOriginalPointer) this._sysPointer else 0) + pointer]
 
+    fun fullSize(): Int {
+        return _separated.size + preArguments.size
+    }
+
 
     class ArgumentHandler(val exception: Throwable?) {
         inline infix fun except(unit: Exception.() -> Unit): ArgumentHandler {

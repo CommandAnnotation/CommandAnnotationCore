@@ -22,7 +22,10 @@ class BaseCommandStartStorage<T : AbstractCommand> {
         if (!map.containsKey(commandStart))
             return emptyList()
         val next = map[commandStart]!!.inspectNextCondition(args, 0)
-        if(next.first != args.size())
+        println("Args size: ${args.fullSize()}")
+        println("Depth: ${next.first}")
+        // ..Starting from depth level 1..
+        if(next.first + 1 != args.fullSize())
             return emptyList()
         return next.second
     }

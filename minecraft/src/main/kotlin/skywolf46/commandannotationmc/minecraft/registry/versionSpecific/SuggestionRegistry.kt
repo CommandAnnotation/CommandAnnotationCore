@@ -86,16 +86,18 @@ object SuggestionRegistry {
             val range = StringRange(p1.input.length, p1.input.length)
             val inspected = CommandAnnotation.command.inspectNextCondition(args.command, args)
             println(inspected.size)
-            println(p1.input)
+            println("'${p1.input}'")
+            val last = args.last()
             for (x in CommandAnnotation.command.inspectNextCondition(args.command, args)) {
                 for (str in x.findNextAutoComplete(args.clone(), false)) {
-                    if (str != args.last() && str.startsWith(args.last()))
+                    if (args.last().isEmpty() || (str != args.last() && str.startsWith(args.last())))
                         suggestions.add(Suggestion(StringRange(p1.input.length, p1.input.length),
                             str,
                             Message { "CA generated arguments" }))
                 }
             }
-            val suggestion = Suggestions(StringRange(p1.input.length, p1.input.length), suggestions)
+            val suggestion =
+                Suggestions(StringRange(p1.input.length - last.length, p1.input.length), suggestions)
             return CompletableFuture.completedFuture(suggestion)
         }
 
