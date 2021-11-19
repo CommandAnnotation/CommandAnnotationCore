@@ -334,7 +334,7 @@ class Arguments(
         }
 
         override fun hasNext(): Boolean {
-            return arr.size <= pointer + basePointer
+            return arr.size > pointer + basePointer
         }
 
         override fun next(): String {

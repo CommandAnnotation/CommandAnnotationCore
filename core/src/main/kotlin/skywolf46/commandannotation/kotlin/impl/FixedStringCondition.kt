@@ -9,6 +9,8 @@ class FixedStringCondition(val text: String) : ICommandCondition {
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
+        if(!iterator.hasNext())
+            return false
         return text == iterator.next()
     }
 

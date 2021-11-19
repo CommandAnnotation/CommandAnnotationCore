@@ -41,6 +41,8 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
 
 
     private fun inspect(args: Arguments, lst: MutableList<Pair<Int, List<PriorityReference<T>>>>, depth: Int) {
+        if (args.size() == 0)
+            return
         for ((x, y) in map) {
             val iter = args.iterator()
             if (x.isMatched(args.increasePointer(true, 1), iter)) {
@@ -133,7 +135,7 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
     }
 
     fun inspectNextCondition(arguments: Arguments, depth: Int): Pair<Int, List<ICommandCondition>> {
-         if (arguments.size() == 1) {
+        if (arguments.size() == 1) {
             println("Zero-argument, returning all")
             println(map)
             // If last, return all.

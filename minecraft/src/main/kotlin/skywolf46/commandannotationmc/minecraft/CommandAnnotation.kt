@@ -1,9 +1,6 @@
 package skywolf46.commandannotationmc.minecraft
 
-import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.util.StringUtil
 import skywolf46.commandannotation.kotlin.CommandAnnotationCore
 import skywolf46.commandannotation.kotlin.data.BaseCommandStartStorage
 import skywolf46.commandannotationmc.minecraft.annotations.MinecraftCommand
@@ -11,7 +8,7 @@ import skywolf46.commandannotationmc.minecraft.impl.MinecraftCommandInstance
 import skywolf46.commandannotationmc.minecraft.provider.MinecraftCommandProvider
 import skywolf46.commandannotationmc.minecraft.registry.MinecraftArgumentRegistry
 import skywolf46.commandannotationmc.minecraft.registry.MinecraftProcessorRegistry
-import skywolf46.commandannotationmc.minecraft.registry.versionSpecific.SuggestionRegistry
+import skywolf46.commandannotationmc.minecraft.registry.compatibility.SuggestionRegistry
 import skywolf46.extrautility.annotations.AllowScanning
 import skywolf46.extrautility.util.MinecraftLoader
 import skywolf46.extrautility.util.log
@@ -28,7 +25,6 @@ class CommandAnnotation : JavaPlugin() {
         MinecraftProcessorRegistry.register()
         MinecraftArgumentRegistry.register()
 
-        SuggestionRegistry.test()
         schedule {
             log("§bCommandAnnotation §7| §eScanning classes")
             val elapsed = System.currentTimeMillis()

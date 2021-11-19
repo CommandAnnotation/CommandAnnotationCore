@@ -1,4 +1,4 @@
-package skywolf46.commandannotationmc.minecraft.registry.versionSpecific
+package skywolf46.commandannotationmc.minecraft.registry.compatibility
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.Message
@@ -22,42 +22,6 @@ import java.util.concurrent.CompletableFuture
 
 object SuggestionRegistry {
 
-    init {
-        RemappedCommandLiteral("test", true).register()
-        MinecraftServer.getServer().commandDispatcher.a()
-            .register(LiteralArgumentBuilder.literal<CommandListenerWrapper>("test4"))
-        println("Child added")
-    }
-
-    @MinecraftCommand("/test a <test>")
-    fun test() {
-
-    }
-
-    @MinecraftCommand("/test test2")
-    fun test1() {
-
-    }
-
-    @MinecraftCommand("/test test3")
-    fun test2() {
-
-    }
-
-    @MinecraftCommand("/test test4")
-    fun test3() {
-
-    }
-
-    @MinecraftCommand("/test test5")
-    fun test4() {
-
-    }
-
-    @CompactCondition("test")
-    fun onCompactTestComplete(): Array<String> {
-        return arrayOf("test1", "test59", "asde")
-    }
 
     // Ignore minecraft logic, support dynamic parameter
     class RemappedCommandLiteral(val command: String, val doRandomNode: Boolean) :
