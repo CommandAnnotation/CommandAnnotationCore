@@ -48,17 +48,17 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         list: MutableList<Pair<Int, List<PriorityReference<T>>>>,
         depth: Int,
     ) {
+        var isMatched = false
         for ((x, y) in map) {
-            val iter = arguments.iterator()
-            if (x.isMatched(arguments.clone(), iter)) {
-                if (x.checkLastCountMatched(arguments)) {
-                    list.add(depth + 1 to boundedCommand)
-                }
-                y.inspect(arguments.increasePointer(true, iter.forwardedSize()), list, depth + 1)
-                // No break, check until all matched
+            // Iterate..
+            val iterator = arguments.iterator()
+            if (x.isMatched(arguments, iterator)) {
+                isMatched = true
+                y.inspect(arguments.increasePointer(true, iterator.forwardedSize()), list, depth + 1)
             }
         }
-
+        if (!isMatched)
+            list += depth to boundedCommand
     }
 
 
