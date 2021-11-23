@@ -57,6 +57,7 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
                 y.inspect(arguments.increasePointer(true, iterator.forwardedSize()), list, depth + 1)
             }
         }
+        // TODO : Check parameter inspector work without checkLastCountMatched method
         if (!isMatched)
             list += depth to boundedCommand
     }
