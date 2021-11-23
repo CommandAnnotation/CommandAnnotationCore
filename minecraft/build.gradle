@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'skywolf46.wolfradle' version "1.1.7"
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
+    id("com.github.johnrengelman.shadow") version "2.0.4"
+}
+
+version project.parent.properties["version"]
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(project(":core"))
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+
+    compileOnly("skywolf46:placeholders-core:latest.release")
+    compileOnly spigot("1.16.5")
+    compileOnly("skywolf46:exutil-common:1.67.1")
+    compileOnly("skywolf46:exutil-minecraft:latest.release")
+}
+
+jar {
+    finalizedBy('shadowJar')
+}
+
+shadowJar {
+    baseName "CommandAnnotation-Bukkit"
+
+}
+
+
+publishing {
+    repositories {
+        maven {
+            name = "Reposilite"
+            url(rootProject.properties["snapshot"] as Boolean ? rootProject.properties['reposilite.snapshot'] as String : rootProject.properties['reposilite.release'] as String)
+            credentials {
+                username rootProject.properties['reposilite.user'] as String
+                password rootProject.properties['reposilite.token'] as String
+            }
+        }
+    }
+    publications {
+        create("jar", MavenPublication) {
+            groupId 'skywolf46'
+            artifactId "commandannotation-${project.name.toLowerCase()}"
+            version rootProject.properties['version'] as String
+            from components.java
+        }
+    }
+}
+
+

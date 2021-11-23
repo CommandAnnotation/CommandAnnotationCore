@@ -1,0 +1,7 @@
+name: CommandAnnotation
+version: 3.0.3
+main: skywolf46.commandannotationmc.minecraft.CommandAnnotation
+api-version: 1.13
+description: Plugin file generated with Wolfradle
+softdepend:
+  - SkywolfExtraUtility
