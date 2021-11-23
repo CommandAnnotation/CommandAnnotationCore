@@ -18,9 +18,9 @@ interface ICommandCondition : Comparable<ICommandCondition> {
     }
 
 
-    fun checkLastCountMatched(argument: Arguments, depth: Int): Boolean {
+    fun checkLastCountMatched(argument: Arguments): Boolean {
         val next = argument.clone()
-        return isLastCountMatched(next, next.size() - depth)
+        return isLastCountMatched(next, next.size())
     }
 
     fun getConditionPriority(): Int

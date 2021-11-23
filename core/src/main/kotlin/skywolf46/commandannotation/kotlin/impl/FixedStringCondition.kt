@@ -9,7 +9,7 @@ class FixedStringCondition(val text: String) : ICommandCondition {
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
-        if(!iterator.hasNext())
+        if (!iterator.hasNext())
             return false
         return text == iterator.next()
     }
@@ -27,6 +27,7 @@ class FixedStringCondition(val text: String) : ICommandCondition {
     }
 
     override fun isLastCountMatched(args: Arguments, remaining: Int): Boolean {
+        println("Fixed condition : Last count: ${remaining}")
         return remaining == 1
     }
 

@@ -9,7 +9,7 @@ object MinecraftArgumentRegistry {
         Arguments.register(OfflinePlayer::class) {
             connectedPlayerOf(next()) ?: throw NullPointerException()
         }
-      }
+    }
 
 
 }

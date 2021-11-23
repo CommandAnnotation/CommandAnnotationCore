@@ -2,8 +2,8 @@ package skywolf46.commandannotation.kotlin.impl
 
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.data.Arguments
+import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
-import skywolf46.extrautility.util.MethodWrapper
 
 class CompactCommandCondition : ICommandCondition {
     var conditionMethod: MethodInvoker? = null
@@ -18,7 +18,13 @@ class CompactCommandCondition : ICommandCondition {
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
-        return conditionMethod?.invoke(argument._storage) as Boolean? ?: true
+        val tempProxy = ArgumentStorage().apply {
+            addArgument(iterator)
+            argument._storage.addProxy(this)
+        }
+        return (conditionMethod?.invoke(argument._storage) as Boolean?)?.apply {
+            argument._storage.removeProxy(tempProxy)
+        } ?: true
     }
 
     override fun getConditionPriority(): Int {

@@ -13,10 +13,8 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.v1_16_R3.CommandListenerWrapper
 import net.minecraft.server.v1_16_R3.MinecraftServer
-import skywolf46.commandannotation.kotlin.annotation.CompactCondition
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotationmc.minecraft.CommandAnnotation
-import skywolf46.commandannotationmc.minecraft.annotations.MinecraftCommand
 import skywolf46.extrautility.data.ArgumentStorage
 import java.util.concurrent.CompletableFuture
 
@@ -37,7 +35,6 @@ object SuggestionRegistry {
 
 
         override fun run(p0: CommandContext<CommandListenerWrapper>): Int {
-            println(p0.input)
             return Command.SINGLE_SUCCESS
         }
 
@@ -49,12 +46,8 @@ object SuggestionRegistry {
             val suggestions = mutableListOf<Suggestion>()
             val range = StringRange(p1.input.length, p1.input.length)
             val inspected = CommandAnnotation.command.inspectNextCondition(args.command, args)
-            println("Inspected: ${inspected}")
-            println(inspected.size)
-            println("'${p1.input}'")
             val last = args.last()
             for (x in inspected) {
-                println(x)
                 for (str in x.findNextAutoComplete(args.clone(), false)) {
                     if (args.last().isEmpty() || (str != args.last() && str.startsWith(args.last())))
                         suggestions.add(Suggestion(StringRange(p1.input.length, p1.input.length),

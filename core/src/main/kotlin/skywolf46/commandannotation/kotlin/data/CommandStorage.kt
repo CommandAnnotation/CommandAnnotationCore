@@ -24,36 +24,41 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
     }
 
     fun inspect(args: Arguments, skipArgs: Boolean): List<T> {
-        val matched = mutableListOf<Pair<Int, List<PriorityReference<T>>>>()
-        // Return as map.
-        if (currentCondition.checkMatched(args) && currentCondition.checkLastCountMatched(args, 0))
-            matched += 0 to boundedCommand
-        inspect(args.increasePointer(true, 0), matched, 0)
-        if (matched.isEmpty())
-            return emptyList()
-        return matched.associate { it.first to it.second.map { x -> x.data } }.run {
-            this[maxOf { it.key }.apply {
-                if (skipArgs)
-                    args.increasePointer(this)
-            }]!!
+        return mutableListOf<Pair<Int, List<PriorityReference<T>>>>().apply {
+            // Add default.
+            add(0 to boundedCommand)
+            inspect(args, this, 0)
+        }.run {
+            println(this)
+            if (isEmpty())
+                emptyList()
+            else {
+                sortedByDescending { it.first }.apply {
+                    println(this)
+                }[0].second
+                    .sortedBy { x -> x.priority }
+                    .map { x -> x.data }
+            }
         }
     }
 
-
-    private fun inspect(args: Arguments, lst: MutableList<Pair<Int, List<PriorityReference<T>>>>, depth: Int) {
-        if (args.size() == 0)
-            return
+    // /test <test> etst
+    private fun inspect(
+        arguments: Arguments,
+        list: MutableList<Pair<Int, List<PriorityReference<T>>>>,
+        depth: Int,
+    ) {
         for ((x, y) in map) {
-            val iter = args.iterator()
-            if (x.isMatched(args.increasePointer(true, 1), iter)) {
-                if (x.isLastCountMatched(args.increasePointer(true, 1), args.size() - depth)) {
-                    lst.add(depth to y.boundedCommand)
-                } else {
-                    // Next depth..
-                    y.inspect(args.increasePointer(true, 1), lst, depth + 1)
+            val iter = arguments.iterator()
+            if (x.isMatched(arguments.clone(), iter)) {
+                if (x.checkLastCountMatched(arguments)) {
+                    list.add(depth + 1 to boundedCommand)
                 }
+                y.inspect(arguments.increasePointer(true, iter.forwardedSize()), list, depth + 1)
+                // No break, check until all matched
             }
         }
+
     }
 
 
