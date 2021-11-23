@@ -39,7 +39,6 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         }
     }
 
-    // /test <test> etst
     private fun inspect(
         arguments: Arguments,
         list: MutableList<Pair<Int, List<PriorityReference<T>>>>,
@@ -48,10 +47,11 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         var isMatched = false
         for ((x, y) in map) {
             // Iterate..
+            val nextArgs = arguments.clone()
             val iterator = arguments.iterator()
-            if (x.isMatched(arguments, iterator)) {
+            if (x.isMatched(nextArgs, iterator)) {
                 isMatched = true
-                y.inspect(arguments.increasePointer(true, iterator.forwardedSize()), list, depth + 1)
+                y.inspect(nextArgs.increasePointer(false, iterator.forwardedSize()), list, depth + 1)
             }
         }
         // TODO : Check parameter inspector work without checkLastCountMatched method
@@ -147,7 +147,6 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
             val iterator = arguments.iterator()
             try {
                 if (x.isMatched(arguments, iterator)) {
-                    println("Matched")
                     arguments.increasePointer(iterator.forwardedSize())
                     return y.inspectNextCondition(arguments, depth + 1)
                 }

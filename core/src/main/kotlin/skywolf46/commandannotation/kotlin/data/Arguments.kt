@@ -55,7 +55,7 @@ class Arguments(
 
     // TODO add pre-argument
     override fun iterator(): ArgumentIterator {
-        return ArgumentIterator(_separated, _sysPointer)
+        return ArgumentIterator(this, _separated, _sysPointer)
     }
 
     fun increasePointer(cloneInstance: Boolean, args: Int = 1): Arguments {
@@ -325,7 +325,8 @@ class Arguments(
         }
     }
 
-    class ArgumentIterator(private val arr: Array<String>, val basePointer: Int) : Iterator<String> {
+    class ArgumentIterator(private val args: Arguments, private val arr: Array<String>, val basePointer: Int) :
+        Iterator<String> {
         var pointer = 0
             private set
 
@@ -341,9 +342,19 @@ class Arguments(
             return arr[pointer++ + basePointer]
         }
 
+        fun store(size: Int = 1): Boolean {
+            if (left() < size)
+                return false
+            for (x in 0 until size)
+                args.preArguments.add(currentPointer() + x)
+            pointer += size
+            return true
+        }
+
+
         fun left() = arr.size - (pointer + basePointer)
 
-        fun peekNext(skipping: Int = 0): String {
+        fun peek(skipping: Int = 0): String {
             return arr[pointer + basePointer + skipping]
         }
 

@@ -11,27 +11,53 @@ import com.mojang.brigadier.suggestion.Suggestion
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.server.v1_16_R3.CommandListenerWrapper
-import net.minecraft.server.v1_16_R3.MinecraftServer
+import org.bukkit.Bukkit
+import org.bukkit.Server
 import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotationmc.minecraft.CommandAnnotation
 import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.util.extractField
+import skywolf46.extrautility.util.invokeMethod
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
 
 object SuggestionRegistry {
     private val literals = mutableMapOf<String, AtomicInteger>()
 
+
+    fun getVersion(server: Server): String {
+        val packageName = server.javaClass.getPackage().name
+        return packageName.substring(packageName.lastIndexOf('.') + 1)
+    }
+
+
+    fun getNMSClass(className: String): Class<*> {
+        return try {
+            Class.forName("net.minecraft.server." + getVersion(Bukkit.getServer()) + "." + className)
+        } catch (ex: Exception) {
+            Void.TYPE
+        }
+    }
+
+
+    fun getOBCClass(className: String): Class<*> {
+        return Class.forName("org.bukkit.craftbukkit." + getVersion(Bukkit.getServer()) + "." + className)
+    }
+
     fun unregister(start: String) {
         if (literals.getOrElse(start) { AtomicInteger(0) }.decrementAndGet() <= 0) {
             literals.remove(start)
-            MinecraftServer.getServer().commandDispatcher.a().root.removeCommand(start)
+            Bukkit.getServer().invokeMethod("getServer")!!
+                .invokeMethod("getCommandDispatcher")!!
+                .invokeMethod("a")!!
+                .extractField<Any>("root")!!
+                .invokeMethod("removeCommand", start)
         }
     }
 
     // Ignore minecraft logic, support dynamic parameter
     class RemappedCommandLiteral(val command: String) :
-        Command<CommandListenerWrapper>, SuggestionProvider<CommandListenerWrapper> {
+        Command<Any>, SuggestionProvider<Any> {
 
         // To prevent multiple command register
         fun register(): RemappedCommandLiteral {
@@ -46,21 +72,23 @@ object SuggestionRegistry {
             return this
         }
 
-        // TODO Change to reflection
         fun forceRegister() {
-            MinecraftServer.getServer().commandDispatcher.a()
-                .register(LiteralArgumentBuilder.literal<CommandListenerWrapper?>(command).executes(this).then(
-                    RequiredArgumentBuilder.argument<CommandListenerWrapper, String>("args",
+            getNMSClass("MinecraftServer").getMethod("getServer").invoke(null)
+                .invokeMethod("getCommandDispatcher")!!
+                .invokeMethod("a")!!
+                .invokeMethod("register", LiteralArgumentBuilder.literal<Any>(command).executes(this).then(
+                    RequiredArgumentBuilder.argument<Any, String>("args",
                         StringArgumentType.greedyString()).suggests(this)
                         .executes(this)))
         }
 
-        override fun run(p0: CommandContext<CommandListenerWrapper>): Int {
+        override fun run(p0: CommandContext<Any>): Int {
+            println("Running in the 90's")
             return Command.SINGLE_SUCCESS
         }
 
         override fun getSuggestions(
-            p0: CommandContext<CommandListenerWrapper>,
+            p0: CommandContext<Any>,
             p1: SuggestionsBuilder,
         ): CompletableFuture<Suggestions> {
             val args = Arguments(false, ArgumentStorage(), p0.input)
