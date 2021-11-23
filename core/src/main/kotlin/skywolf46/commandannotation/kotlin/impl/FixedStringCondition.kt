@@ -27,7 +27,6 @@ class FixedStringCondition(val text: String) : ICommandCondition {
     }
 
     override fun isLastCountMatched(args: Arguments, remaining: Int): Boolean {
-        println("Fixed condition : Last count: ${remaining}")
         return remaining == 1
     }
 

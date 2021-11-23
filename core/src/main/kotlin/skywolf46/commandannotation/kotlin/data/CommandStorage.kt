@@ -29,13 +29,10 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
             add(0 to boundedCommand)
             inspect(args, this, 0)
         }.run {
-            println(this)
             if (isEmpty())
                 emptyList()
             else {
-                sortedByDescending { it.first }.apply {
-                    println(this)
-                }[0].second
+                sortedByDescending { it.first }[0].second
                     .sortedBy { x -> x.priority }
                     .map { x -> x.data }
             }
@@ -142,8 +139,6 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
 
     fun inspectNextCondition(arguments: Arguments, depth: Int): Pair<Int, List<ICommandCondition>> {
         if (arguments.size() == 1) {
-            println("Zero-argument, returning all")
-            println(map)
             // If last, return all.
             val nextParam = map.map { (x, _) -> x }
             return depth to nextParam

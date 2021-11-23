@@ -65,7 +65,7 @@ abstract class AbstractCommand(
         completeMap[commandStart]?.apply {
             if (this <= 1) {
                 completeMap.remove(commandStart)
-                onBaseCommandRegister(commandStart, *condition)
+                onBaseCommandUnregister(commandStart, *condition)
             } else {
                 completeMap[commandStart] = (this - 1)
             }

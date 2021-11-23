@@ -17,22 +17,43 @@ import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotationmc.minecraft.CommandAnnotation
 import skywolf46.extrautility.data.ArgumentStorage
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
 
 object SuggestionRegistry {
+    private val literals = mutableMapOf<String, AtomicInteger>()
 
+    fun unregister(start: String) {
+        if (literals.getOrElse(start) { AtomicInteger(0) }.decrementAndGet() <= 0) {
+            literals.remove(start)
+            MinecraftServer.getServer().commandDispatcher.a().root.removeCommand(start)
+        }
+    }
 
     // Ignore minecraft logic, support dynamic parameter
-    class RemappedCommandLiteral(val command: String, val doRandomNode: Boolean) :
+    class RemappedCommandLiteral(val command: String) :
         Command<CommandListenerWrapper>, SuggestionProvider<CommandListenerWrapper> {
 
-        fun register() {
+        // To prevent multiple command register
+        fun register(): RemappedCommandLiteral {
+            literals.computeIfAbsent(command) {
+                AtomicInteger(0)
+            }.apply {
+                if (get() == 0) {
+                    forceRegister()
+                }
+                incrementAndGet()
+            }
+            return this
+        }
+
+        // TODO Change to reflection
+        fun forceRegister() {
             MinecraftServer.getServer().commandDispatcher.a()
                 .register(LiteralArgumentBuilder.literal<CommandListenerWrapper?>(command).executes(this).then(
                     RequiredArgumentBuilder.argument<CommandListenerWrapper, String>("args",
                         StringArgumentType.greedyString()).suggests(this)
                         .executes(this)))
         }
-
 
         override fun run(p0: CommandContext<CommandListenerWrapper>): Int {
             return Command.SINGLE_SUCCESS
@@ -58,6 +79,10 @@ object SuggestionRegistry {
             val suggestion =
                 Suggestions(StringRange(p1.input.length - last.length, p1.input.length), suggestions)
             return CompletableFuture.completedFuture(suggestion)
+        }
+
+        fun unregister() {
+
         }
 
     }
