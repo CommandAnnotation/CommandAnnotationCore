@@ -83,7 +83,6 @@ object SuggestionRegistry {
         }
 
         override fun run(p0: CommandContext<Any>): Int {
-            println("Running in the 90's")
             return Command.SINGLE_SUCCESS
         }
 

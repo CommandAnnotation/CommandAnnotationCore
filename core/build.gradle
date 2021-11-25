@@ -12,13 +12,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     testImplementation("junit:junit:4.13")
-
-    compileOnly("skywolf46:exutil-common:latest.release")
-    compileOnly("skywolf46:exutil-common:latest.release")
-    compileOnly("skywolf46:placeholders-core:latest.release")
+    implementation("skywolf46:exutil-common:latest.release")
+    implementation("skywolf46:placeholders-core:latest.release")
     testImplementation("skywolf46:exutil-common:latest.release")
     testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")

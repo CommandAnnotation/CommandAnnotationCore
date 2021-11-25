@@ -14,12 +14,12 @@ repositories {
 
 dependencies {
     implementation(project(":core"))
+    compileOnly("skywolf46:exutil-common:1.67.1")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
 
     compileOnly("skywolf46:placeholders-core:latest.release")
     compileOnly spigot("1.16.5")
-    compileOnly("skywolf46:exutil-common:1.67.1")
     compileOnly("skywolf46:exutil-minecraft:latest.release")
 }
 

@@ -2,6 +2,8 @@ package skywolf46.commandannotation.kotlin.data
 
 import skywolf46.commandannotation.kotlin.exceptions.NoArgumentProcessorException
 import skywolf46.extrautility.data.ArgumentStorage
+import java.util.function.BiConsumer
+import java.util.function.Consumer
 import kotlin.math.absoluteValue
 import kotlin.reflect.KClass
 
@@ -118,6 +120,33 @@ class Arguments(
         return args(cls, peek, unit)
     }
 
+    fun <T : Any> args(cls: Class<T>, peek: Boolean, unit: BiConsumer<Arguments, T>): ArgumentHandler {
+        return args(cls.kotlin, peek) {
+            unit.accept(this, it)
+        }
+    }
+
+    fun <T : Any> args(cls: Class<T>, unit: Consumer<T>): ArgumentHandler {
+        return args(cls.kotlin, false) {
+            unit.accept(it)
+        }
+    }
+
+
+    fun <T : Any> args(cls: Class<T>, unit: BiConsumer<Arguments, T>): ArgumentHandler {
+        return args(cls.kotlin, false) {
+            unit.accept(this, it)
+        }
+    }
+
+
+    fun <T : Any> args(cls: Class<T>, peek: Boolean, unit: Consumer<T>): ArgumentHandler {
+        return args(cls.kotlin, peek) {
+            unit.accept(it)
+        }
+    }
+
+
     inline fun <reified T : Any> args(peek: Boolean, unit: Arguments.(T) -> Unit): ArgumentHandler {
         return args(T::class, peek, unit)
     }
@@ -131,6 +160,10 @@ class Arguments(
         return args(T::class, true)
     }
 
+    @JvmOverloads
+    fun <T : Any> args(cls: Class<T>, peek: Boolean = false): T? = args(cls.kotlin, peek)
+
+    @JvmOverloads
     fun <T : Any> args(cls: KClass<T>, peek: Boolean = false): T? {
         args(cls, peek) {
             return it
