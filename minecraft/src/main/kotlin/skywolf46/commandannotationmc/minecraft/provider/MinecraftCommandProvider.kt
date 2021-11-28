@@ -8,6 +8,6 @@ import skywolf46.extrautility.util.MethodInvoker
 
 class MinecraftCommandProvider : ICommandProvider<MinecraftCommand> {
     override fun generateCommand(annotation: MinecraftCommand, wrapper: MethodInvoker): ICommand {
-        return MinecraftCommandInstance(annotation.values, emptyArray(), wrapper, annotation.priority)
+        return MinecraftCommandInstance(annotation.value, emptyArray(), wrapper, annotation.priority)
     }
 }

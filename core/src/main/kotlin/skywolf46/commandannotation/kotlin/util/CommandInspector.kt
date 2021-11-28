@@ -32,8 +32,8 @@ object CommandInspector {
                 var parameter: String? = null
                 val index = check.indexOf(':')
                 if (index != -1) {
-                    check = check.substring(0, index)
                     parameter = check.substring(index + 1)
+                    check = check.substring(0, index)
                 }
                 registeredConditions[check]?.apply {
                     conditions += parse(parameter)

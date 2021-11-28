@@ -1,7 +1,6 @@
 package skywolf46.commandannotationmc.minecraft.registry.compatibility
 
 import com.mojang.brigadier.Command
-import com.mojang.brigadier.Message
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
@@ -99,8 +98,8 @@ object SuggestionRegistry {
                 for (str in x.findNextAutoComplete(args.clone(), false)) {
                     if (args.last().isEmpty() || (str != args.last() && str.startsWith(args.last())))
                         suggestions.add(Suggestion(StringRange(p1.input.length, p1.input.length),
-                            str,
-                            Message { "CA generated arguments" }))
+                            str
+                        ) { "CA generated arguments" })
                 }
             }
             val suggestion =

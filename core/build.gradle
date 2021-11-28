@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'skywolf46.wolfradle' version "1.1.3"
     id 'org.jetbrains.kotlin.jvm' version '1.4.32'
 }
 
@@ -9,14 +8,21 @@ version project.parent.properties["version"]
 
 repositories {
     mavenCentral()
+    maven {
+        url(project.properties["reposilite.release"])
+        allowInsecureProtocol(true)
+    }
+    maven {
+        url(project.properties["reposilite.spigot"])
+        allowInsecureProtocol(true)
+    }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     testImplementation("junit:junit:4.13")
-    implementation("skywolf46:exutil-common:latest.release")
-    implementation("skywolf46:placeholders-core:latest.release")
+    compileOnly("skywolf46:exutil-common:latest.release")
     testImplementation("skywolf46:exutil-common:latest.release")
     testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
@@ -33,6 +39,7 @@ publishing {
         maven {
             name = "Reposilite"
             url(rootProject.properties["snapshot"] as Boolean ? rootProject.properties['reposilite.snapshot'] as String : rootProject.properties['reposilite.release'] as String)
+            allowInsecureProtocol(true)
             credentials {
                 username rootProject.properties['reposilite.user'] as String
                 password rootProject.properties['reposilite.token'] as String

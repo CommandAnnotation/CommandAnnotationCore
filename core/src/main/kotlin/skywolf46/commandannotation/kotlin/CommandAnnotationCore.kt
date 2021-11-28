@@ -45,7 +45,7 @@ object CommandAnnotationCore {
         priority: Int,
         processingUnit: Arguments.(T) -> Boolean,
     ) {
-        preprocessors.register(annotation as Class<Annotation>,
+        preprocessors.register(annotation,
             priority,
             processingUnit as Arguments.(Annotation) -> Boolean)
     }

@@ -10,7 +10,7 @@ import skywolf46.commandannotationmc.minecraft.annotations.preprocessor.RequireP
 object MinecraftProcessorRegistry {
 
     fun register() {
-        CommandAnnotationCore.registerPreprocessAnnotation(PlayerOnly::class.java, 0) {
+        CommandAnnotationCore.registerPreprocessAnnotation(PlayerOnly::class.java as Class<Annotation>, 0) {
              params<Player> {
                 return@registerPreprocessAnnotation true
             }

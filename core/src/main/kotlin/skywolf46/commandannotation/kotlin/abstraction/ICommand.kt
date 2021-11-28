@@ -4,7 +4,6 @@ import skywolf46.commandannotation.kotlin.data.Arguments
 import skywolf46.commandannotation.kotlin.data.BasicCompleterModule
 import skywolf46.commandannotation.kotlin.util.CommandInspector
 import skywolf46.extrautility.util.MethodInvoker
-import skywolf46.placeholderskotlin.data.WrappedString
 
 interface ICommand {
     fun getMethod(): MethodInvoker

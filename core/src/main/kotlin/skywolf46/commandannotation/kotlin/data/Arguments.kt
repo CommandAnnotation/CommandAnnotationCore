@@ -236,16 +236,15 @@ class Arguments(
                     temp.preArguments.addAll(preArguments)
                     val next = parser[cls]!!.invoke(temp) as X
                     if (!peek) {
-                        extractFromTemp(temp)
+                        _extractFromTemp(temp)
                     }
                     unit(temp, next)
                     if (!peek &&
                         (temp.preArguments.size != preArguments.size || temp._sysPointer != _sysPointer)
                     ) {
-                        extractFromTemp(temp)
+                        _extractFromTemp(temp)
                     }
                 } catch (e: Throwable) {
-                    e.printStackTrace()
                     return ArgumentHandler(e)
                 }
 
@@ -265,7 +264,7 @@ class Arguments(
     }
 
     @Deprecated("Inner method")
-    fun extractFromTemp(temp: Arguments) {
+    fun _extractFromTemp(temp: Arguments) {
         val diff = (temp._sysPointer - this._sysPointer).absoluteValue
         if (diff > 0) {
             this._sysPointer += diff

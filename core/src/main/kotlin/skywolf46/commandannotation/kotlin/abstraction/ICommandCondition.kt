@@ -31,8 +31,6 @@ interface ICommandCondition : Comparable<ICommandCondition> {
         return remaining == 1
     }
 
-    override fun equals(other: Any?): Boolean
-
     override fun compareTo(other: ICommandCondition): Int {
         return getConditionPriority().compareTo(other.getConditionPriority())
     }

@@ -20,6 +20,6 @@ class BrigadierCommandProvider : ICommandProvider<MinecraftCommand> {
     }
 
     override fun generateCommand(annotation: MinecraftCommand, wrapper: MethodInvoker): ICommand {
-        return BrigadierCommandInstance(annotation.values, emptyArray(), wrapper, annotation.priority)
+        return BrigadierCommandInstance(annotation.value, emptyArray(), wrapper, annotation.priority)
     }
 }
