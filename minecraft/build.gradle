@@ -21,7 +21,7 @@ repositories {
 }
 dependencies {
     implementation(project(":core"))
-    compileOnly("skywolf46:exutil-common:1.67.1")
+    compileOnly("skywolf46:exutil-common:1.68.0")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     compileOnly("org.spigotmc:spigot:1.16.5")
