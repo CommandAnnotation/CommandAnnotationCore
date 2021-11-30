@@ -28,8 +28,8 @@ class BaseCommandStartStorage<T : AbstractCommand> {
         return next.second
     }
 
-    fun inspect(commandStart: String, args: Arguments): List<T> {
-        return map[commandStart]?.inspect(args, true) ?: emptyList()
+    fun inspect(commandStart: String, args: Arguments): Pair<Int, List<T>> {
+        return map[commandStart]?.inspect(args, true) ?: (0 to emptyList())
     }
 
 

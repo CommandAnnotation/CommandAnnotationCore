@@ -62,7 +62,7 @@ class Arguments(
 
     fun increasePointer(cloneInstance: Boolean, args: Int = 1): Arguments {
         return if (cloneInstance) {
-            Arguments(_isPreprocessing, command, _storage, _separated, _sysPointer + args)
+            Arguments(_isPreprocessing, command, _storage.deepCopy(), _separated, _sysPointer + args)
         } else {
             _sysPointer += args
             this

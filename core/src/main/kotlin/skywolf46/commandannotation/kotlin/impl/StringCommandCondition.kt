@@ -2,6 +2,7 @@ package skywolf46.commandannotation.kotlin.impl
 
 import skywolf46.commandannotation.kotlin.abstraction.ICommandCondition
 import skywolf46.commandannotation.kotlin.data.Arguments
+import skywolf46.extrautility.util.ifTrue
 
 class StringCommandCondition : ICommandCondition {
     override fun parse(str: String?): ICommandCondition {
@@ -9,12 +10,8 @@ class StringCommandCondition : ICommandCondition {
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
-        return try {
-            iterator.next()
-            argument.preArguments.add(iterator.currentPointer() - 1)
-            true
-        } catch (e: Exception) {
-            false
+        return iterator.hasNext().ifTrue {
+            iterator.store()
         }
     }
 

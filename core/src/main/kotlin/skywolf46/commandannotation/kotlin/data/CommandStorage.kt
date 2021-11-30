@@ -18,30 +18,30 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         }
     }
 
-    fun inspectCommand(command: String, argumentStorage: ArgumentStorage): List<T> {
+    fun inspectCommand(command: String, argumentStorage: ArgumentStorage): Pair<Int, List<T>> {
         val args = Arguments(false, argumentStorage, command)
         return inspect(args, true)
     }
 
-    fun inspect(args: Arguments, skipArgs: Boolean): List<T> {
-        return mutableListOf<Pair<Int, List<PriorityReference<T>>>>().apply {
+    fun inspect(args: Arguments, skipArgs: Boolean): Pair<Int, List<T>> {
+        return mutableListOf<Pair<Int, Pair<Int, List<PriorityReference<T>>>>>().apply {
             // Add default.
-            add(0 to boundedCommand)
+            add(0 to (0 to boundedCommand))
             inspect(args, this, 0)
         }.run {
             if (isEmpty())
-                emptyList()
+                0 to emptyList()
             else {
-                sortedByDescending { it.first }[0].second
-                    .sortedBy { x -> x.priority }
-                    .map { x -> x.data }
+                sortedByDescending { it.first }[0].second.run {
+                    first to second.sortedBy { x -> x.priority }.map { x -> x.data }
+                }
             }
         }
     }
 
     private fun inspect(
         arguments: Arguments,
-        list: MutableList<Pair<Int, List<PriorityReference<T>>>>,
+        list: MutableList<Pair<Int, Pair<Int, List<PriorityReference<T>>>>>,
         depth: Int,
     ) {
         var isMatched = false
@@ -56,7 +56,7 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
         }
         // TODO : Check parameter inspector work without checkLastCountMatched method
         if (!isMatched)
-            list += depth to boundedCommand
+            list += depth to (arguments._sysPointer to boundedCommand)
     }
 
 

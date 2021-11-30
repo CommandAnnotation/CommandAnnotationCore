@@ -12,10 +12,13 @@ class MinecraftCommandImpl(starting: String) : Command(starting) {
         arguments.addParameter(p0)
         arguments.addParameter(arguments._storage)
         arguments.addParameter(arguments)
-
-        CommandAnnotation.command.inspect("/$p1", arguments).forEach {
-            if (!it.invoke(arguments.increasePointer(true, 0)))
-                return false
+        CommandAnnotation.command.inspect("/$p1", arguments).apply {
+            // Initialize pointer
+            arguments._sysPointer = first
+            second.forEach {
+                if (!it.invoke(arguments.clone()))
+                    return false
+            }
         }
         return true
     }
@@ -24,8 +27,8 @@ class MinecraftCommandImpl(starting: String) : Command(starting) {
         val arg = Arguments(false, "/$alias", ArgumentStorage(), args, 0)
         arg.addParameter(sender)
         CommandAnnotation.command.inspect("/$alias", arg).apply {
-            if (!isNotEmpty() && get(0).getCompleter() != null)
-                get(0).getCompleter()!!.findCompleter(arg)
+            if (second.isEmpty() && second[0].getCompleter() != null)
+                second[0].getCompleter()!!.findCompleter(arg)
         }
         return CommandAnnotation.command.inspectNextParameter("/$alias", arg)
     }
