@@ -15,6 +15,8 @@ class PlayerCondition(
     }
 
     override fun isMatched(argument: Arguments, iterator: Arguments.ArgumentIterator): Boolean {
+        if(!iterator.hasNext())
+            return false
         val next = iterator.peek()
         return (if (containsAll)
             return true

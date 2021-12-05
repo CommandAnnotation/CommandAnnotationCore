@@ -49,9 +49,13 @@ class CommandStorage<T : AbstractCommand>(val currentCondition: ICommandConditio
             // Iterate..
             val nextArgs = arguments.clone()
             val iterator = arguments.iterator()
-            if (x.isMatched(nextArgs, iterator)) {
-                isMatched = true
-                y.inspect(nextArgs.increasePointer(false, iterator.forwardedSize()), list, depth + 1)
+            try {
+                if (x.isMatched(nextArgs, iterator)) {
+                    isMatched = true
+                    y.inspect(nextArgs.increasePointer(false, iterator.forwardedSize()), list, depth + 1)
+                }
+            }catch (e: Throwable) {
+                // Not matched
             }
         }
         // TODO : Check parameter inspector work without checkLastCountMatched method
