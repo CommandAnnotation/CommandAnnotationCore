@@ -21,7 +21,7 @@ repositories {
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
-    testImplementation("junit:junit:4.13")
+    testImplementation("junit:junit:4.13.2")
     compileOnly("skywolf46:exutil-common:latest.release")
     testImplementation("skywolf46:exutil-common:latest.release")
     testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
