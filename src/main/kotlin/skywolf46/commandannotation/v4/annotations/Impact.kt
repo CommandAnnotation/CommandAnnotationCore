@@ -9,7 +9,3 @@ import skywolf46.commandannotation.v4.enumerations.ImpactValue
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class Impact(val impact: ImpactValue, val value: String = "null")
-
-fun Impact.getImpactValue(): String {
-    return if (value == "null") impact.name else value
-}
