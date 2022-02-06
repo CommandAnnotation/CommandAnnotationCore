@@ -1,9 +1,9 @@
 package skywolf46.commandannotation.v4.conditions
 
-import skywolf46.commandannotation.v4.abstraction.ICommandCondition
+import skywolf46.commandannotation.v4.abstraction.AbstractCommandCondition
 import skywolf46.commandannotation.v4.data.Arguments
 
-class OrCondition(val firstCondition: ICommandCondition, val secondCondition: ICommandCondition) : ICommandCondition {
+class OrCondition(val firstCondition: AbstractCommandCondition, val secondCondition: AbstractCommandCondition) : AbstractCommandCondition() {
     override fun isPositive(args: Arguments): Boolean {
         return firstCondition.isPositive(args) || secondCondition.isPositive(args)
     }

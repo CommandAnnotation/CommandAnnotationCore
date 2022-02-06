@@ -1,48 +1,53 @@
 package skywolf46.commandannotation.v4.util
 
-import skywolf46.commandannotation.v4.abstraction.ICommandCondition
+import skywolf46.commandannotation.v4.abstraction.AbstractCommandCondition
 import skywolf46.commandannotation.v4.conditions.AndCondition
+import skywolf46.commandannotation.v4.conditions.FailCheckCondition
 import skywolf46.commandannotation.v4.conditions.NotCondition
 import skywolf46.commandannotation.v4.conditions.OrCondition
+import skywolf46.commandannotation.v4.data.Arguments
 
 object CommandConditionUtil {
+
+
     @JvmStatic
-    infix fun ICommandCondition.or(condition: ICommandCondition): ICommandCondition {
-        return OrCondition(this, condition)
+    infix fun AbstractCommandCondition.or(condition: AbstractCommandCondition): AbstractCommandCondition {
+        return OrCondition(this, condition).also {
+            it.requirement = requirement
+        }
     }
 
-
     @JvmStatic
-    infix fun ICommandCondition.and(condition: ICommandCondition): ICommandCondition {
-        return AndCondition(this, condition)
+    infix fun AbstractCommandCondition.and(condition: AbstractCommandCondition): AbstractCommandCondition {
+        return AndCondition(this, condition).also {
+            it.requirement = requirement
+        }
     }
 
     @JvmStatic
-    infix fun ICommandCondition.not(condition: ICommandCondition): ICommandCondition {
-        return AndCondition(this, condition)
-    }
-
-
-    @JvmStatic
-    infix fun ICommandCondition.nor(condition: ICommandCondition): ICommandCondition {
+    infix fun AbstractCommandCondition.nor(condition: AbstractCommandCondition): AbstractCommandCondition {
         return !or(condition)
     }
 
-
     @JvmStatic
-    infix fun ICommandCondition.nand(condition: ICommandCondition): ICommandCondition {
+    infix fun AbstractCommandCondition.nand(condition: AbstractCommandCondition): AbstractCommandCondition {
         return !and(condition)
     }
 
+    @JvmStatic
+    infix fun AbstractCommandCondition.ifFail(unit: (Arguments) -> Unit): AbstractCommandCondition {
+        return FailCheckCondition(this, unit).also {
+            it.requirement = requirement
+        }
+    }
 
-
-    operator fun ICommandCondition.plus(condition: ICommandCondition): ICommandCondition {
+    operator fun AbstractCommandCondition.plus(condition: AbstractCommandCondition): AbstractCommandCondition {
         return and(condition)
     }
 
-
-    operator fun ICommandCondition.not(): ICommandCondition {
+    operator fun AbstractCommandCondition.not(): AbstractCommandCondition {
         return NotCondition(this)
     }
+
 
 }
