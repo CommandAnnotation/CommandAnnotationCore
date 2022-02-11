@@ -1,4 +1,4 @@
-## CommandAnnotation  [![CodeFactor](https://www.codefactor.io/repository/github/milkyway0308/commandannotation/badge/master)](https://www.codefactor.io/repository/github/milkyway0308/commandannotation/overview/master)
+## CommandAnnotation  [![CodeFactor](https://www.codefactor.io/repository/github/CommandAnnotation/CommandAnnotationCore/badge/master)](https://www.codefactor.io/repository/github/CommandAnnotation/CommandAnnotationCore/badge/master)
 
 
 
