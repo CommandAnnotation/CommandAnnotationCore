@@ -1,9 +1,12 @@
 package skywolf46.commandannotation.v4.test
 
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import skywolf46.commandannotation.v4.data.Arguments
+import skywolf46.commandannotation.v4.exceptions.CommandFailedException
 import skywolf46.commandannotation.v4.util.CommandConditionUtil.and
-import skywolf46.commandannotation.v4.util.CommandConditionUtil.ifFail
+import skywolf46.commandannotation.v4.util.CommandConditionUtil.or
+import skywolf46.commandannotation.v4.util.RequirementUtil.length
 import skywolf46.commandannotation.v4.util.RequirementUtil.maxLength
 import skywolf46.commandannotation.v4.util.RequirementUtil.minLength
 import skywolf46.extrautility.data.ArgumentStorage
@@ -11,12 +14,25 @@ import skywolf46.extrautility.data.ArgumentStorage
 class CommandTest {
     @Test
     fun failBackTest() {
-        val args = Arguments(arrayOf("test1", "test2"), ArgumentStorage())
+        Assertions.assertThrows(CommandFailedException::class.java) {
+            val args = Arguments(arrayOf("test1", "test2"), ArgumentStorage())
+            args.requires {
+                (minLength(3) and maxLength(10)) or length(1)
+                fail {
+                    println("Global fail check")
+                }
+            }
+            println("Hey, that's pretty good!")
+        }
+    }
+
+    @Test
+    fun successTest() {
+        val args = Arguments(arrayOf("test1", "test2", "test3"), ArgumentStorage())
         args.requires {
-            minLength(10) ifFail {
-                println("MinLength check failed")
-            } maxLength(10) ifFail {
-                println("MaxLength check failed")
+            (minLength(3) and maxLength(10)) or length(1)
+            fail {
+                println("Global fail check")
             }
         }
         println("Hey, that's pretty good!")

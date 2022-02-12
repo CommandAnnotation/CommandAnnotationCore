@@ -1,79 +1,31 @@
 package skywolf46.commandannotation.v4.data
 
 import skywolf46.commandannotation.v4.abstraction.AbstractCommandCondition
-import skywolf46.commandannotation.v4.annotations.debug.AddonDevelopmentMethod
+import skywolf46.commandannotation.v4.abstraction.IConditionMixer
+import skywolf46.commandannotation.v4.abstraction.IRequirement
 import skywolf46.commandannotation.v4.annotations.debug.RequireSingleThread
-import skywolf46.commandannotation.v4.conditions.LambdaCondition
-import skywolf46.commandannotation.v4.util.CommandConditionUtil.and
+import skywolf46.commandannotation.v4.exceptions.CommandFailedException
 import java.util.function.Consumer
 
 @RequireSingleThread
-class Requirement(val args: Arguments) {
+class Requirement(val args: Arguments) : IRequirement {
     private val conditions = mutableListOf<AbstractCommandCondition>()
     private val onFail = mutableListOf<(Arguments) -> Unit>()
 
-    private fun createCondition(unit: (Arguments) -> Boolean): AbstractCommandCondition {
-        return LambdaCondition(unit)
+    override fun addCondition(condition: AbstractCommandCondition): RequirementPrepareProxy {
+        conditions.add(condition)
+        return RequirementPrepareProxy(this)
     }
 
-    inline fun checkRequirements(unit: Requirement.() -> Unit) {
-        unit(this)
-        // If requirement check failed, stop entire command with "inline" return logic
-        if (!checkRequirement(args))
-            return
-        // If requirement check succeed, run command
-    }
-
-    @AddonDevelopmentMethod
-    fun prepareCondition(baseCondition: AbstractCommandCondition): AbstractCommandCondition {
-        conditions += baseCondition
-        return baseCondition.apply {
-            requirement = this@Requirement
-        }
-    }
-
-    @AddonDevelopmentMethod
-    fun prepareCondition(baseCondition: (Arguments) -> Boolean): AbstractCommandCondition {
-        return prepareCondition(createCondition(baseCondition))
-    }
-
-    @AddonDevelopmentMethod
-    fun andCondition(condition: AbstractCommandCondition): AbstractCommandCondition {
-        condition.requirement = this
-        conditions[conditions.size - 1] = conditions[conditions.size - 1].and(condition)
-        return condition
+    override fun prepareCondition(condition: AbstractCommandCondition): RequirementPrepareProxy {
+        return addCondition(condition)
     }
 
 
-    @AddonDevelopmentMethod
-    fun orCondition(condition: AbstractCommandCondition): AbstractCommandCondition {
-        condition.requirement = this
-        conditions[conditions.size - 1] = conditions[conditions.size - 1].and(condition)
-        return condition
-    }
-
-
-    @AddonDevelopmentMethod
-    fun replaceCondition(condition: AbstractCommandCondition): AbstractCommandCondition {
-        condition.requirement = this
-        conditions[conditions.size - 1] = condition
-        return condition
-    }
-
-    @AddonDevelopmentMethod
-    fun replaceCondition(condition: (Arguments) -> Boolean): AbstractCommandCondition {
-        return andCondition(createCondition(condition))
-    }
-
-
-    fun addCondition(condition: AbstractCommandCondition): AbstractCommandCondition {
-        return condition.apply {
-            conditions.add(this)
-        }
-    }
-
-    fun addCondition(unit: (Arguments) -> Boolean): AbstractCommandCondition {
-        return addCondition(createCondition(unit))
+    fun mixCondition(mixer: IConditionMixer) {
+        val first = conditions.removeAt(conditions.size - 2)
+        val second = conditions.removeAt(conditions.size - 1)
+        conditions.add(mixer.mix(first, second))
     }
 
     fun addFailHandler(handler: (Arguments) -> Unit) {
@@ -102,20 +54,28 @@ class Requirement(val args: Arguments) {
         addFailHandler(handler)
     }
 
-    fun checkRequirement(args: Arguments): Boolean {
+    fun checkRequirement(): Boolean {
         println(conditions)
         for (x in conditions) {
             println("Data: ${x.javaClass}, ${x.isPositive(args)}")
             if (!x.isPositive(args)) {
-                runFailHandler(args)
+                runFailHandler()
                 return false
             }
         }
         return true
     }
 
-    fun runFailHandler(args: Arguments) {
+    fun runFailHandler() {
         for (handler in onFail)
             handler(args)
+    }
+
+    inline fun checkRequirements(unit: Requirement.() -> Unit) {
+        unit(this)
+        if (!checkRequirement()) {
+            // Requirement check failed! Break code flow with exception.
+            throw CommandFailedException()
+        }
     }
 }

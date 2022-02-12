@@ -9,5 +9,12 @@ abstract class AbstractCommandCondition {
 
     abstract fun isPositive(args: Arguments): Boolean
 
+    open fun getPriority() = 0
+
+    open fun compareAndSwap(condition: AbstractCommandCondition): AbstractCommandCondition {
+        return if (getPriority() == condition.getPriority()) condition
+        else if (getPriority() > condition.getPriority()) this
+        else condition
+    }
 
 }
