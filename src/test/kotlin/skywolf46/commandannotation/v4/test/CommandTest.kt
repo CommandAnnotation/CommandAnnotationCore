@@ -2,13 +2,13 @@ package skywolf46.commandannotation.v4.test
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import skywolf46.commandannotation.v4.data.Arguments
-import skywolf46.commandannotation.v4.exceptions.CommandFailedException
-import skywolf46.commandannotation.v4.util.CommandConditionUtil.and
-import skywolf46.commandannotation.v4.util.CommandConditionUtil.or
-import skywolf46.commandannotation.v4.util.RequirementUtil.length
-import skywolf46.commandannotation.v4.util.RequirementUtil.maxLength
-import skywolf46.commandannotation.v4.util.RequirementUtil.minLength
+import skywolf46.commandannotation.v4.api.data.Arguments
+import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
+import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.and
+import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.or
+import skywolf46.commandannotation.v4.api.util.RequirementUtil.length
+import skywolf46.commandannotation.v4.api.util.RequirementUtil.maxLength
+import skywolf46.commandannotation.v4.api.util.RequirementUtil.minLength
 import skywolf46.extrautility.data.ArgumentStorage
 
 class CommandTest {
