@@ -7,7 +7,6 @@ import skywolf46.commandannotation.v4.api.mixer.OrMixer
 
 object CommandConditionUtil {
 
-
     infix fun IRequirementPrepare.and(require: IRequirement): IRequirementPrepare {
         return mixWith(AndMixer)
     }
@@ -16,6 +15,5 @@ object CommandConditionUtil {
     infix fun IRequirementPrepare.or(require: IRequirement): IRequirementPrepare {
         return mixWith(OrMixer)
     }
-
 
 }

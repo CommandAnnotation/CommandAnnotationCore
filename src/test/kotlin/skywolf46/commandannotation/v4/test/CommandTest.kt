@@ -16,13 +16,15 @@ class CommandTest {
     fun failBackTest() {
         Assertions.assertThrows(CommandFailedException::class.java) {
             val args = Arguments(arrayOf("test1", "test2"), ArgumentStorage())
-            args.requires {
-                (minLength(3) and maxLength(10)) or length(1)
-                fail {
-                    println("Global fail check")
+            with(args) {
+                requires {
+                    (minLength(3) and maxLength(10)) or length(1)
+                    fail {
+                        println("Global fail check")
+                    }
                 }
+                println("Hey, that's pretty good!")
             }
-            println("Hey, that's pretty good!")
         }
     }
 

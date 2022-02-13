@@ -23,7 +23,7 @@ dependencies {
     compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     testImplementation("junit:junit:4.13")
     compileOnly("skywolf46:exutil-common:latest.release")
-    testImplementation("skywolf46:exutil-common:latest.release")
+    testImplementation("skywolf46:exutil-common:1.72.0")
     testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
