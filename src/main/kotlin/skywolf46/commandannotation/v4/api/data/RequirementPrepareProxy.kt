@@ -20,4 +20,8 @@ class RequirementPrepareProxy(
     override fun prepareCondition(condition: AbstractCommandCondition): IRequirementPrepare {
         return this
     }
+
+    override fun replaceCondition(conditionProvider: (AbstractCommandCondition) -> AbstractCommandCondition): IRequirementPrepare {
+        return original.replaceCondition(conditionProvider)
+    }
 }

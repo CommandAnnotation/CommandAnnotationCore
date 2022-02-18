@@ -2,6 +2,8 @@ package skywolf46.commandannotation.v4.api.util
 
 import skywolf46.commandannotation.v4.api.abstraction.IRequirement
 import skywolf46.commandannotation.v4.api.abstraction.IRequirementPrepare
+import skywolf46.commandannotation.v4.api.conditions.NotCondition
+import kotlin.reflect.KClass
 
 object RequirementUtil {
 
@@ -25,4 +27,15 @@ object RequirementUtil {
         }
     }
 
+    infix fun IRequirement.exists(clazz: KClass<*>): IRequirementPrepare {
+        return prepareCondition {
+            it[clazz.java] != null
+        }
+    }
+
+    operator fun IRequirement.not(): IRequirementPrepare {
+        return replaceCondition {
+            NotCondition(it)
+        }
+    }
 }

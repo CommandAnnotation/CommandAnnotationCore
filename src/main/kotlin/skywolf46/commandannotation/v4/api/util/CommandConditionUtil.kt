@@ -13,7 +13,6 @@ object CommandConditionUtil {
         return mixWith(AndMixer)
     }
 
-
     infix fun IRequirementPrepare.or(require: IRequirement): IRequirementPrepare {
         return mixWith(OrMixer)
     }

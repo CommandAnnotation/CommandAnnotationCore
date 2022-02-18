@@ -1,11 +1,9 @@
 package skywolf46.commandannotation.v4.api.abstraction
 
-import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
 import skywolf46.commandannotation.v4.api.conditions.LambdaCondition
 import skywolf46.commandannotation.v4.api.data.Arguments
 
 interface IRequirement {
-
     fun addCondition(unit: (Arguments) -> Boolean): IRequirement {
         return addCondition(LambdaCondition(unit))
     }
@@ -17,4 +15,6 @@ interface IRequirement {
     fun addCondition(condition: AbstractCommandCondition): IRequirement
 
     fun prepareCondition(condition: AbstractCommandCondition): IRequirementPrepare
+
+    fun replaceCondition(conditionProvider: (AbstractCommandCondition) -> AbstractCommandCondition): IRequirementPrepare
 }

@@ -3,8 +3,8 @@ package skywolf46.commandannotation.v4.api.data
 import skywolf46.commandannotation.v4.api.abstraction.AbstractCommandCondition
 import skywolf46.commandannotation.v4.api.abstraction.IConditionMixer
 import skywolf46.commandannotation.v4.api.abstraction.IRequirement
+import skywolf46.commandannotation.v4.api.abstraction.IRequirementPrepare
 import skywolf46.commandannotation.v4.api.annotations.debug.RequireSingleThread
-import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
 import java.util.function.Consumer
 
@@ -20,6 +20,11 @@ class Requirement(val args: Arguments) : IRequirement {
 
     override fun prepareCondition(condition: AbstractCommandCondition): RequirementPrepareProxy {
         return addCondition(condition)
+    }
+
+    override fun replaceCondition(conditionProvider: (AbstractCommandCondition) -> AbstractCommandCondition): IRequirementPrepare {
+        conditions[conditions.size - 1] = conditionProvider(conditions[conditions.size - 1])
+        return RequirementPrepareProxy(this)
     }
 
 
