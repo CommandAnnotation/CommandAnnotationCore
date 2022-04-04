@@ -24,4 +24,5 @@ object CommandConditionUtil {
     infix fun IRequirementPrepare.but(require: IRequirement): IRequirementPrepare {
         return mixWith(ButMixer)
     }
+
 }

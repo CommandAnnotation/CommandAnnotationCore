@@ -1,7 +1,7 @@
 package skywolf46.commandannotation.v4.api.enumerations
 
 /**
- * "Impact" value of current function.
+ * "Impact" value of current annotation.
  * [ImpactValue] is simple range definition of utility function, like conditions.
  */
 enum class ImpactValue {

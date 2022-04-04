@@ -1,24 +1,95 @@
 package skywolf46.commandannotation.v4.api.data
 
-import skywolf46.commandannotation.v4.api.data.Requirement
+import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
+import skywolf46.commandannotation.v4.api.exceptions.CommandRequirementFailedException
 import skywolf46.extrautility.data.ArgumentStorage
 
+/**
+ * Command meta data storage.
+ */
 class Arguments(
     private val args: Array<String>,
     private val parameters: ArgumentStorage,
     private var pointer: Int = 0,
 ) : Cloneable {
+
     private val conditions = mutableListOf<() -> Unit>()
     private val preArguments = mutableListOf<String>()
+    private val handler = mutableListOf<ExceptionHandler>()
+    var temporaryHandler: ExceptionHandler? = null
+        private set
 
-    inline fun requires(unit: Requirement.() -> Unit) {
+    @AddonDevelopmentMethod
+    fun requireCurrentState(unit: Arguments.() -> Boolean) {
+        if (!unit())
+            throw CommandRequirementFailedException();
+    }
+
+    @AddonDevelopmentMethod
+    fun expectCurrentState(exception: Class<out Throwable>) {
+        temporaryHandler!!.expect(exception)
+    }
+
+    fun requires(unit: Requirement.() -> Unit) {
         Requirement(this).checkRequirements(unit)
     }
+
+    fun <T : Any> getParameter(cls: Class<T>): T? {
+        return parameters[cls].run {
+            if (isEmpty())
+                null
+            else
+                this[0]
+        }
+    }
+
+    fun <T : Any> requireParameter(cls: Class<T>): T {
+        return getParameter(cls) ?: throw NullPointerException("No parameter provided for class ${cls.name}")
+    }
+
+    fun createExceptionHandler(vararg expectedExceptions: Class<out Throwable>): ExceptionHandler {
+        return ExceptionHandler().apply {
+            expectedExceptions.forEach {
+                expect(it)
+            }
+        }
+    }
+
+    fun expect(vararg expectedExceptions: Class<out Throwable>, unit: Arguments.() -> Unit) {
+        createExceptionHandler(*expectedExceptions).apply {
+            handle {
+                unit(this@Arguments)
+            }
+        }
+    }
+
+    inline fun <reified T : Throwable> expect(unit: Arguments.() -> Unit) {
+        val handler = createExceptionHandler(T::class.java)
+        try {
+            unit()
+        } catch (e: Throwable) {
+            handler.throwIfUnexpected(e)
+        }
+    }
+
+    fun peekArg(): String? {
+        if (length(true) <= pointer)
+            return null
+        if (preArguments.size > pointer)
+            return preArguments[pointer]
+        return args[pointer - preArguments.size]
+    }
+
+
+    inline fun <reified T : Any> param() = getParameter(T::class.java)
+
+    inline fun <reified T : Any> requireParam() = requireParameter(T::class.java)
+
 
     @JvmOverloads
     fun length(fullLength: Boolean = false): Int {
         if (fullLength) {
-            return args.size
+            return args.size + preArguments.size
         }
         return args.size + preArguments.size - pointer
     }

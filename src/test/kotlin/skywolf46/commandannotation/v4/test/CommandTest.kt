@@ -5,10 +5,14 @@ import org.junit.jupiter.api.Test
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
 import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.and
+import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.but
+import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.nor
 import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.or
+import skywolf46.commandannotation.v4.api.util.RequirementUtil.exists
 import skywolf46.commandannotation.v4.api.util.RequirementUtil.length
 import skywolf46.commandannotation.v4.api.util.RequirementUtil.maxLength
 import skywolf46.commandannotation.v4.api.util.RequirementUtil.minLength
+import skywolf46.commandannotation.v4.api.util.RequirementUtil.not
 import skywolf46.extrautility.data.ArgumentStorage
 
 class CommandTest {
@@ -26,6 +30,17 @@ class CommandTest {
                 println("Hey, that's pretty good!")
             }
         }
+    }
+
+    @Test
+    fun Arguments.onTest() {
+        requires {
+            ((minLength(3) and maxLength(10)) or length(1)) but exists(Arguments::class) nor (!exists(ArgumentStorage::class) and length(4))
+            fail {
+                println("Global fail check")
+            }
+        }
+        println("Hey, that's pretty good!")
     }
 
     @Test
