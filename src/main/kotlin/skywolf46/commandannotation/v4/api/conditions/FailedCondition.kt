@@ -2,7 +2,6 @@ package skywolf46.commandannotation.v4.api.conditions
 
 import skywolf46.commandannotation.v4.api.abstraction.AbstractCommandCondition
 import skywolf46.commandannotation.v4.api.data.Arguments
-import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
 
 class FailedCondition(private val original: AbstractCommandCondition, private val handler: Arguments.() -> Unit) :
     AbstractCommandCondition() {

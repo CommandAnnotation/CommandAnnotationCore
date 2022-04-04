@@ -3,6 +3,7 @@ package skywolf46.commandannotation.v4.api.util
 import skywolf46.commandannotation.v4.api.abstraction.IRequirement
 import skywolf46.commandannotation.v4.api.abstraction.IRequirementPrepare
 import skywolf46.commandannotation.v4.api.conditions.FailedCondition
+import skywolf46.commandannotation.v4.api.conditions.InterceptCondition
 import skywolf46.commandannotation.v4.api.conditions.NotCondition
 import skywolf46.commandannotation.v4.api.data.Arguments
 import kotlin.reflect.KClass
@@ -15,13 +16,11 @@ object RequirementUtil {
         }
     }
 
-
     infix fun IRequirement.minLength(length: Int): IRequirementPrepare {
         return prepareCondition {
             it.length() >= length
         }
     }
-
 
     infix fun IRequirement.maxLength(length: Int): IRequirementPrepare {
         return prepareCondition {
@@ -34,17 +33,21 @@ object RequirementUtil {
             it[clazz.java] != null
         }
     }
-
     operator fun IRequirement.not(): IRequirementPrepare {
         return replaceCondition {
             NotCondition(it)
         }
     }
 
-
     infix fun IRequirementPrepare.fail(unit: Arguments.() -> Unit): IRequirementPrepare {
         return replaceCondition {
             FailedCondition(it, unit)
+        }
+    }
+
+    infix fun IRequirementPrepare.intercept(unit: Arguments.() -> Unit): IRequirementPrepare {
+        return replaceCondition {
+            InterceptCondition(it, unit)
         }
     }
 }

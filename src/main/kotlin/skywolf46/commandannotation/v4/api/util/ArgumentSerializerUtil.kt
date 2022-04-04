@@ -9,7 +9,6 @@ fun <T: Any> Class<T>.registerSerializer(unit: (Arguments) -> T) {
     deserializer[kotlin] = unit
 }
 
-
 fun <T: Any> KClass<T>.registerSerializer(unit: (Arguments) -> T) {
     deserializer[this] = unit
 }

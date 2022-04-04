@@ -1,4 +1,4 @@
-package skywolf46.commandannotation.v4.data
+package skywolf46.commandannotation.v4.initializer
 
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.util.registerSerializer

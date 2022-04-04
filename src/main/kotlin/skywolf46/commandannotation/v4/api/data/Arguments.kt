@@ -15,7 +15,9 @@ class Arguments(
 
     private val conditions = mutableListOf<() -> Unit>()
     private val preArguments = mutableListOf<String>()
-    private val handler = mutableListOf<ExceptionHandler>()
+
+    val rootHandler = ExceptionHandler()
+
     var temporaryHandler: ExceptionHandler? = null
         private set
 
@@ -29,6 +31,7 @@ class Arguments(
     fun expectCurrentState(exception: Class<out Throwable>) {
         temporaryHandler!!.expect(exception)
     }
+
 
     fun requires(unit: Requirement.() -> Unit) {
         Requirement(this).checkRequirements(unit)
@@ -57,7 +60,7 @@ class Arguments(
 
     fun expect(vararg expectedExceptions: Class<out Throwable>, unit: Arguments.() -> Unit) {
         createExceptionHandler(*expectedExceptions).apply {
-            handle {
+            handleLambdaException {
                 unit(this@Arguments)
             }
         }
@@ -70,6 +73,14 @@ class Arguments(
         } catch (e: Throwable) {
             handler.throwIfUnexpected(e)
         }
+    }
+
+    fun <T : Throwable> handle(expectedException: Class<out T>, unit: (T) -> Unit) {
+        rootHandler.expect(expectedException, unit)
+    }
+
+    inline fun <reified T : Throwable> handle(noinline unit: (T) -> Unit) {
+        handle(T::class.java, unit)
     }
 
     fun peekArg(): String? {
