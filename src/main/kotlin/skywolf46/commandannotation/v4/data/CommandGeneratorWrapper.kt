@@ -6,12 +6,12 @@ import skywolf46.extrautility.util.MethodWrapper
 import java.lang.reflect.Method
 import java.util.function.Function
 
-class CommandProviderWrapper(val handler: (Arguments) -> ICommand?) {
+class CommandGeneratorWrapper(val handler: (Arguments) -> ICommand?) {
     companion object {
         fun fromMethod(method: Method) = fromMethod(MethodWrapper(method, null))
 
-        fun fromMethod(method: MethodWrapper): CommandProviderWrapper {
-            return CommandProviderWrapper { args ->
+        fun fromMethod(method: MethodWrapper): CommandGeneratorWrapper {
+            return CommandGeneratorWrapper { args ->
                 method.invoke(args) as ICommand
             }
         }

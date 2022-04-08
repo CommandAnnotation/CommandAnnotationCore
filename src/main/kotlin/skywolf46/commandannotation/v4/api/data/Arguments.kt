@@ -9,7 +9,7 @@ import skywolf46.extrautility.data.ArgumentStorage
  */
 class Arguments(
     private val args: Array<String>,
-    private val parameters: ArgumentStorage,
+    internal val parameters: ArgumentStorage,
     private var pointer: Int = 0,
 ) : Cloneable {
 

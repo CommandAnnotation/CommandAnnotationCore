@@ -8,5 +8,4 @@ package skywolf46.commandannotation.v4.api.annotations.debug
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
-annotation class RequireSingleThread {
-}
+annotation class RequireSingleThread

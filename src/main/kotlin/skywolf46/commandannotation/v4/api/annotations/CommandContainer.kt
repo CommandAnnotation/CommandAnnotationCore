@@ -7,4 +7,4 @@ package skywolf46.commandannotation.v4.api.annotations
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-annotation class CommandContainer(val type: String, val command: String, val alias: Array<String> = [])
+annotation class CommandContainer(val command: String, val alias: Array<String> = [])
