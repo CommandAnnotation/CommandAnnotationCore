@@ -33,17 +33,6 @@ class CommandTest {
     }
 
     @Test
-    fun Arguments.onTest() {
-        requires {
-            ((minLength(3) and maxLength(10)) or length(1)) but exists(Arguments::class) nor (!exists(ArgumentStorage::class) and length(4))
-            fail {
-                println("Global fail check")
-            }
-        }
-        println("Hey, that's pretty good!")
-    }
-
-    @Test
     fun successTest() {
         val args = Arguments(arrayOf("test1", "test2", "test3"), ArgumentStorage())
         args.requires {
