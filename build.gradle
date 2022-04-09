@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+    id 'org.sonarqube' version '3.3'
 }
 
 version properties["version"]
@@ -49,11 +50,17 @@ publishing {
     publications {
         create("jar", MavenPublication) {
             groupId 'skywolf46'
-            artifactId "commandannotation-${project.name.toLowerCase()}"
+            artifactId "commandannotation-core"
             version rootProject.properties['version'] as String
             from components.java
         }
     }
 }
 
-
+sonarqube {
+    properties {
+        property "sonar.projectKey", "CommandAnnotation_CommandAnnotationCore"
+        property "sonar.organization", "commandannotation"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
