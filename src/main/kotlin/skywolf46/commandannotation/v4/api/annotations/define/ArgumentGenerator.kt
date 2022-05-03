@@ -4,4 +4,4 @@ import kotlin.reflect.KClass
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
-annotation class ArgumentGenerator(val bindAt: Array<KClass<*>>)
+annotation class ArgumentGenerator(val bindAt: Array<KClass<out Annotation>>)
