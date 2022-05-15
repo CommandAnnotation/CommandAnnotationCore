@@ -30,4 +30,10 @@ class PeekingIterator<T : Any>(private val arr: Array<T>, private var index: Int
     fun position(): Int {
         return index
     }
+
+    override fun toString(): String {
+        return "PeekingIterator(arr=${arr.contentToString()}, index=$index)"
+    }
+
+
 }

@@ -40,7 +40,7 @@ class ReflectionCommandTest {
         Assertions.assertNotNull(
             CommandCore.find(
                 TestCommandAnnotation::class,
-                Arguments(arrayOf("/test1234 asdf"), ArgumentStorage())
+                Arguments("/test1234 asdf".split(" ").toTypedArray(), ArgumentStorage())
             )
         )
 
@@ -48,7 +48,32 @@ class ReflectionCommandTest {
         Assertions.assertNull(
             CommandCore.find(
                 TestCommandAnnotation::class,
-                Arguments(arrayOf("/test1234 asdf2"), ArgumentStorage())
+                Arguments("/test1234 asdf2".split(" ").toTypedArray(), ArgumentStorage())
+            )
+        )
+    }
+
+    @Test
+    fun testCommandFind03() {
+        Assertions.assertNotNull(
+            CommandCore.find(
+                TestCommandAnnotation::class,
+                Arguments("/test1234 asdf asdf".split(" ").toTypedArray(), ArgumentStorage())
+            )
+        )
+
+
+        Assertions.assertNotNull(
+            CommandCore.find(
+                TestCommandAnnotation::class,
+                Arguments("/test1234 asdf fdsa".split(" ").toTypedArray(), ArgumentStorage())
+            )
+        )
+
+        Assertions.assertNull(
+            CommandCore.find(
+                TestCommandAnnotation::class,
+                Arguments("/test1234 asdf 2fdsa".split(" ").toTypedArray(), ArgumentStorage())
             )
         )
     }

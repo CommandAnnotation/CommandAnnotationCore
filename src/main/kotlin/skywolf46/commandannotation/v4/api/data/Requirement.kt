@@ -61,9 +61,7 @@ class Requirement(val args: Arguments) : IRequirement {
     }
 
     fun checkRequirement(): Boolean {
-        println(conditions)
         for (x in conditions) {
-            println("Data: ${x.javaClass}, ${x.isPositive(args)}")
             if (!x.isPositive(args)) {
                 runFailHandler()
                 return false

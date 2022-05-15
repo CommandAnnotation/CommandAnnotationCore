@@ -221,7 +221,6 @@ object CommandGeneratorCore {
     }
 
     fun createCommand(type: KClass<out Annotation>, args: Arguments): ICommand? {
-        println(commandGenerator)
         return commandGenerator[type]?.createCommand(args)
     }
 

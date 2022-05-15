@@ -28,8 +28,9 @@ class CommandStorage {
         iterator: PeekingIterator<String>,
         remapper: MutableList<ICommandMatcher>
     ): ICommand? {
-        println(iterator.hasNext())
+        println("Iterator: ${iterator}")
         if (!iterator.hasNext()) {
+            println("No args! Current command: ${currentCommand}")
             // End of cursor : Remapping.
             val baseIterator = args.iterator()
             for (x in remapper) {
@@ -38,15 +39,22 @@ class CommandStorage {
             args.position(baseIterator.position())
             return currentCommand
         }
+        println("Storage: $commands")
+        println("Checking for arg ${iterator.peek()}")
         for ((key, storage) in commands) {
+            println("Args: $key")
             val iteratorList = remapper.toMutableList()
             val baseIterator = iterator.clone()
             key.remap(args, baseIterator)?.apply {
                 iteratorList += key
-                val command = storage.find(args)
+                println("..To next arg (Next: ${baseIterator.hasNext()})")
+                val command = storage.find(args, baseIterator, iteratorList)
                 if (command != null) {
+                    println("Matched for $key")
                     return command
                 }
+            } ?: kotlin.run {
+                println("Not matched for $key")
             }
         }
         return null

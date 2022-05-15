@@ -13,4 +13,16 @@ object TestCommandContainer {
     fun testCommand2(args: Arguments) {
 
     }
+
+
+    @TestCommandAnnotation("/test1234 asdf fdsa")
+    fun testCommand3(args: Arguments) {
+
+    }
+
+
+    @TestCommandAnnotation("/test1234 asdf asdf")
+    fun testCommand4(args: Arguments) {
+
+    }
 }

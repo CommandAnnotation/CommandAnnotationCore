@@ -109,9 +109,9 @@ class Arguments(
     @JvmOverloads
     fun length(fullLength: Boolean = false): Int {
         if (fullLength) {
-            return args.size + preArguments.size
+            return args.size
         }
-        return args.size + preArguments.size - pointer
+        return args.size - pointer
     }
 
     operator fun <T : Any> get(cls: Class<T>, index: Int): T? {

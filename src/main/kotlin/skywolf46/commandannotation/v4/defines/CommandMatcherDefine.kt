@@ -53,16 +53,33 @@ object CommandMatcherDefine {
         override fun equals(other: Any?): Boolean {
             return other is ArgumentRemapperMatcher && other.str == str
         }
+
+        override fun toString(): String {
+            return "ArgumentRemapperMatcher(str='$str')"
+        }
+
     }
 
     private class PureTextMatcher(val str: String) : ICommandMatcher {
-        override fun remap(storage: Arguments, iter: PeekingIterator<String>): Any {
+        override fun remap(storage: Arguments, iter: PeekingIterator<String>): Any? {
+            if(str != iter.peek())
+                return null
             return iter.next()
         }
 
         override fun equals(other: Any?): Boolean {
             return other is PureTextMatcher && other.str == str
         }
+
+        override fun hashCode(): Int {
+            return str.hashCode()
+        }
+
+        override fun toString(): String {
+            return "PureTextMatcher(str='$str')"
+        }
+
+
     }
 
 }
