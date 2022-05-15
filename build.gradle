@@ -67,7 +67,6 @@ sonarqube {
 }
 
 jacoco {
-    // JaCoCo 버전
     toolVersion = '0.8.7'
 }
 
@@ -79,7 +78,7 @@ test {
 jacocoTestReport {
     reports {
         html.enabled true
-        xml.enabled false
+        xml.enabled true
         csv.enabled false
     }
 }
