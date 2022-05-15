@@ -7,4 +7,10 @@ object TestCommandContainer {
     fun testCommand(args: Arguments) {
 
     }
+
+
+    @TestCommandAnnotation("/test1234 asdf")
+    fun testCommand2(args: Arguments) {
+
+    }
 }

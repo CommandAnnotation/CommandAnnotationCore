@@ -17,13 +17,10 @@ object CommandMatcherDefine {
      *  and will replace to runtime argument.
      */
     @CommandMatcher(PRIORITY_LESS_THAN)
-    fun argumentParameterMatcher(str: String): ICommandMatcher? {
+    fun argumentParameterMatcher(iterator: PeekingIterator<String>): ICommandMatcher? {
+        val str = iterator.next()
         if (str.startsWith('<') && str.endsWith('>')) {
-            return object : ICommandMatcher {
-                override fun remap(storage: Arguments, iter: PeekingIterator<String>) : Any? {
-                    return storage[iter.next()]
-                }
-            }
+            return ArgumentRemapperMatcher(str.substring(1, str.length - 1))
         }
         return null
     }
@@ -38,14 +35,34 @@ object CommandMatcherDefine {
      * Pure text parameter handler do not replace parameter, just return text value.
      */
     @CommandMatcher(PRIORITY_PURE_TEXT)
-    fun pureTextCommandHandler(): ICommandMatcher {
-        return object : ICommandMatcher {
-            override fun remap(storage: Arguments, iter: PeekingIterator<String>): Any? {
-                return iter.next()
-            }
+    fun pureTextCommandHandler(iterator: PeekingIterator<String>): ICommandMatcher {
+        return PureTextMatcher(iterator.next())
+    }
 
+
+    @Suppress("SpellCheckingInspection")
+    private class ArgumentRemapperMatcher(val str: String) : ICommandMatcher {
+        override fun remap(storage: Arguments, iter: PeekingIterator<String>): Any? {
+            return storage[iter.next()]
+        }
+
+        override fun hashCode(): Int {
+            return str.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is ArgumentRemapperMatcher && other.str == str
         }
     }
 
+    private class PureTextMatcher(val str: String) : ICommandMatcher {
+        override fun remap(storage: Arguments, iter: PeekingIterator<String>): Any {
+            return iter.next()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is PureTextMatcher && other.str == str
+        }
+    }
 
 }

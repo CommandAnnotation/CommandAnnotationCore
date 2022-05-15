@@ -2,7 +2,7 @@ package skywolf46.commandannotation.v4.api.util
 
 class PeekingIterator<T : Any>(private val arr: Array<T>, private var index: Int = 0) : Iterator<T> {
     override fun hasNext(): Boolean {
-        return arr.size <= index
+        return arr.size > index
     }
 
     override fun next(): T {
@@ -23,4 +23,11 @@ class PeekingIterator<T : Any>(private val arr: Array<T>, private var index: Int
         return PeekingIterator(arr, index)
     }
 
+    fun transferTo(iterator: PeekingIterator<T>) {
+        iterator.index = index
+    }
+
+    fun position(): Int {
+        return index
+    }
 }

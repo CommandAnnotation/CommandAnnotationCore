@@ -2,6 +2,7 @@ package skywolf46.commandannotation.v4.api.data
 
 import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
 import skywolf46.commandannotation.v4.api.exceptions.CommandRequirementFailedException
+import skywolf46.commandannotation.v4.api.util.PeekingIterator
 import skywolf46.extrautility.data.ArgumentStorage
 
 /**
@@ -14,7 +15,7 @@ class Arguments(
 ) : Cloneable {
 
     private val conditions = mutableListOf<() -> Unit>()
-    private val preArguments = mutableListOf<String>()
+    private val preArguments = mutableListOf<Any>()
 
     val rootHandler = ExceptionHandler()
 
@@ -86,9 +87,17 @@ class Arguments(
     fun peekArg(): String? {
         if (length(true) <= pointer)
             return null
-        if (preArguments.size > pointer)
-            return preArguments[pointer]
-        return args[pointer - preArguments.size]
+        // Pure string pre-argument will be disabled
+        //        if (preArguments.size > pointer)
+        //            return preArguments[pointer]
+        return args[pointer]
+    }
+
+
+    fun arg() : String? {
+        if (length(true) <= pointer)
+            return null
+        return args[pointer++]
     }
 
 
@@ -116,5 +125,17 @@ class Arguments(
 
     operator fun <T : Any> get(cls: String): T? {
         return parameters[cls]
+    }
+
+    fun iterator(): PeekingIterator<String> {
+        return PeekingIterator(args, pointer)
+    }
+
+    fun position(position: Int) {
+        this.pointer = pointer
+    }
+
+    fun appendArgument(any: Any) {
+        preArguments += any
     }
 }

@@ -1,16 +1,22 @@
 package skywolf46.commandannotation.v4.initializer
 
+import skywolf46.commandannotation.v4.api.abstraction.ICommand
 import skywolf46.commandannotation.v4.api.abstraction.ICommandInfo
 import skywolf46.commandannotation.v4.api.abstraction.ICommandMatcher
 import skywolf46.commandannotation.v4.api.annotations.define.CommandMatcher
 import skywolf46.commandannotation.v4.api.data.Arguments
+import skywolf46.commandannotation.v4.api.util.PeekingIterator
+import skywolf46.commandannotation.v4.data.CommandBaseStorage
 import skywolf46.commandannotation.v4.data.CommandMatcherGenerator
+import skywolf46.commandannotation.v4.data.CommandStorage
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
+import kotlin.reflect.KClass
 
 object CommandCore {
     private val commandMatcher = mutableListOf<CommandMatcherGenerator>()
+    private val commands = mutableMapOf<KClass<*>, CommandBaseStorage>()
 
     fun init() {
         scanCommandMatcher()
@@ -29,7 +35,7 @@ object CommandCore {
                 val annotation = it.method.getAnnotation(CommandMatcher::class.java)
                 println("CommandAnnotation-Command | Registered command matcher from method ${it.method.declaringClass.name}#${it.method.name}")
                 registerCommandMatcher(annotation.priority) { storage ->
-                    MethodInvoker(it).invoke(storage) as ICommandMatcher
+                    MethodInvoker(it).invoke(storage) as ICommandMatcher?
                 }
             }
     }
@@ -60,11 +66,30 @@ object CommandCore {
             })
         )
             ?: throw IllegalStateException("Cannot register command ($command) from method ${method.method.declaringClass.name}#${method.method.name} : No command instance given")
+        commands.getOrPut(annotation.annotationClass) { CommandBaseStorage() }
+            .register(commandInstance, PeekingIterator(command.split(" ").toTypedArray()))
         println("CommandAnnotation-Command | Registered command ($command) as type \'${commandInstance.javaClass.simpleName}\' from method ${method.method.declaringClass.name}#${method.method.name}")
     }
 
-    private fun registerCommandMatcher(priority: Int, matcher: (ArgumentStorage) -> ICommandMatcher) {
+    private fun registerCommandMatcher(priority: Int, matcher: (ArgumentStorage) -> ICommandMatcher?) {
         commandMatcher += CommandMatcherGenerator(priority, matcher)
     }
 
+    fun findMatcher(iterator: PeekingIterator<String>): ICommandMatcher? {
+        for (matcher in commandMatcher) {
+            val usedIterator = iterator.clone()
+            val generated = matcher.generator.invoke(ArgumentStorage().apply {
+                addArgument(usedIterator)
+            })
+            if (generated != null) {
+                usedIterator.transferTo(iterator)
+                return generated
+            }
+        }
+        return null
+    }
+
+    fun find(type: KClass<out Annotation>, args: Arguments) : ICommand? {
+        return commands[type]?.find(args)
+    }
 }
