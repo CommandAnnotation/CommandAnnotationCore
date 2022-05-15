@@ -1,7 +1,6 @@
 package skywolf46.commandannotation.v4.api.util
 
-class PeekingIterator<T : Any>(private val arr: Array<T>) : Iterator<T> {
-    private var index = 0
+class PeekingIterator<T : Any>(private val arr: Array<T>, private var index: Int = 0) : Iterator<T> {
     override fun hasNext(): Boolean {
         return arr.size <= index
     }
@@ -18,6 +17,10 @@ class PeekingIterator<T : Any>(private val arr: Array<T>) : Iterator<T> {
 
     fun peek(skip: Int = 0): T {
         return arr[index + skip]
+    }
+
+    fun clone(): PeekingIterator<T> {
+        return PeekingIterator(arr, index)
     }
 
 }

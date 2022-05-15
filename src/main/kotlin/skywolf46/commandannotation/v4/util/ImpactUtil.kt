@@ -1,7 +1,7 @@
 package skywolf46.commandannotation.v4.util
 
 import skywolf46.commandannotation.v4.api.annotations.Impact
-import skywolf46.commandannotation.v4.api.enumerations.ImpactValue
+import skywolf46.commandannotation.v4.api.enumeration.ImpactValue
 
 
 private val scopeMap = mutableMapOf<String, () -> String>()

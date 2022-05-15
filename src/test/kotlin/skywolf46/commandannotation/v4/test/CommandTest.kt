@@ -2,6 +2,7 @@ package skywolf46.commandannotation.v4.test
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import skywolf46.commandannotation.v4.CommandAnnotationCore
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
 import skywolf46.commandannotation.v4.api.util.CommandConditionUtil.and

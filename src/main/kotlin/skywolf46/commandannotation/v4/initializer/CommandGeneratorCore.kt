@@ -1,6 +1,7 @@
 package skywolf46.commandannotation.v4.initializer
 
 import skywolf46.commandannotation.v4.api.abstraction.ICommand
+import skywolf46.commandannotation.v4.api.abstraction.ICommandInfo
 import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
 import skywolf46.commandannotation.v4.api.annotations.define.AnnotationConverter
 import skywolf46.commandannotation.v4.api.annotations.define.AnnotationReducer
@@ -13,6 +14,7 @@ import skywolf46.commandannotation.v4.data.ArgumentGeneratorWrapper
 import skywolf46.commandannotation.v4.data.CommandGeneratorWrapper
 import skywolf46.commandannotation.v4.util.ClassUtilTemp
 import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.util.ClassUtil.iterateParentClasses
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
 import skywolf46.extrautility.util.MethodWrapper
@@ -37,51 +39,58 @@ object CommandGeneratorCore {
         scanCommandGeneratorAnnotation()
     }
 
-
     private fun scanConverterAnnotation() {
         MethodUtil.getCache().filter(AnnotationConverter::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_REQUIRED).methods.forEach {
+            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
+            .filter(MethodUtil.ReflectionMethodFilter.NOT_ABSTRACTED).methods.forEach {
                 registerConverter(it)
+                println("CommandAnnotation-Generator | Registered annotation converter from method ${it.method.declaringClass.name}#${it.method.name}")
             }
     }
 
     private fun scanReducerAnnotation() {
         MethodUtil.getCache().filter(AnnotationReducer::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_REQUIRED).methods.forEach {
+            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
+            .filter(MethodUtil.ReflectionMethodFilter.NOT_ABSTRACTED).methods.forEach {
                 registerReducer(it)
+                println("CommandAnnotation-Generator | Registered annotation reducer from method ${it.method.declaringClass.name}#${it.method.name}")
             }
     }
 
     private fun scanArgumentGeneratorAnnotation() {
         MethodUtil.getCache().filter(ArgumentGenerator::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_REQUIRED).methods.forEach { wrapper ->
+            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
+            .filter(MethodUtil.ReflectionMethodFilter.NOT_ABSTRACTED).methods.forEach { wrapper ->
                 wrapper.method.getAnnotation(ArgumentGenerator::class.java).bindAt.forEach { annotation ->
                     registerArgumentGenerator(annotation.java, wrapper)
+                    println("CommandAnnotation-Generator | Registered argument generator for \'${annotation.simpleName}\' from method ${wrapper.method.declaringClass.name}#${wrapper.method.name}")
                 }
             }
     }
 
-
     private fun scanCommandGeneratorAnnotation() {
         MethodUtil.getCache().filter(CommandGenerator::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_REQUIRED).methods.forEach {
+            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED).methods.forEach {
                 registerCommandGenerator(it)
+                val annotation = it.method.getAnnotation(CommandGenerator::class.java)!!
+                println("CommandAnnotation-Generator | Registered command generator for \'${annotation.commandAnnotation.simpleName}\' from method (${it.method.declaringClass.name}#${it.method.name})")
             }
     }
 
     @AddonDevelopmentMethod
     fun registerConverter(method: MethodWrapper) {
-        if (method.method.returnType.equals(Void.TYPE)) {
-            throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Return type is void or Unit; Converter method must have return type")
+        if (!ICommandInfo::class.java.isAssignableFrom(method.method.returnType)) {
+            throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Return type not implements ICommandInfo")
         }
 
-        if (method.method.parameterCount != 0) {
+        if (method.method.parameterCount != 1) {
             throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Parameter count must have to 1")
         }
 
-        if (Annotation::class.java.isAssignableFrom(method.method.parameterTypes[0])) {
+        if (!Annotation::class.java.isAssignableFrom(method.method.parameterTypes[0])) {
             throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Parameter type not implements Annotation")
         }
+
 
         registerConverter(method.method.parameterTypes[0] as Class<Annotation>, AnnotationConverterWrapper {
             return@AnnotationConverterWrapper method.invoke(it)
@@ -183,12 +192,17 @@ object CommandGeneratorCore {
         registerCommandGenerator(cls.kotlin, generator)
     }
 
-    fun <T : Any> convert(annotation: Annotation): T {
-        return ((annotationConverter[annotation::class] as AnnotationConverterWrapper<Annotation>?)?.convert(annotation)
+    @AddonDevelopmentMethod
+    fun getRegisteredCommandAnnotations(): List<Class<Annotation>> {
+        return commandGenerator.keys.map { x -> x.java }.toList() as List<Class<Annotation>>
+    }
+
+    fun <T : ICommandInfo> convert(annotation: Annotation): T {
+        return ((annotationConverter[annotation.annotationClass] as AnnotationConverterWrapper<Annotation>?)?.convert(annotation)
             ?: throw IllegalStateException("Converter not registered")) as T
     }
 
-    fun <T : Any> reduce(first: T, second: T): T {
+    fun <T : ICommandInfo> reduce(first: T, second: T): T {
         val intersection = ClassUtilTemp.findClassIntersection(first::class.java, second::class.java)
         if (intersection.isEmpty()) {
             throw IllegalStateException("Cannot reduce classes; Class ${first::class.java.name} and ${second::class.java.name} not has intersection")
@@ -207,6 +221,7 @@ object CommandGeneratorCore {
     }
 
     fun createCommand(type: KClass<out Annotation>, args: Arguments): ICommand? {
+        println(commandGenerator)
         return commandGenerator[type]?.createCommand(args)
     }
 

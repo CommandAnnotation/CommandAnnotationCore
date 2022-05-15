@@ -9,8 +9,8 @@ object AnnotationReducerDefine {
     @AnnotationReducer
     fun reduceCommand(first: CommandContainerWrapper, second: CommandContainerWrapper): CommandContainerWrapper {
         val cmdList = mutableListOf<String>()
-        first.command.forEach { cmdFirst ->
-            second.command.forEach { cmdSecond ->
+        first.getCommand().forEach { cmdFirst ->
+            second.getCommand().forEach { cmdSecond ->
                 cmdList.add("$cmdFirst $$cmdSecond")
             }
         }

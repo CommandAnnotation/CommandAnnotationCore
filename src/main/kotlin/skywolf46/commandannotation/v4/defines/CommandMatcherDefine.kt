@@ -2,6 +2,8 @@ package skywolf46.commandannotation.v4.defines
 
 import skywolf46.commandannotation.v4.api.abstraction.ICommandMatcher
 import skywolf46.commandannotation.v4.api.annotations.define.CommandMatcher
+import skywolf46.commandannotation.v4.api.data.Arguments
+import skywolf46.commandannotation.v4.api.util.PeekingIterator
 
 object CommandMatcherDefine {
     const val PRIORITY_LESS_THAN = Integer.MAX_VALUE / 2
@@ -15,9 +17,13 @@ object CommandMatcherDefine {
      *  and will replace to runtime argument.
      */
     @CommandMatcher(PRIORITY_LESS_THAN)
-    fun argumentCommandMatcher(str: String): ICommandMatcher? {
+    fun argumentParameterMatcher(str: String): ICommandMatcher? {
         if (str.startsWith('<') && str.endsWith('>')) {
-            return TODO()
+            return object : ICommandMatcher {
+                override fun remap(storage: Arguments, iter: PeekingIterator<String>) : Any? {
+                    return storage[iter.next()]
+                }
+            }
         }
         return null
     }
@@ -33,7 +39,12 @@ object CommandMatcherDefine {
      */
     @CommandMatcher(PRIORITY_PURE_TEXT)
     fun pureTextCommandHandler(): ICommandMatcher {
-        return TODO()
+        return object : ICommandMatcher {
+            override fun remap(storage: Arguments, iter: PeekingIterator<String>): Any? {
+                return iter.next()
+            }
+
+        }
     }
 
 

@@ -1,4 +1,4 @@
-package skywolf46.commandannotation.v4.api.enumerations
+package skywolf46.commandannotation.v4.api.enumeration
 
 /**
  * "Impact" value of current annotation.

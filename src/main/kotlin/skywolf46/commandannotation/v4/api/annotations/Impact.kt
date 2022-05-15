@@ -1,6 +1,6 @@
 package skywolf46.commandannotation.v4.api.annotations
 
-import skywolf46.commandannotation.v4.api.enumerations.ImpactValue
+import skywolf46.commandannotation.v4.api.enumeration.ImpactValue
 
 /**
  * Bind an "Impact" value to function.
