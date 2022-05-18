@@ -3,7 +3,6 @@ package skywolf46.commandannotation.v4.data
 import skywolf46.commandannotation.v4.api.abstraction.ICommand
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.util.PeekingIterator
-import skywolf46.extrautility.data.ArgumentStorage
 
 class CommandBaseStorage {
     private val storages = mutableMapOf<String, CommandStorage>()

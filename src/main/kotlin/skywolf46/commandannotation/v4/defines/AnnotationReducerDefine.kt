@@ -19,7 +19,7 @@ object AnnotationReducerDefine {
 
 
     @AnnotationConverter
-    fun convertCommand(annotation: CommandContainer) : CommandContainerWrapper {
+    fun convertCommand(annotation: CommandContainer): CommandContainerWrapper {
         return CommandContainerWrapper(annotation.alias.toMutableList().apply {
             add(annotation.command)
         })

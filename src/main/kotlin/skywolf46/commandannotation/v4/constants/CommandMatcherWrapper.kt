@@ -7,6 +7,10 @@ import skywolf46.commandannotation.v4.api.util.PeekingIterator
 data class CommandMatcherWrapper(val matcher: ICommandMatcher, val priority: Int = 0) :
     Comparable<CommandMatcherWrapper> {
 
+    fun isMatched(storage: Arguments, iter: PeekingIterator<String>): Boolean {
+        return matcher.isMatched(storage, iter)
+    }
+
     fun remap(storage: Arguments, iter: PeekingIterator<String>): Any? {
         return matcher.remap(storage, iter)
     }

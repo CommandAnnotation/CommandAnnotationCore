@@ -33,6 +33,7 @@ object RequirementUtil {
             it[clazz.java] != null
         }
     }
+
     operator fun IRequirement.not(): IRequirementPrepare {
         return replaceCondition {
             NotCondition(it)

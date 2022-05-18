@@ -9,14 +9,21 @@ import skywolf46.commandannotation.v4.api.util.PeekingIterator
 import skywolf46.commandannotation.v4.constants.CommandMatcherWrapper
 import skywolf46.commandannotation.v4.data.CommandBaseStorage
 import skywolf46.commandannotation.v4.data.CommandMatcherGenerator
-import skywolf46.commandannotation.v4.data.CommandStorage
 import skywolf46.extrautility.data.ArgumentStorage
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
 import kotlin.reflect.KClass
 
 object CommandCore {
-    private val commandMatcher = mutableListOf<CommandMatcherGenerator>()
+    private val commandMatcher = object : ArrayList<CommandMatcherGenerator>() {
+
+        override fun add(element: CommandMatcherGenerator): Boolean {
+            val result = super.add(element)
+            sort()
+            return result
+        }
+
+    }
     private val commands = mutableMapOf<KClass<*>, CommandBaseStorage>()
 
     fun init() {
@@ -34,8 +41,8 @@ object CommandCore {
                     return@forEach
                 }
                 val annotation = it.method.getAnnotation(CommandMatcher::class.java)
-                println("CommandAnnotation-Command | Registered command matcher from method ${it.method.declaringClass.name}#${it.method.name}")
-                registerCommandMatcher(annotation.priority) { storage ->
+                println("CommandAnnotation-Command | Registered command matcher from method ${it.method.declaringClass.name}#${it.method.name} with generate priority ${annotation.generatePriority} and execute priority ${annotation.executePriority}")
+                registerCommandMatcher(annotation.generatePriority, annotation.executePriority) { storage ->
                     MethodInvoker(it).invoke(storage) as ICommandMatcher?
                 }
             }
@@ -72,22 +79,26 @@ object CommandCore {
         println("CommandAnnotation-Command | Registered command ($command) as type \'${commandInstance.javaClass.simpleName}\' from method ${method.method.declaringClass.name}#${method.method.name}")
     }
 
-    private fun registerCommandMatcher(priority: Int, matcher: (ArgumentStorage) -> ICommandMatcher?) {
-        commandMatcher += CommandMatcherGenerator(priority, matcher)
-    }
-
     fun findMatcher(iterator: PeekingIterator<String>): CommandMatcherWrapper? {
         for (matcher in commandMatcher) {
             val usedIterator = iterator.clone()
-            val generated = matcher.generator.invoke(ArgumentStorage().apply {
+            val generated = matcher.generate(ArgumentStorage().apply {
                 addArgument(usedIterator)
             })
             if (generated != null) {
                 usedIterator.transferTo(iterator)
-                return CommandMatcherWrapper(generated, matcher.priority)
+                return CommandMatcherWrapper(generated, matcher.createPriority)
             }
         }
         return null
+    }
+
+    private fun registerCommandMatcher(
+        generatePriority: Int,
+        executePriority: Int,
+        matcher: (ArgumentStorage) -> ICommandMatcher?
+    ) {
+        commandMatcher += CommandMatcherGenerator(generatePriority, executePriority, matcher)
     }
 
     fun find(type: KClass<out Annotation>, args: Arguments): ICommand? {

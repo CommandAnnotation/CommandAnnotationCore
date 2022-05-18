@@ -1,5 +1,6 @@
 package skywolf46.commandannotation.v4.test.data
 
+import org.junit.jupiter.api.Assertions
 import skywolf46.commandannotation.v4.api.data.Arguments
 
 object TestCommandContainer {
@@ -26,5 +27,15 @@ object TestCommandContainer {
 
     }
 
+    @TestCommandAnnotation("/test1234 parameter <test>")
+    fun parameterizedTestCommand01(args: Arguments) {
+        Assertions.assertEquals("01", args.next())
+    }
+
+
+    @TestCommandAnnotation("/test1234 <test> parameter")
+    fun parameterizedTestCommand02(args: Arguments) {
+        Assertions.assertEquals("02", args.next())
+    }
 
 }

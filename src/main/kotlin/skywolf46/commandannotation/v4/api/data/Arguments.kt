@@ -11,6 +11,7 @@ import skywolf46.extrautility.data.ArgumentStorage
 class Arguments(
     private val args: Array<String>,
     val parameters: ArgumentStorage,
+    private var preArgumentPointer: Int = 0,
     private var pointer: Int = 0,
 ) : Cloneable {
 
@@ -93,8 +94,15 @@ class Arguments(
         return args[pointer]
     }
 
+    fun <T : Any> next(): T? {
+        if (preArguments.size > preArgumentPointer) {
+            return preArguments[preArgumentPointer++] as T?
+        }
+        // TODO add custom parser here
+        return arg() as T
+    }
 
-    fun arg() : String? {
+    fun arg(): String? {
         if (length(true) <= pointer)
             return null
         return args[pointer++]
@@ -114,6 +122,7 @@ class Arguments(
         return args.size - pointer
     }
 
+
     operator fun <T : Any> get(cls: Class<T>, index: Int): T? {
         return parameters[cls].getOrNull(index)
     }
@@ -132,10 +141,11 @@ class Arguments(
     }
 
     fun position(position: Int) {
-        this.pointer = pointer
+        this.pointer = position
     }
 
     fun appendArgument(any: Any) {
+        println("Add argument: $any")
         preArguments += any
     }
 }

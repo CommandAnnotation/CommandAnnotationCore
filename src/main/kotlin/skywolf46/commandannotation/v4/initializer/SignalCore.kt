@@ -49,7 +49,8 @@ object SignalCore {
     @AddonDevelopmentMethod
     fun registerSignalListener(method: MethodWrapper): UnregisterTrigger {
         val annotation = method.method.getAnnotation(SignalListener::class.java) ?: throw SignalRegisterFailedException(
-            "No annotation detected for method ${method.method.declaringClass.name}#${method.method.name}")
+            "No annotation detected for method ${method.method.declaringClass.name}#${method.method.name}"
+        )
         when (method.method.parameterCount) {
             0 -> throw SignalRegisterFailedException("Failed to register signal listener ${method.method.declaringClass.name}#${method.method.name} : No parameter detected, signal listener requires 1 parameter to listen")
             1 -> {

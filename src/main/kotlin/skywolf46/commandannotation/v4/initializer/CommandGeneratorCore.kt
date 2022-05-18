@@ -2,19 +2,16 @@ package skywolf46.commandannotation.v4.initializer
 
 import skywolf46.commandannotation.v4.api.abstraction.ICommand
 import skywolf46.commandannotation.v4.api.abstraction.ICommandInfo
+import skywolf46.commandannotation.v4.api.annotations.ArgumentRemapper
 import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
 import skywolf46.commandannotation.v4.api.annotations.define.AnnotationConverter
 import skywolf46.commandannotation.v4.api.annotations.define.AnnotationReducer
 import skywolf46.commandannotation.v4.api.annotations.define.ArgumentGenerator
 import skywolf46.commandannotation.v4.api.annotations.define.CommandGenerator
 import skywolf46.commandannotation.v4.api.data.Arguments
-import skywolf46.commandannotation.v4.data.AnnotationConverterWrapper
-import skywolf46.commandannotation.v4.data.AnnotationReducerWrapper
-import skywolf46.commandannotation.v4.data.ArgumentGeneratorWrapper
-import skywolf46.commandannotation.v4.data.CommandGeneratorWrapper
+import skywolf46.commandannotation.v4.data.*
 import skywolf46.commandannotation.v4.util.ClassUtilTemp
 import skywolf46.extrautility.data.ArgumentStorage
-import skywolf46.extrautility.util.ClassUtil.iterateParentClasses
 import skywolf46.extrautility.util.MethodInvoker
 import skywolf46.extrautility.util.MethodUtil
 import skywolf46.extrautility.util.MethodWrapper
@@ -27,6 +24,7 @@ object CommandGeneratorCore {
     private val commandGenerator = mutableMapOf<KClass<*>, CommandGeneratorWrapper>()
     private val annotationConverter = mutableMapOf<KClass<*>, AnnotationConverterWrapper<*>>()
     private val annotationReducer = mutableMapOf<KClass<*>, AnnotationReducerWrapper<*>>()
+    private val arguementRemapper = mutableMapOf<String, ArgumentRemapperWrapper>()
 
     internal fun init() {
         scanSetupAnnotation()
@@ -36,6 +34,7 @@ object CommandGeneratorCore {
         scanArgumentGeneratorAnnotation()
         scanConverterAnnotation()
         scanReducerAnnotation()
+        scanArgumentRemapperAnnotation()
         scanCommandGeneratorAnnotation()
     }
 
@@ -74,6 +73,21 @@ object CommandGeneratorCore {
                 registerCommandGenerator(it)
                 val annotation = it.method.getAnnotation(CommandGenerator::class.java)!!
                 println("CommandAnnotation-Generator | Registered command generator for \'${annotation.commandAnnotation.simpleName}\' from method (${it.method.declaringClass.name}#${it.method.name})")
+            }
+    }
+
+    private fun scanArgumentRemapperAnnotation() {
+        MethodUtil.getCache().filter(ArgumentRemapper::class.java)
+            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED).methods.forEach { method ->
+                if (method.method.parameterCount != 1 || method.method.parameterTypes[0] != String::class.java) {
+                    throw IllegalStateException("Cannot register argument remapper method ${method.method.declaringClass.name}#${method.method.name} : Parameter count is not 1; Remapper method must have only one String parameter to remap")
+                }
+                method.method.getAnnotation(ArgumentRemapper::class.java).value.forEach { target ->
+                    println("CommandAnnotation-Generator | Registered argument remapper for \'${target}\' from method (${method.method.declaringClass.name}#${method.method.name})")
+                    registerArgumentRemapper<Any>(target, ArgumentRemapperWrapper {
+                        method.invoke(it)
+                    })
+                }
             }
     }
 
@@ -188,6 +202,11 @@ object CommandGeneratorCore {
     }
 
     @AddonDevelopmentMethod
+    fun <T : Any> registerArgumentRemapper(name: String, remapper: ArgumentRemapperWrapper) {
+        this.arguementRemapper[name] = remapper
+    }
+
+    @AddonDevelopmentMethod
     fun <T : Any> registerCommandGenerator(cls: Class<T>, generator: CommandGeneratorWrapper) {
         registerCommandGenerator(cls.kotlin, generator)
     }
@@ -198,7 +217,9 @@ object CommandGeneratorCore {
     }
 
     fun <T : ICommandInfo> convert(annotation: Annotation): T {
-        return ((annotationConverter[annotation.annotationClass] as AnnotationConverterWrapper<Annotation>?)?.convert(annotation)
+        return ((annotationConverter[annotation.annotationClass] as AnnotationConverterWrapper<Annotation>?)?.convert(
+            annotation
+        )
             ?: throw IllegalStateException("Converter not registered")) as T
     }
 
@@ -224,5 +245,8 @@ object CommandGeneratorCore {
         return commandGenerator[type]?.createCommand(args)
     }
 
+    fun remap(type: String, target: String): Any? {
+        return arguementRemapper[type]?.remapper?.invoke(target)
+    }
 
 }

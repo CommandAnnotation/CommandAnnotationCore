@@ -44,11 +44,17 @@ class ReflectionCommandTest {
             )
         )
 
+        Assertions.assertNotNull(
+            CommandCore.find(
+                TestCommandAnnotation::class,
+                Arguments("/test1234".split(" ").toTypedArray(), ArgumentStorage())
+            )
+        )
 
         Assertions.assertNull(
             CommandCore.find(
                 TestCommandAnnotation::class,
-                Arguments("/test1234 asdf2".split(" ").toTypedArray(), ArgumentStorage())
+                Arguments("/test12345 asdf2".split(" ").toTypedArray(), ArgumentStorage())
             )
         )
     }
@@ -70,11 +76,29 @@ class ReflectionCommandTest {
             )
         )
 
-        Assertions.assertNull(
+        Assertions.assertNotNull(
             CommandCore.find(
                 TestCommandAnnotation::class,
                 Arguments("/test1234 asdf 2fdsa".split(" ").toTypedArray(), ArgumentStorage())
             )
         )
+    }
+
+    @Test
+    fun parameterizedCommandTest() {
+        Arguments("/test1234 parameter test_01".split(" ").toTypedArray(), ArgumentStorage()).apply {
+            CommandCore.find(
+                TestCommandAnnotation::class,
+                this
+            )!!.invokeCommand(this)
+        }
+
+
+        Arguments("/test1234 test_02 parameter".split(" ").toTypedArray(), ArgumentStorage()).apply {
+            CommandCore.find(
+                TestCommandAnnotation::class,
+                this
+            )!!.invokeCommand(this)
+        }
     }
 }
