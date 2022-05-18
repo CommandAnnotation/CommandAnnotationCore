@@ -1,16 +1,15 @@
 package skywolf46.commandannotation.v4.test
 
-import org.junit.FixMethodOrder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.junit.runners.MethodSorters
 import skywolf46.commandannotation.v4.CommandAnnotationCore
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.initializer.CommandCore
 import skywolf46.commandannotation.v4.test.data.TestCommandAnnotation
+import skywolf46.commandannotation.v4.test.exceptions.TestSucceedException
 import skywolf46.extrautility.data.ArgumentStorage
 
 @TestMethodOrder(OrderAnnotation::class)
@@ -86,19 +85,39 @@ class ReflectionCommandTest {
 
     @Test
     fun parameterizedCommandTest() {
-        Arguments("/test1234 parameter test_01".split(" ").toTypedArray(), ArgumentStorage()).apply {
-            CommandCore.find(
-                TestCommandAnnotation::class,
-                this
-            )!!.invokeCommand(this)
+        Assertions.assertThrows(TestSucceedException::class.java) {
+            Arguments("/test1234 parameter test_01".split(" ").toTypedArray(), ArgumentStorage()).apply {
+                CommandCore.find(
+                    TestCommandAnnotation::class,
+                    this
+                )!!.invokeCommand(this)
+            }
+        }.apply {
+            Assertions.assertEquals("Test01", this.msg)
         }
 
 
-        Arguments("/test1234 test_02 parameter".split(" ").toTypedArray(), ArgumentStorage()).apply {
-            CommandCore.find(
-                TestCommandAnnotation::class,
-                this
-            )!!.invokeCommand(this)
+        Assertions.assertThrows(TestSucceedException::class.java) {
+            Arguments("/test1234 test_02 parameter".split(" ").toTypedArray(), ArgumentStorage()).apply {
+                CommandCore.find(
+                    TestCommandAnnotation::class,
+                    this
+                )!!.invokeCommand(this)
+            }
+        }.apply {
+            Assertions.assertEquals("Test02", this.msg)
+        }
+
+
+        Assertions.assertThrows(TestSucceedException::class.java) {
+            Arguments("/test1234 test_03".split(" ").toTypedArray(), ArgumentStorage()).apply {
+                CommandCore.find(
+                    TestCommandAnnotation::class,
+                    this
+                )!!.invokeCommand(this)
+            }
+        }.apply {
+            Assertions.assertEquals("TestFallback", this.msg)
         }
     }
 }

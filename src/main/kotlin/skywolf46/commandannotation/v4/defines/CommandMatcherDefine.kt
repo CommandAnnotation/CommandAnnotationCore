@@ -46,6 +46,7 @@ object CommandMatcherDefine {
     @Suppress("SpellCheckingInspection")
     private class ArgumentRemapperMatcher(val str: String) : ICommandMatcher {
         override fun isMatched(storage: Arguments, iter: PeekingIterator<String>): Boolean {
+            iter.next()
             return true
         }
 

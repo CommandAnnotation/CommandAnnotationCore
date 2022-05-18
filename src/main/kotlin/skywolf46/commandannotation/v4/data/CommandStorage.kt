@@ -35,6 +35,7 @@ class CommandStorage {
         iterator: PeekingIterator<String>,
         remapper: MutableList<CommandMatcherWrapper>
     ): ICommand? {
+
         println("Commands: ${sortedCommandMatcher}")
         if (!iterator.hasNext()) {
             println("No args! Current command: ${currentCommand}")
@@ -76,6 +77,7 @@ class CommandStorage {
             }
         }
         args.position(baseIterator.position())
+        println("Fallback as ${currentCommand}")
         return currentCommand
     }
 
