@@ -4,11 +4,19 @@ import skywolf46.commandannotation.v4.api.abstraction.ICommand
 import skywolf46.commandannotation.v4.api.abstraction.ICommandMatcher
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.util.PeekingIterator
+import skywolf46.commandannotation.v4.constants.CommandMatcherWrapper
 import skywolf46.commandannotation.v4.initializer.CommandCore
 import skywolf46.commandannotation.v4.initializer.CommandGeneratorCore
 
 class CommandStorage {
-    private val commands = mutableMapOf<ICommandMatcher, CommandStorage>()
+    private val commands = mutableMapOf<CommandMatcherWrapper, CommandStorage>()
+    private val sortedCommandMatcher = object : ArrayList<CommandMatcherWrapper>() {
+        override fun add(element: CommandMatcherWrapper): Boolean {
+            val result = super.add(element)
+            sort()
+            return result
+        }
+    }
     private var currentCommand: ICommand? = null
 
     fun register(instance: ICommand, command: PeekingIterator<String>) {
@@ -19,6 +27,7 @@ class CommandStorage {
         val matcher = CommandCore.findMatcher(command)
             ?: throw IllegalStateException("Impossible error occurred; Null command matcher found from command")
         commands.getOrPut(matcher) {
+            sortedCommandMatcher += matcher
             CommandStorage()
         }.register(instance, command)
     }
@@ -26,7 +35,7 @@ class CommandStorage {
     private fun find(
         args: Arguments,
         iterator: PeekingIterator<String>,
-        remapper: MutableList<ICommandMatcher>
+        remapper: MutableList<CommandMatcherWrapper>
     ): ICommand? {
         println("Iterator: ${iterator}")
         if (!iterator.hasNext()) {
@@ -40,15 +49,16 @@ class CommandStorage {
             return currentCommand
         }
         println("Storage: $commands")
+        println("Storage-Sub: $sortedCommandMatcher")
         println("Checking for arg ${iterator.peek()}")
-        for ((key, storage) in commands) {
+        for (key in sortedCommandMatcher) {
             println("Args: $key")
             val iteratorList = remapper.toMutableList()
             val baseIterator = iterator.clone()
             key.remap(args, baseIterator)?.apply {
                 iteratorList += key
                 println("..To next arg (Next: ${baseIterator.hasNext()})")
-                val command = storage.find(args, baseIterator, iteratorList)
+                val command = commands[key]!!.find(args, baseIterator, iteratorList)
                 if (command != null) {
                     println("Matched for $key")
                     return command

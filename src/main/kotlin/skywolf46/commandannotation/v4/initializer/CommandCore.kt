@@ -6,6 +6,7 @@ import skywolf46.commandannotation.v4.api.abstraction.ICommandMatcher
 import skywolf46.commandannotation.v4.api.annotations.define.CommandMatcher
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.util.PeekingIterator
+import skywolf46.commandannotation.v4.constants.CommandMatcherWrapper
 import skywolf46.commandannotation.v4.data.CommandBaseStorage
 import skywolf46.commandannotation.v4.data.CommandMatcherGenerator
 import skywolf46.commandannotation.v4.data.CommandStorage
@@ -75,7 +76,7 @@ object CommandCore {
         commandMatcher += CommandMatcherGenerator(priority, matcher)
     }
 
-    fun findMatcher(iterator: PeekingIterator<String>): ICommandMatcher? {
+    fun findMatcher(iterator: PeekingIterator<String>): CommandMatcherWrapper? {
         for (matcher in commandMatcher) {
             val usedIterator = iterator.clone()
             val generated = matcher.generator.invoke(ArgumentStorage().apply {
@@ -83,13 +84,13 @@ object CommandCore {
             })
             if (generated != null) {
                 usedIterator.transferTo(iterator)
-                return generated
+                return CommandMatcherWrapper(generated, matcher.priority)
             }
         }
         return null
     }
 
-    fun find(type: KClass<out Annotation>, args: Arguments) : ICommand? {
+    fun find(type: KClass<out Annotation>, args: Arguments): ICommand? {
         return commands[type]?.find(args)
     }
 }
