@@ -12,7 +12,7 @@ class TestCommandInstance(val worker: MethodInvoker) : ICommand {
                 addArgument(arguments)
                 addProxy(arguments.parameters)
             })
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (e.cause != null)
                 throw e.cause!!
             throw e

@@ -3,7 +3,9 @@ package skywolf46.commandannotation.v4.api.data
 import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
 import skywolf46.commandannotation.v4.api.exceptions.CommandRequirementFailedException
 import skywolf46.commandannotation.v4.api.util.PeekingIterator
+import skywolf46.commandannotation.v4.api.util.deserialize
 import skywolf46.extrautility.data.ArgumentStorage
+import kotlin.reflect.KClass
 
 /**
  * Command meta data storage.
@@ -13,20 +15,17 @@ class Arguments(
     val parameters: ArgumentStorage,
     private var preArgumentPointer: Int = 0,
     private var pointer: Int = 0,
+    private val preArguments: MutableList<Any> = mutableListOf()
 ) : Cloneable {
-
-    private val conditions = mutableListOf<() -> Unit>()
-    private val preArguments = mutableListOf<Any>()
 
     val rootHandler = ExceptionHandler()
 
-    var temporaryHandler: ExceptionHandler? = null
-        private set
+    val temporaryHandler: ExceptionHandler = ExceptionHandler()
 
     @AddonDevelopmentMethod
     fun requireCurrentState(unit: Arguments.() -> Boolean) {
         if (!unit())
-            throw CommandRequirementFailedException();
+            throw CommandRequirementFailedException()
     }
 
     @AddonDevelopmentMethod
@@ -94,12 +93,46 @@ class Arguments(
         return args[pointer]
     }
 
-    fun <T : Any> next(): T? {
+    // Required suppression for providing generics argument
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> next(cls: KClass<T>): T? {
         if (preArguments.size > preArgumentPointer) {
             return preArguments[preArgumentPointer++] as T?
         }
-        // TODO add custom parser here
-        return arg() as T
+        temporaryHandler.clear()
+        try {
+            return (temporaryHandler.handleLambdaException {
+                cls.deserialize(this)
+            } as T?).apply {
+                println("Test: $this")
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
+    fun <T : Any> next(cls: Class<T>): T? {
+        return next(cls.kotlin)
+    }
+
+    inline fun <reified T : Any> next(): T? {
+        return next(T::class)
+    }
+
+
+    inline fun <T : Any> next(cls: KClass<T>, unit: Arguments.(T) -> Unit) {
+        try {
+            val nextArg = clone()
+            unit.invoke(nextArg, nextArg.next(cls) as T)
+        } catch (e: Throwable) {
+            // TODO : Add no-arg or exception handler
+            throw e
+        }
+    }
+
+    inline fun <reified T : Any> next(unit: Arguments.(T) -> Unit) {
+        next(T::class, unit)
     }
 
     fun arg(): String? {
@@ -145,7 +178,10 @@ class Arguments(
     }
 
     fun appendArgument(any: Any) {
-        println("Add argument: $any")
         preArguments += any
+    }
+
+    public override fun clone(): Arguments {
+        return Arguments(args, parameters, preArgumentPointer, pointer, preArguments)
     }
 }

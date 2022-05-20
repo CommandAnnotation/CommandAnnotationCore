@@ -21,12 +21,18 @@ class ExceptionHandler {
         expected[throwable::class.java]!!(throwable)
     }
 
-    inline fun handleLambdaException(unit: () -> Unit) {
+    inline fun handleLambdaException(unit: () -> Any?): Any? {
+        var dataToReturn: Any? = null
         try {
-            unit()
+            dataToReturn = unit()
         } catch (e: Throwable) {
             throwIfUnexpected(e)
         }
+        return dataToReturn
+    }
+
+    fun clear() {
+        expected.clear()
     }
 
 }
