@@ -1,11 +1,11 @@
 package skywolf46.commandannotation.v4
 
 import skywolf46.commandannotation.v4.api.signal.trigger.SerializerRegisterSignal
+import skywolf46.commandannotation.v4.api.util.callSignal
 import skywolf46.commandannotation.v4.initializer.CommandCore
 import skywolf46.commandannotation.v4.initializer.CommandGeneratorCore
 import skywolf46.commandannotation.v4.initializer.Deserializers
 import skywolf46.commandannotation.v4.initializer.SignalCore
-import skywolf46.extrautility.util.triggerEvent
 
 object CommandAnnotationCore {
 
@@ -19,7 +19,7 @@ object CommandAnnotationCore {
         SignalCore.init()
 
         println("CommandAnnotation-Core | Calling serializer signal..")
-        SerializerRegisterSignal().triggerEvent()
+        SerializerRegisterSignal().callSignal()
 
         println("CommandAnnotation-Core | Initializing command generator core..")
         CommandGeneratorCore.init()

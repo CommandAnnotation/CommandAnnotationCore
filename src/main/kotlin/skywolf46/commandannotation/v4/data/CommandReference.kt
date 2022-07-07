@@ -1,6 +1,6 @@
 package skywolf46.commandannotation.v4.data
 
-import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.core.data.ArgumentStorage
 
 class CommandReference {
     val storage = ArgumentStorage()

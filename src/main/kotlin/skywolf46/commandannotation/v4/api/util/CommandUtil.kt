@@ -3,7 +3,7 @@ package skywolf46.commandannotation.v4.api.util
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
 import skywolf46.commandannotation.v4.initializer.CommandGeneratorCore
-import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.core.data.ArgumentStorage
 import kotlin.reflect.KClass
 
 object CommandUtil {

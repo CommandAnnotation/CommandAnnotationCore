@@ -4,7 +4,7 @@ import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMeth
 import skywolf46.commandannotation.v4.api.exceptions.CommandRequirementFailedException
 import skywolf46.commandannotation.v4.api.util.PeekingIterator
 import skywolf46.commandannotation.v4.api.util.deserialize
-import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.core.data.ArgumentStorage
 import kotlin.reflect.KClass
 
 /**
@@ -30,6 +30,7 @@ class Arguments(
 
     @AddonDevelopmentMethod
     fun expectCurrentState(exception: Class<out Throwable>) {
+
         temporaryHandler!!.expect(exception)
     }
 
@@ -39,7 +40,7 @@ class Arguments(
     }
 
     fun <T : Any> getParameter(cls: Class<T>): T? {
-        return parameters[cls].run {
+        return parameters.getAll(cls).run {
             if (isEmpty())
                 null
             else
@@ -157,7 +158,7 @@ class Arguments(
 
 
     operator fun <T : Any> get(cls: Class<T>, index: Int): T? {
-        return parameters[cls].getOrNull(index)
+        return parameters.getAll(cls).getOrNull(index)
     }
 
     operator fun <T : Any> get(cls: Class<T>): T? {
@@ -166,7 +167,7 @@ class Arguments(
 
 
     operator fun <T : Any> get(cls: String): T? {
-        return parameters[cls]
+        return parameters[cls] as T?
     }
 
     fun iterator(): PeekingIterator<String> {

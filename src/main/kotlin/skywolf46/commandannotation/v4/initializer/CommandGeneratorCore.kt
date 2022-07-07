@@ -11,11 +11,14 @@ import skywolf46.commandannotation.v4.api.annotations.define.CommandGenerator
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.data.*
 import skywolf46.commandannotation.v4.util.ClassUtilTemp
-import skywolf46.extrautility.data.ArgumentStorage
-import skywolf46.extrautility.util.MethodInvoker
-import skywolf46.extrautility.util.MethodUtil
-import skywolf46.extrautility.util.MethodWrapper
+import skywolf46.extrautility.core.data.ArgumentStorage
+import skywolf46.extrautility.core.enumeration.reflection.MethodFilter
+import skywolf46.extrautility.core.util.AutoRegistrationUtil
+import skywolf46.extrautility.core.util.ReflectionUtil
+import skywolf46.extrautility.core.util.asCallable
+import skywolf46.extrautility.core.util.asSingletonCallable
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.kotlinFunction
 
 @Suppress("UNCHECKED_CAST")
 object CommandGeneratorCore {
@@ -39,130 +42,130 @@ object CommandGeneratorCore {
     }
 
     private fun scanConverterAnnotation() {
-        MethodUtil.getCache().filter(AnnotationConverter::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
-            .filter(MethodUtil.ReflectionMethodFilter.NOT_ABSTRACTED).methods.forEach {
-                registerConverter(it)
-                println("CommandAnnotation-Generator | Registered annotation converter from method ${it.method.declaringClass.name}#${it.method.name}")
+        AutoRegistrationUtil.getMethodCache().requires(AnnotationConverter::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .forEach {
+                registerConverter(it.asSingletonCallable())
+                println("CommandAnnotation-Generator | Registered annotation converter from method ${it.asCallable().getFullName()}")
             }
     }
 
     private fun scanReducerAnnotation() {
-        MethodUtil.getCache().filter(AnnotationReducer::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
-            .filter(MethodUtil.ReflectionMethodFilter.NOT_ABSTRACTED).methods.forEach {
-                registerReducer(it)
-                println("CommandAnnotation-Generator | Registered annotation reducer from method ${it.method.declaringClass.name}#${it.method.name}")
+        AutoRegistrationUtil.getMethodCache().requires(AnnotationReducer::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .forEach {
+                registerReducer(it.asSingletonCallable())
+                println("CommandAnnotation-Generator | Registered annotation reducer from method ${it.asCallable().getFullName()}")
             }
     }
 
     private fun scanArgumentGeneratorAnnotation() {
-        MethodUtil.getCache().filter(ArgumentGenerator::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
-            .filter(MethodUtil.ReflectionMethodFilter.NOT_ABSTRACTED).methods.forEach { wrapper ->
-                wrapper.method.getAnnotation(ArgumentGenerator::class.java).bindAt.forEach { annotation ->
-                    registerArgumentGenerator(annotation.java, wrapper)
-                    println("CommandAnnotation-Generator | Registered argument generator for \'${annotation.simpleName}\' from method ${wrapper.method.declaringClass.name}#${wrapper.method.name}")
+        AutoRegistrationUtil.getMethodCache().requires(ArgumentGenerator::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .forEach { method ->
+                method.getAnnotation(ArgumentGenerator::class.java).bindAt.forEach { annotation ->
+                    registerArgumentGenerator(annotation.java, method.asSingletonCallable())
+                    println("CommandAnnotation-Generator | Registered argument generator for \'${annotation.simpleName}\' from method ${method.asCallable().getFullName()}")
                 }
             }
     }
 
     private fun scanCommandGeneratorAnnotation() {
-        MethodUtil.getCache().filter(CommandGenerator::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED).methods.forEach {
-                registerCommandGenerator(it)
-                val annotation = it.method.getAnnotation(CommandGenerator::class.java)!!
-                println("CommandAnnotation-Generator | Registered command generator for \'${annotation.commandAnnotation.simpleName}\' from method (${it.method.declaringClass.name}#${it.method.name})")
+        AutoRegistrationUtil.getMethodCache().requires(CommandGenerator::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .forEach {
+                registerCommandGenerator(it.asSingletonCallable())
+                val annotation = it.getAnnotation(CommandGenerator::class.java)!!
+                println("CommandAnnotation-Generator | Registered command generator for \'${annotation.commandAnnotation.simpleName}\' from method (${it.asCallable().getFullName()})")
             }
     }
 
     private fun scanArgumentRemapperAnnotation() {
-        MethodUtil.getCache().filter(ArgumentRemapper::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED).methods.forEach { method ->
-                if (method.method.parameterCount != 1 || method.method.parameterTypes[0] != String::class.java) {
-                    throw IllegalStateException("Cannot register argument remapper method ${method.method.declaringClass.name}#${method.method.name} : Parameter count is not 1; Remapper method must have only one String parameter to remap")
+        AutoRegistrationUtil.getMethodCache().requires(ArgumentRemapper::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .forEach { method ->
+                if (method.parameterCount != 1 || method.parameterTypes[0] != String::class.java) {
+                    throw IllegalStateException("Cannot register argument remapper method ${method.asCallable().getFullName()} : Parameter count is not 1; Remapper method must have only one String parameter to remap")
                 }
-                method.method.getAnnotation(ArgumentRemapper::class.java).value.forEach { target ->
-                    println("CommandAnnotation-Generator | Registered argument remapper for \'${target}\' from method (${method.method.declaringClass.name}#${method.method.name})")
+                val callable = method.asSingletonCallable()
+                method.getAnnotation(ArgumentRemapper::class.java).value.forEach { target ->
+                    println("CommandAnnotation-Generator | Registered argument remapper for \'${target}\' from method (${method.asCallable().getFullName()})")
                     registerArgumentRemapper<Any>(target, ArgumentRemapperWrapper {
-                        method.invoke(it)
+                        callable.invoke(listOf(it))
                     })
                 }
             }
     }
 
     @AddonDevelopmentMethod
-    fun registerConverter(method: MethodWrapper) {
-        if (!ICommandInfo::class.java.isAssignableFrom(method.method.returnType)) {
-            throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Return type not implements ICommandInfo")
+    fun registerConverter(method: ReflectionUtil.CallableFunction) {
+        if (!ICommandInfo::class.java.isAssignableFrom(method.returnType())) {
+            throw IllegalStateException("Cannot register converter method ${method.getFullName()} : Return type not implements ICommandInfo")
         }
 
-        if (method.method.parameterCount != 1) {
-            throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Parameter count must have to 1")
+        if (method.parameterCount() != 1) {
+            throw IllegalStateException("Cannot register converter method ${method.getFullName()} : Parameter count must have to 1")
         }
 
-        if (!Annotation::class.java.isAssignableFrom(method.method.parameterTypes[0])) {
-            throw IllegalStateException("Cannot register converter method ${method.method.declaringClass.name}#${method.method.name} : Parameter type not implements Annotation")
+        if (!Annotation::class.java.isAssignableFrom(method.parameter()[0].type)) {
+            throw IllegalStateException("Cannot register converter method ${method.getFullName()} : Parameter type not implements Annotation")
         }
 
 
-        registerConverter(method.method.parameterTypes[0] as Class<Annotation>, AnnotationConverterWrapper {
-            return@AnnotationConverterWrapper method.invoke(it)
-                ?: throw IllegalStateException("Cannot convert ${it.javaClass.name} to ${method.method.returnType.name} : Return value is null from method ${method.method.declaringClass.name}#${method.method.name}")
+        registerConverter(method.parameter()[0].type as Class<Annotation>, AnnotationConverterWrapper {
+            return@AnnotationConverterWrapper method.invoke(listOf(it))
+                ?: throw IllegalStateException("Cannot convert ${it.javaClass.name} to ${method.returnType().name} : Return value is null from method ${method.getFullName()}")
         })
     }
 
     @AddonDevelopmentMethod
-    fun registerReducer(method: MethodWrapper) {
-        if (method.method.parameterCount != 2) {
-            throw IllegalStateException("Cannot register reducer method ${method.method.declaringClass.name}#${method.method.name} : Parameter count must have to 2")
+    fun registerReducer(method: ReflectionUtil.CallableFunction) {
+        if (method.parameterCount() != 2) {
+            throw IllegalStateException("Cannot register reducer method ${method.getFullName()} : Parameter count must have to 2")
         }
-        val returnType = method.method.returnType
-        if (returnType.equals(Void.TYPE)) {
-            throw IllegalStateException("Cannot register reducer method ${method.method.declaringClass.name}#${method.method.name} : Return type is void or Unit; Reducer method must have return type")
+        val returnType = method.returnType()
+        if (returnType == Void.TYPE) {
+            throw IllegalStateException("Cannot register reducer method ${method.getFullName()} : Return type is void or Unit; Reducer method must have return type")
         }
-        val firstParamType = method.method.parameterTypes[0]
-        val secondParameterType = method.method.parameterTypes[1]
+        val firstParamType = method.parameter()[0].type
+        val secondParameterType = method.parameter()[1].type
         if (firstParamType != secondParameterType) {
-            throw IllegalStateException("Cannot register reducer method ${method.method.declaringClass.name}#${method.method.name} : Parameter type not matched; Reducer not allows different type of parameter")
+            throw IllegalStateException("Cannot register reducer method ${method.getFullName()} : Parameter type not matched; Reducer not allows different type of parameter")
         }
         if (returnType != firstParamType) {
-            throw IllegalStateException("Cannot register reducer method ${method.method.declaringClass.name}#${method.method.name} : Return type not matched with parameters")
+            throw IllegalStateException("Cannot register reducer method ${method.getFullName()} : Return type not matched with parameters")
         }
         registerReducer(returnType.kotlin as KClass<Any>, AnnotationReducerWrapper {
-            return@AnnotationReducerWrapper method.invoke(this, it)
-                ?: throw IllegalStateException("Cannot reduce ${it.javaClass.name} : Return value is null from method ${method.method.declaringClass.name}#${method.method.name}")
+            return@AnnotationReducerWrapper method.invoke(listOf(this, it))
+                ?: throw IllegalStateException("Cannot reduce ${it.javaClass.name} : Return value is null from method ${method.getFullName()}")
         })
     }
 
 
     @AddonDevelopmentMethod
-    fun registerCommandGenerator(method: MethodWrapper) {
-        val annotation = method.method.getAnnotation(CommandGenerator::class.java)
-            ?: throw IllegalStateException("Cannot register command generator method ${method.method.declaringClass.name}#${method.method.name} : Method not contains @CommandGenerator annotation")
-        val returnType = method.method.returnType
+    fun registerCommandGenerator(method: ReflectionUtil.CallableFunction) {
+        val annotation = method.getAnnotation<CommandGenerator>()
+            ?: throw IllegalStateException("Cannot register command generator method ${method.getFullName()} : Method not contains @CommandGenerator annotation")
+        val returnType = method.returnType()
         if (!ICommand::class.java.isAssignableFrom(returnType)) {
-            throw IllegalStateException("Cannot register command generator method ${method.method.declaringClass.name}#${method.method.name} : Return type is not implements ICommand")
+            throw IllegalStateException("Cannot register command generator method ${method.getFullName()} : Return type is not implements ICommand")
         }
-        val invoker = MethodInvoker(method)
         registerCommandGenerator(annotation.commandAnnotation as KClass<Any>, CommandGeneratorWrapper {
-            return@CommandGeneratorWrapper invoker.invoke(it.parameters) as ICommand?
-                ?: throw IllegalStateException("Cannot generate command ${it.javaClass.name} : Return value is null from method ${method.method.declaringClass.name}#${method.method.name}")
+            return@CommandGeneratorWrapper method.asAutoMatchingFunction().execute(it.parameters) as ICommand?
+                ?: throw IllegalStateException("Cannot generate command ${it.javaClass.name} : Return value is null from method ${method.getFullName()}")
         })
     }
 
     @AddonDevelopmentMethod
-    fun registerArgumentGenerator(type: Class<out Annotation>, method: MethodWrapper) {
-        val returnType = method.method.returnType
+    fun registerArgumentGenerator(type: Class<out Annotation>, method: ReflectionUtil.CallableFunction) {
+        val returnType = method.returnType()
         if (!Arguments::class.java.isAssignableFrom(returnType)) {
-            throw IllegalStateException("Cannot register argument generator method ${method.method.declaringClass.name}#${method.method.name} : Return type is not implements ICommand")
+            throw IllegalStateException("Cannot register argument generator method ${method.getFullName()} : Return type is not implements ICommand")
         }
-        val invoker = MethodInvoker(method)
+        val invoker = method.asAutoMatchingFunction()
         registerArgumentGenerator(type.kotlin, ArgumentGeneratorWrapper {
-            return@ArgumentGeneratorWrapper invoker.invoke(this.apply {
-                addArgument(it)
-            }) as Arguments?
-                ?: throw IllegalStateException("Cannot generate Arguments instance ${it.javaClass.name} : Return value is null from method ${method.method.declaringClass.name}#${method.method.name}")
+            return@ArgumentGeneratorWrapper invoker.execute(this.add(it)) as Arguments?
+                ?: throw IllegalStateException("Cannot generate Arguments instance ${it.javaClass.name} : Return value is null from method ${method.getFullName()}")
         })
     }
 

@@ -2,16 +2,18 @@ package skywolf46.commandannotation.v4.test.data
 
 import skywolf46.commandannotation.v4.api.abstraction.ICommand
 import skywolf46.commandannotation.v4.api.data.Arguments
-import skywolf46.extrautility.data.ArgumentStorage
-import skywolf46.extrautility.util.MethodInvoker
+import skywolf46.extrautility.core.data.ArgumentStorage
+import skywolf46.extrautility.core.util.ReflectionUtil
 
-class TestCommandInstance(val worker: MethodInvoker) : ICommand {
+class TestCommandInstance(worker: ReflectionUtil.CallableFunction) : ICommand {
+    val function = worker.asAutoMatchingFunction()
     override fun invokeCommand(arguments: Arguments) {
         try {
-            worker.invoke(ArgumentStorage().apply {
-                addArgument(arguments)
-                addProxy(arguments.parameters)
-            })
+            function.execute(
+                ArgumentStorage()
+                    .add(arguments)
+                    .addProxy(arguments.parameters)
+            )
         } catch (e: Throwable) {
             if (e.cause != null)
                 throw e.cause!!
@@ -24,6 +26,6 @@ class TestCommandInstance(val worker: MethodInvoker) : ICommand {
     }
 
     override fun toString(): String {
-        return worker.method.name
+        return function.getFullName()
     }
 }

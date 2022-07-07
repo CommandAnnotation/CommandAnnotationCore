@@ -3,19 +3,21 @@ package skywolf46.commandannotation.v4.initializer
 import skywolf46.commandannotation.v4.api.annotations.SignalListener
 import skywolf46.commandannotation.v4.api.annotations.debug.AddonDevelopmentMethod
 import skywolf46.commandannotation.v4.api.enumeration.SignalStage
-import skywolf46.extrautility.util.MethodUtil
-import skywolf46.extrautility.util.MethodWrapper
+import skywolf46.extrautility.core.enumeration.reflection.MethodFilter
+import skywolf46.extrautility.core.util.AutoRegistrationUtil
+import skywolf46.extrautility.core.util.ReflectionUtil
+import skywolf46.extrautility.core.util.asSingletonCallable
 
 object SignalCore {
     private val listener = mutableMapOf<Class<*>, MutableMap<SignalStage, MutableSet<(Any) -> Unit>>>()
 
     fun init() {
-        MethodUtil.getCache()
-            .filter(SignalListener::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
-            .unlockAll()
-            .methods.forEach {
-                registerSignalListener(it)
+        AutoRegistrationUtil.getMethodCache()
+            .requires(SignalListener::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .unlock()
+            .forEach {
+                registerSignalListener(it.asSingletonCallable())
             }
     }
 
@@ -47,17 +49,17 @@ object SignalCore {
     }
 
     @AddonDevelopmentMethod
-    fun registerSignalListener(method: MethodWrapper): UnregisterTrigger {
-        val annotation = method.method.getAnnotation(SignalListener::class.java) ?: throw SignalRegisterFailedException(
-            "No annotation detected for method ${method.method.declaringClass.name}#${method.method.name}"
+    fun registerSignalListener(method: ReflectionUtil.CallableFunction): UnregisterTrigger {
+        val annotation = method.getAnnotation<SignalListener>() ?: throw SignalRegisterFailedException(
+            "No annotation detected for method ${method.getFullName()}"
         )
-        when (method.method.parameterCount) {
-            0 -> throw SignalRegisterFailedException("Failed to register signal listener ${method.method.declaringClass.name}#${method.method.name} : No parameter detected, signal listener requires 1 parameter to listen")
+        when (method.parameterCount()) {
+            0 -> throw SignalRegisterFailedException("Failed to register signal listener ${method.getFullName()} : No parameter detected, signal listener requires 1 parameter to listen")
             1 -> {
                 val methodInvoker: (Any) -> Unit = {
-                    method.invoke(it)
+                    method.invoke(listOf(it))
                 }
-                val cls = method.method.parameters[0].type
+                val cls = method.parameter()[0].type
                 annotation.stage.forEach {
                     listener.getOrPut(cls) {
                         mutableMapOf()
@@ -72,7 +74,7 @@ object SignalCore {
                 }
             }
             else -> {
-                throw SignalRegisterFailedException("Failed to register signal listener ${method.method.declaringClass.name}#${method.method.name} : Too many parameter detected, signal listener requires 1 parameter to listen")
+                throw SignalRegisterFailedException("Failed to register signal listener ${method.getFullName()} : Too many parameter detected, signal listener requires 1 parameter to listen")
             }
         }
     }

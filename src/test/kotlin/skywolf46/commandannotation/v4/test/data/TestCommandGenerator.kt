@@ -4,9 +4,8 @@ import skywolf46.commandannotation.v4.api.annotations.define.AnnotationConverter
 import skywolf46.commandannotation.v4.api.annotations.define.ArgumentGenerator
 import skywolf46.commandannotation.v4.api.annotations.define.CommandGenerator
 import skywolf46.commandannotation.v4.api.data.Arguments
-import skywolf46.extrautility.data.ArgumentStorage
-import skywolf46.extrautility.util.MethodInvoker
-import skywolf46.extrautility.util.MethodWrapper
+import skywolf46.extrautility.core.data.ArgumentStorage
+import skywolf46.extrautility.core.util.ReflectionUtil
 
 object TestCommandGenerator {
     @ArgumentGenerator(bindAt = [TestCommandAnnotation::class])
@@ -16,7 +15,7 @@ object TestCommandGenerator {
     }
 
     @CommandGenerator(commandAnnotation = TestCommandAnnotation::class)
-    fun generateCommand(worker: MethodInvoker) : TestCommandInstance {
+    fun generateCommand(worker: ReflectionUtil.CallableFunction) : TestCommandInstance {
         return TestCommandInstance(worker)
     }
 

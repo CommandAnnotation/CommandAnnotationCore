@@ -10,7 +10,7 @@ import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.initializer.CommandCore
 import skywolf46.commandannotation.v4.test.data.TestCommandAnnotation
 import skywolf46.commandannotation.v4.test.exceptions.TestSucceedException
-import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.core.data.ArgumentStorage
 
 @TestMethodOrder(OrderAnnotation::class)
 class ReflectionCommandTest {
@@ -183,6 +183,7 @@ class ReflectionCommandTest {
 
     @Test
     fun commandArgumentIntParsingTest() {
+
         Assertions.assertThrows(TestSucceedException::class.java) {
             Arguments("/test1234 intTest 49237".split(" ").toTypedArray(), ArgumentStorage()).apply {
                 CommandCore.find(

@@ -1,7 +1,7 @@
 package skywolf46.commandannotation.v4.data
 
 import skywolf46.commandannotation.v4.api.abstraction.ICommandMatcher
-import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.core.data.ArgumentStorage
 
 class CommandMatcherGenerator(
     val generatePriority: Int,

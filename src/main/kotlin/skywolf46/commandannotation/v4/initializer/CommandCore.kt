@@ -9,9 +9,12 @@ import skywolf46.commandannotation.v4.api.util.PeekingIterator
 import skywolf46.commandannotation.v4.constants.CommandMatcherWrapper
 import skywolf46.commandannotation.v4.data.CommandBaseStorage
 import skywolf46.commandannotation.v4.data.CommandMatcherGenerator
-import skywolf46.extrautility.data.ArgumentStorage
-import skywolf46.extrautility.util.MethodInvoker
-import skywolf46.extrautility.util.MethodUtil
+import skywolf46.extrautility.core.data.ArgumentStorage
+import skywolf46.extrautility.core.enumeration.reflection.MethodFilter
+import skywolf46.extrautility.core.util.AutoRegistrationUtil
+import skywolf46.extrautility.core.util.ReflectionUtil
+import skywolf46.extrautility.core.util.asCallable
+import skywolf46.extrautility.core.util.asSingletonCallable
 import kotlin.reflect.KClass
 
 object CommandCore {
@@ -32,59 +35,64 @@ object CommandCore {
     }
 
     private fun scanCommandMatcher() {
-        MethodUtil.getCache().filter(CommandMatcher::class.java)
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
-            .unlockAll()
-            .methods.forEach {
-                if (!ICommandMatcher::class.java.isAssignableFrom(it.method.returnType)) {
-                    println("CommandAnnotation-Command | Cannot register command matcher from method ${it.method.declaringClass.name}#${it.method.name} : Return type is not ICommandMatcher")
+        AutoRegistrationUtil.getMethodCache().requires(CommandMatcher::class.java)
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .unlock()
+            .forEach {
+                if (!ICommandMatcher::class.java.isAssignableFrom(it.returnType)) {
+                    println("CommandAnnotation-Command | Cannot register command matcher from method ${it.declaringClass.name}#${it.name} : Return type is not ICommandMatcher")
                     return@forEach
                 }
-                val annotation = it.method.getAnnotation(CommandMatcher::class.java)
-                println("CommandAnnotation-Command | Registered command matcher from method ${it.method.declaringClass.name}#${it.method.name} with generate priority ${annotation.generatePriority} and execute priority ${annotation.executePriority}")
+                val annotation = it.getAnnotation(CommandMatcher::class.java)
+                println(
+                    "CommandAnnotation-Command | Registered command matcher from method ${
+                        it.asCallable().getFullName()
+                    } with generate priority ${annotation.generatePriority} and execute priority ${annotation.executePriority}"
+                )
                 registerCommandMatcher(annotation.generatePriority, annotation.executePriority) { storage ->
-                    MethodInvoker(it).invoke(storage) as ICommandMatcher?
+                    it.asSingletonCallable().asAutoMatchingFunction().execute(storage) as ICommandMatcher?
                 }
             }
     }
 
     private fun scanCommands() {
         val annotations = CommandGeneratorCore.getRegisteredCommandAnnotations()
-        MethodUtil.getCache().filter(false, *annotations.toTypedArray())
-            .filter(MethodUtil.ReflectionMethodFilter.INSTANCE_NOT_REQUIRED)
-            .unlockAll()
-            .methods.forEach { method ->
-                for (annotation in method.method.declaredAnnotations) {
+        AutoRegistrationUtil.getMethodCache().requiresAny(*annotations.toTypedArray())
+            .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
+            .unlock()
+            .forEach { method ->
+                for (annotation in method.declaredAnnotations) {
                     if (annotations.contains(annotation.annotationClass.java)) {
                         val info = CommandGeneratorCore.convert<ICommandInfo>(annotation)
                         info.getCommand().forEach { command ->
-                            registerCommand(command, annotation, info, MethodInvoker(method))
+                            registerCommand(command, annotation, info, method.asSingletonCallable())
                         }
                     }
                 }
             }
     }
 
-    private fun registerCommand(command: String, annotation: Annotation, info: ICommandInfo, method: MethodInvoker) {
+    private fun registerCommand(
+        command: String,
+        annotation: Annotation,
+        info: ICommandInfo,
+        method: ReflectionUtil.CallableFunction
+    ) {
         val commandInstance = CommandGeneratorCore.createCommand(
             annotation.annotationClass,
-            Arguments(command.split(" ").toTypedArray(), ArgumentStorage().apply {
-                addArgument(method)
-                addArgument(info)
-            })
+            Arguments(command.split(" ").toTypedArray(), ArgumentStorage().add(method).add(info))
         )
-            ?: throw IllegalStateException("Cannot register command ($command) from method ${method.method.declaringClass.name}#${method.method.name} : No command instance given")
+            ?: throw IllegalStateException("Cannot register command ($command) from method ${method.getFullName()} : No command instance given")
+
         commands.getOrPut(annotation.annotationClass) { CommandBaseStorage() }
             .register(commandInstance, PeekingIterator(command.split(" ").toTypedArray()))
-        println("CommandAnnotation-Command | Registered command ($command) as type \'${commandInstance.javaClass.simpleName}\' from method ${method.method.declaringClass.name}#${method.method.name}")
+        println("CommandAnnotation-Command | Registered command ($command) as type \'${commandInstance.javaClass.simpleName}\' from method ${method.getFullName()}")
     }
 
     fun findMatcher(iterator: PeekingIterator<String>): CommandMatcherWrapper? {
         for (matcher in commandMatcher) {
             val usedIterator = iterator.clone()
-            val generated = matcher.generate(ArgumentStorage().apply {
-                addArgument(usedIterator)
-            })
+            val generated = matcher.generate(ArgumentStorage().add(usedIterator))
             if (generated != null) {
                 usedIterator.transferTo(iterator)
                 return CommandMatcherWrapper(generated, matcher.createPriority)

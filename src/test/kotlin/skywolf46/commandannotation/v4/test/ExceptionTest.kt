@@ -12,7 +12,7 @@ import skywolf46.commandannotation.v4.api.util.RequirementUtil.maxLength
 import skywolf46.commandannotation.v4.api.util.RequirementUtil.minLength
 import skywolf46.commandannotation.v4.test.exceptions.SecondTestSucceedException
 import skywolf46.commandannotation.v4.test.exceptions.TestSucceedException
-import skywolf46.extrautility.data.ArgumentStorage
+import skywolf46.extrautility.core.data.ArgumentStorage
 
 class ExceptionTest {
     @Test
