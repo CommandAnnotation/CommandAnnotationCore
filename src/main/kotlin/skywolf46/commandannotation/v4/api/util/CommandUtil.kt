@@ -2,6 +2,7 @@ package skywolf46.commandannotation.v4.api.util
 
 import skywolf46.commandannotation.v4.api.data.Arguments
 import skywolf46.commandannotation.v4.api.exceptions.CommandFailedException
+import skywolf46.commandannotation.v4.initializer.CommandCore
 import skywolf46.commandannotation.v4.initializer.CommandGeneratorCore
 import skywolf46.extrautility.core.data.ArgumentStorage
 import kotlin.reflect.KClass
@@ -18,9 +19,9 @@ object CommandUtil {
         }
     }
 
-
-    fun triggerCommand(type: KClass<Annotation>, str: String) {
-        val argument = CommandGeneratorCore.generateArgument(type, ArgumentStorage(), str)
-
+    fun triggerCommand(type: KClass<Annotation>, str: String, args: ArgumentStorage) : Boolean {
+        val argument = CommandGeneratorCore.generateArgument(type, args, str)
+        CommandCore.find(type, argument!!)?.invokeCommand(argument) ?: return false
+        return true
     }
 }

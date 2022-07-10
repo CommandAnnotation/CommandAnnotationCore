@@ -19,14 +19,13 @@ import kotlin.reflect.KClass
 
 object CommandCore {
     private val commandMatcher = object : ArrayList<CommandMatcherGenerator>() {
-
         override fun add(element: CommandMatcherGenerator): Boolean {
             val result = super.add(element)
             sort()
             return result
         }
-
     }
+
     private val commands = mutableMapOf<KClass<*>, CommandBaseStorage>()
 
     fun init() {
