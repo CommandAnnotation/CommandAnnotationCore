@@ -19,7 +19,7 @@ object CommandUtil {
         }
     }
 
-    fun triggerCommand(type: KClass<Annotation>, str: String, args: ArgumentStorage) : Boolean {
+    fun triggerCommand(type: KClass<out Annotation>, str: String, args: ArgumentStorage) : Boolean {
         val argument = CommandGeneratorCore.generateArgument(type, args, str)
         CommandCore.find(type, argument!!)?.invokeCommand(argument) ?: return false
         return true

@@ -240,7 +240,7 @@ object CommandGeneratorCore {
         throw IllegalStateException("Cannot reduce classes; No reducer found between class ${first::class.java.name} and ${second::class.java.name}")
     }
 
-    fun generateArgument(type: KClass<Annotation>, storage: ArgumentStorage, str: String): Arguments? {
+    fun generateArgument(type: KClass<out Annotation>, storage: ArgumentStorage, str: String): Arguments? {
         return argumentGenerator[type]?.createArguments(storage, str)
     }
 
