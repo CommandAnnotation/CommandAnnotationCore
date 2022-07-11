@@ -18,7 +18,6 @@ import skywolf46.extrautility.core.util.ReflectionUtil
 import skywolf46.extrautility.core.util.asCallable
 import skywolf46.extrautility.core.util.asSingletonCallable
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.kotlinFunction
 
 @Suppress("UNCHECKED_CAST")
 object CommandGeneratorCore {
@@ -46,7 +45,11 @@ object CommandGeneratorCore {
             .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
             .forEach {
                 registerConverter(it.asSingletonCallable())
-                println("CommandAnnotation-Generator | Registered annotation converter from method ${it.asCallable().getFullName()}")
+                println(
+                    "CommandAnnotation-Generator | Registered annotation converter from method ${
+                        it.asCallable().getFullName()
+                    }"
+                )
             }
     }
 
@@ -55,7 +58,11 @@ object CommandGeneratorCore {
             .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
             .forEach {
                 registerReducer(it.asSingletonCallable())
-                println("CommandAnnotation-Generator | Registered annotation reducer from method ${it.asCallable().getFullName()}")
+                println(
+                    "CommandAnnotation-Generator | Registered annotation reducer from method ${
+                        it.asCallable().getFullName()
+                    }"
+                )
             }
     }
 
@@ -65,7 +72,11 @@ object CommandGeneratorCore {
             .forEach { method ->
                 method.getAnnotation(ArgumentGenerator::class.java).bindAt.forEach { annotation ->
                     registerArgumentGenerator(annotation.java, method.asSingletonCallable())
-                    println("CommandAnnotation-Generator | Registered argument generator for \'${annotation.simpleName}\' from method ${method.asCallable().getFullName()}")
+                    println(
+                        "CommandAnnotation-Generator | Registered argument generator for \'${annotation.simpleName}\' from method ${
+                            method.asCallable().getFullName()
+                        }"
+                    )
                 }
             }
     }
@@ -76,7 +87,11 @@ object CommandGeneratorCore {
             .forEach {
                 registerCommandGenerator(it.asSingletonCallable())
                 val annotation = it.getAnnotation(CommandGenerator::class.java)!!
-                println("CommandAnnotation-Generator | Registered command generator for \'${annotation.commandAnnotation.simpleName}\' from method (${it.asCallable().getFullName()})")
+                println(
+                    "CommandAnnotation-Generator | Registered command generator for \'${annotation.commandAnnotation.simpleName}\' from method (${
+                        it.asCallable().getFullName()
+                    })"
+                )
             }
     }
 
@@ -85,11 +100,19 @@ object CommandGeneratorCore {
             .filter(MethodFilter.INSTANCE_NOT_REQUIRED)
             .forEach { method ->
                 if (method.parameterCount != 1 || method.parameterTypes[0] != String::class.java) {
-                    throw IllegalStateException("Cannot register argument remapper method ${method.asCallable().getFullName()} : Parameter count is not 1; Remapper method must have only one String parameter to remap")
+                    throw IllegalStateException(
+                        "Cannot register argument remapper method ${
+                            method.asCallable().getFullName()
+                        } : Parameter count is not 1; Remapper method must have only one String parameter to remap"
+                    )
                 }
                 val callable = method.asSingletonCallable()
                 method.getAnnotation(ArgumentRemapper::class.java).value.forEach { target ->
-                    println("CommandAnnotation-Generator | Registered argument remapper for \'${target}\' from method (${method.asCallable().getFullName()})")
+                    println(
+                        "CommandAnnotation-Generator | Registered argument remapper for \'${target}\' from method (${
+                            method.asCallable().getFullName()
+                        })"
+                    )
                     registerArgumentRemapper<Any>(target, ArgumentRemapperWrapper {
                         callable.invoke(listOf(it))
                     })
@@ -164,7 +187,9 @@ object CommandGeneratorCore {
         }
         val invoker = method.asAutoMatchingFunction()
         registerArgumentGenerator(type.kotlin, ArgumentGeneratorWrapper {
-            return@ArgumentGeneratorWrapper invoker.execute(this.add(it)) as Arguments?
+            return@ArgumentGeneratorWrapper invoker.execute(
+                ArgumentStorage().addProxy(this).add(it).add(this)
+            ) as Arguments?
                 ?: throw IllegalStateException("Cannot generate Arguments instance ${it.javaClass.name} : Return value is null from method ${method.getFullName()}")
         })
     }
